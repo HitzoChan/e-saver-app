@@ -1,15 +1,46 @@
+
 {
   "version": 2,
   "builds": [
     {
-      "src": "build/web/**",
-      "use": "@vercel/static"
+      "src": "lib/main.dart",
+      "use": "@vercel/flutter"
     }
   ],
   "routes": [
     {
+      "src": "/api/(.*)",
+      "dest": "/api/$1"
+    },
+    {
       "src": "/(.*)",
-      "dest": "/index.html"
+      "dest": "/lib/main.dart"
+    }
+  ],
+  "functions": {
+    "api/send-notification.js": {
+      "runtime": "nodejs18.x"
+    },
+    "api/scheduled-notifications.js": {
+      "runtime": "nodejs18.x"
+    }
+  },
+  "crons": [
+    {
+      "path": "/api/scheduled-notifications?type=morning",
+      "schedule": "0 8 * * *"
+    },
+    {
+      "path": "/api/scheduled-notifications?type=afternoon",
+      "schedule": "0 14 * * *"
+    },
+    {
+      "path": "/api/scheduled-notifications?type=evening",
+      "schedule": "0 20 * * *"
+    },
+    {
+      "path": "/api/scheduled-notifications?type=weekly",
+      "schedule": "0 9 * * 1"
     }
   ]
 }
