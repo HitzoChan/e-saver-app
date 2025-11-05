@@ -23,14 +23,6 @@
       "schedule": "0 8 * * *"
     },
     {
-      "path": "/api/scheduled-notifications?type=afternoon",
-      "schedule": "0 14 * * *"
-    },
-    {
-      "path": "/api/scheduled-notifications?type=evening",
-      "schedule": "0 20 * * *"
-    },
-    {
       "path": "/api/scheduled-notifications?type=weekly",
       "schedule": "0 9 * * 1"
     }
