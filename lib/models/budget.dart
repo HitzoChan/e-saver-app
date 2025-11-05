@@ -123,11 +123,11 @@ class Budget {
 
   double get dailyBudget => remainingAmount / daysRemaining;
 
-  String get formattedGoal => '₱${monthlyGoal.toStringAsFixed(0)}';
+  String get formattedGoal => 'PHP ${monthlyGoal.toStringAsFixed(0)}';
 
-  String get formattedCurrent => '₱${currentUsage.toStringAsFixed(2)}';
+  String get formattedCurrent => 'PHP ${currentUsage.toStringAsFixed(2)}';
 
-  String get formattedRemaining => '₱${remainingAmount.toStringAsFixed(2)}';
+  String get formattedRemaining => 'PHP ${remainingAmount.toStringAsFixed(2)}';
 
   String get progressText => '${(progressPercentage * 100).toStringAsFixed(1)}%';
 
@@ -150,7 +150,7 @@ class Budget {
 
   @override
   String toString() {
-    return 'Budget(id: $id, goal: ₱${monthlyGoal.toStringAsFixed(0)}, current: ₱${currentUsage.toStringAsFixed(2)}, progress: ${(progressPercentage * 100).toStringAsFixed(1)}%)';
+    return 'Budget(id: $id, goal: PHP ${monthlyGoal.toStringAsFixed(0)}, current: PHP ${currentUsage.toStringAsFixed(2)}, progress: ${(progressPercentage * 100).toStringAsFixed(1)}%)';
   }
 
   @override

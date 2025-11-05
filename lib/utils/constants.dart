@@ -26,20 +26,20 @@ class AppConstants {
     {
       'name': 'Refrigerator',
       'category': 'Essentials',
-      'estimate': 'P245.60',
+      'estimate': 'PHP 245.60',
       'usage': '550 kWh',
     },
     {
       'name': 'Aircon',
       'category': 'Cooling Budget',
-      'estimate': 'PX8.XX',
+      'estimate': 'PHP 8.XX',
       'usage': '101.83 kW',
     },
     {
       'name': 'TV',
       'category': 'Cleaning Budget',
-      'estimate': 'P13.XX',
-      'usage': 'EUI 104 (G) P13.XX',
+      'estimate': 'PHP 13.XX',
+      'usage': 'EUI 104 (G) PHP 13.XX',
     },
   ];
   

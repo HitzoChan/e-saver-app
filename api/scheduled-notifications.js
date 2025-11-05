@@ -27,7 +27,7 @@ const SCHEDULED_MESSAGES = {
   },
   energy_tips: {
     heading: "💡 Energy Saving Tip",
-    message: "Did you know? Unplugging your charger when not in use can save up to ₱50/month!",
+    message: "Did you know? Unplugging your charger when not in use can save up to PHP 50/month!",
     segment: "energy_tips"
   }
 };

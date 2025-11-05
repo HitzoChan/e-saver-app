@@ -172,7 +172,7 @@ class _BudgetSettingScreenState extends State<BudgetSettingScreen> {
                       Consumer<SettingsProvider>(
                         builder: (context, settingsProvider, child) {
                           return Text(
-                            settingsProvider.getLocalizedText('Monthly Budget (₱)'),
+                            settingsProvider.getLocalizedText('Monthly Budget (PHP)'),
                             style: GoogleFonts.poppins(
                               color: Colors.white,
                               fontSize: 16,

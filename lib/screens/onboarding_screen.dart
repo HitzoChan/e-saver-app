@@ -127,7 +127,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                           builder: (context, dashboardProvider, child) {
                             final estimate = dashboardProvider.totalMonthlyCost;
                             return Text(
-                              '₱${estimate.toStringAsFixed(2)}',
+                              'PHP ${estimate.toStringAsFixed(2)}',
                               style: GoogleFonts.poppins(
                                 fontSize: 32,
                                 fontWeight: FontWeight.bold,

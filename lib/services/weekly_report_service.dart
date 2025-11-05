@@ -102,19 +102,19 @@ class WeeklyReportService {
   }) {
     final buffer = StringBuffer();
 
-    buffer.write('₱${totalCost.toStringAsFixed(2)} spent on ${totalKwh.toStringAsFixed(1)} kWh');
+    buffer.write('PHP ${totalCost.toStringAsFixed(2)} spent on ${totalKwh.toStringAsFixed(1)} kWh');
 
     if (daysTracked > 0) {
       buffer.write(' over $daysTracked days.');
-      buffer.write(' Avg: ₱${avgDailyCost.toStringAsFixed(2)}/day');
+      buffer.write(' Avg: PHP ${avgDailyCost.toStringAsFixed(2)}/day');
     }
 
     if (monthlyBudget != null) {
       final weeklyBudget = monthlyBudget / 4.33; // Approximate weeks per month
       if (totalCost > weeklyBudget) {
-        buffer.write(' (Over budget by ₱${(totalCost - weeklyBudget).toStringAsFixed(2)})');
+        buffer.write(' (Over budget by PHP ${(totalCost - weeklyBudget).toStringAsFixed(2)})');
       } else {
-        buffer.write(' (₱${(weeklyBudget - totalCost).toStringAsFixed(2)} under budget)');
+        buffer.write(' (PHP ${(weeklyBudget - totalCost).toStringAsFixed(2)} under budget)');
       }
     }
 

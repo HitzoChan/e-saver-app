@@ -237,7 +237,7 @@ class _ElectricityRateScreenState extends State<ElectricityRateScreen> {
 
                     // Title
                     Text(
-                      'Electricity Rate (₱/kWh)',
+                      'Electricity Rate (PHP/kWh)',
                       style: GoogleFonts.poppins(
                         color: Colors.white,
                         fontSize: 20,
@@ -337,7 +337,7 @@ class _ElectricityRateScreenState extends State<ElectricityRateScreen> {
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 24.0),
                         child: Text(
-                          'Current: ₱${_currentRate!.ratePerKwh.toStringAsFixed(2)} (${_currentRate!.ageDescription})',
+                          'Current: PHP ${_currentRate!.ratePerKwh.toStringAsFixed(2)} (${_currentRate!.ageDescription})',
                           style: GoogleFonts.poppins(
                             color: Colors.white70,
                             fontSize: 12,

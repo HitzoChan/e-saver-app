@@ -118,9 +118,9 @@ class _StatsScreenState extends State<StatsScreen> {
     final percentChange = ((currentWeekCost - lastWeekCost) / lastWeekCost) * 100;
 
     if (percentChange > 15) {
-      _insightMessage = '⚠️ Your energy cost increased by ${percentChange.toStringAsFixed(1)}% this week. Try reducing usage by 1 hour/day to save ₱${(currentWeekCost * 0.1).toStringAsFixed(2)} next month.';
+      _insightMessage = '⚠️ Your energy cost increased by ${percentChange.toStringAsFixed(1)}% this week. Try reducing usage by 1 hour/day to save PHP ${(currentWeekCost * 0.1).toStringAsFixed(2)} next month.';
     } else if (percentChange < -10) {
-      _insightMessage = '🎉 Excellent! You saved ₱${(lastWeekCost - currentWeekCost).toStringAsFixed(2)} compared to last week. Keep up the great work!';
+      _insightMessage = '🎉 Excellent! You saved PHP ${(lastWeekCost - currentWeekCost).toStringAsFixed(2)} compared to last week. Keep up the great work!';
     } else {
       _insightMessage = '✅ Your energy usage is stable. Consider small adjustments like unplugging unused devices to save more.';
     }
@@ -277,8 +277,8 @@ class _StatsScreenState extends State<StatsScreen> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               _buildSummaryItem('${_totalMonthlyKwh.toStringAsFixed(1)} kWh', 'Total Usage'),
-              _buildSummaryItem('₱${_totalMonthlyCost.toStringAsFixed(0)}', 'Total Cost'),
-              _buildSummaryItem('₱${_avgDailyCost.toStringAsFixed(2)}', 'Avg/Day'),
+              _buildSummaryItem('PHP ${_totalMonthlyCost.toStringAsFixed(0)}', 'Total Cost'),
+              _buildSummaryItem('PHP ${_avgDailyCost.toStringAsFixed(2)}', 'Avg/Day'),
             ],
           ),
         ],
@@ -372,7 +372,7 @@ class _StatsScreenState extends State<StatsScreen> {
                 majorGridLines: const MajorGridLines(width: 0),
               ),
               primaryYAxis: NumericAxis(
-                labelFormat: '₱{value}',
+                labelFormat: 'PHP {value}',
                 majorGridLines: const MajorGridLines(width: 0.5),
               ),
               series: <CartesianSeries<ChartData, String>>[
@@ -427,7 +427,7 @@ class _StatsScreenState extends State<StatsScreen> {
                 majorGridLines: const MajorGridLines(width: 0),
               ),
               primaryYAxis: NumericAxis(
-                labelFormat: '₱{value}',
+                labelFormat: 'PHP {value}',
                 majorGridLines: const MajorGridLines(width: 0.5),
               ),
               series: <CartesianSeries<ChartData, String>>[

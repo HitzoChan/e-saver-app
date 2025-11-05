@@ -45,7 +45,7 @@ class FacebookMonitoringService {
     final rateKeywords = [
       'rate', 'rates', 'electricity rate', 'power rate',
       'samelco rate', 'rate update', 'new rate', 'rate change',
-      '₱', 'peso', 'centavo', 'per kwh', '/kWh'
+      'PHP', 'peso', 'centavo', 'per kwh', '/kWh'
     ];
 
     final lowerMessage = message.toLowerCase();
@@ -59,7 +59,7 @@ class FacebookMonitoringService {
       await _notificationService.showRateUpdateNotification(
         title: '⚡ SAMELCO Rate Update',
         body: extractedRate != null
-            ? 'New electricity rate detected: ₱${extractedRate.toStringAsFixed(2)}/kWh'
+            ? 'New electricity rate detected: PHP ${extractedRate.toStringAsFixed(2)}/kWh'
             : 'SAMELCO has posted about electricity rates. Tap to view details.',
         postUrl: permalinkUrl ?? 'https://www.facebook.com/samelco/posts/$postId',
         updateId: postId,
@@ -68,12 +68,12 @@ class FacebookMonitoringService {
   }
 
   double? _extractRateFromMessage(String message) {
-    // Simple regex to extract rate patterns like "₱12.50/kWh" or "12.50 per kWh"
+    // Simple regex to extract rate patterns like "PHP 12.50/kWh" or "12.50 per kWh"
     final ratePatterns = [
-      RegExp(r'₱(\d+\.?\d*)/kWh', caseSensitive: false),
-      RegExp(r'₱(\d+\.?\d*)\s*per\s*kWh', caseSensitive: false),
+      RegExp(r'PHP(\d+\.?\d*)/kWh', caseSensitive: false),
+      RegExp(r'PHP(\d+\.?\d*)\s*per\s*kWh', caseSensitive: false),
       RegExp(r'(\d+\.?\d*)\s*peso.*kWh', caseSensitive: false),
-      RegExp(r'rate.*₱(\d+\.?\d*)', caseSensitive: false),
+      RegExp(r'rate.*PHP(\d+\.?\d*)', caseSensitive: false),
     ];
 
     for (final pattern in ratePatterns) {

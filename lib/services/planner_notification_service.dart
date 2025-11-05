@@ -109,7 +109,7 @@ class PlannerNotificationService {
       final percentage = (usagePercentage * 100).round();
       await sendConsumptionAlert(
         title: '⚠️ Budget Alert',
-        body: 'You\'ve used $percentage% of your monthly electricity budget. Current: ₱${currentUsage.toStringAsFixed(2)}',
+        body: 'You\'ve used $percentage% of your monthly electricity budget. Current: PHP ${currentUsage.toStringAsFixed(2)}',
       );
     }
   }
@@ -126,7 +126,7 @@ class PlannerNotificationService {
 
     await sendPlannerTip(
       title: '📊 Weekly Usage Summary',
-      body: '₱${weeklyUsage.toStringAsFixed(2)} used this week ($daysTracked days) - $status by ₱${difference.toStringAsFixed(2)}',
+      body: 'PHP ${weeklyUsage.toStringAsFixed(2)} used this week ($daysTracked days) - $status by PHP ${difference.toStringAsFixed(2)}',
     );
   }
 }

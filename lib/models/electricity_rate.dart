@@ -110,12 +110,12 @@ class ElectricityRate {
       id.isNotEmpty &&
       provider.isNotEmpty &&
       ratePerKwh > 0 &&
-      ratePerKwh <= 100 && // Reasonable upper limit for ₱/kWh
+      ratePerKwh <= 100 && // Reasonable upper limit for PHP/kWh
       userId.isNotEmpty;
 
   @override
   String toString() {
-    return 'ElectricityRate(provider: $provider, rate: ₱${ratePerKwh.toStringAsFixed(2)}/kWh, source: ${source.displayName})';
+    return 'ElectricityRate(provider: $provider, rate: PHP ${ratePerKwh.toStringAsFixed(2)}/kWh, source: ${source.displayName})';
   }
 
   @override

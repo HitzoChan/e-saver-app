@@ -14,7 +14,7 @@ A beautiful and modern Flutter application for tracking and managing energy cons
 
 2. **Onboarding/Welcome Screen**
    - Introduction to the app
-   - Current month estimate display (₱1245.60)
+   - Current month estimate display (PHP 1245.60)
    - Track usage toggle
    - Get started button
 

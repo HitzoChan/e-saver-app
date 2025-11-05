@@ -287,9 +287,17 @@ class _TrackSaveScreenState extends State<TrackSaveScreen> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  _buildSummaryItem('${_totalMonthlyKwh.toStringAsFixed(1)} kWh', settings.getLocalizedText('Total Usage'), isDark),
-                  _buildSummaryItem('${settings.currencySymbol}${_totalMonthlyCost.toStringAsFixed(0)}', settings.getLocalizedText('Total Cost'), isDark),
-                  _buildSummaryItem('${settings.currencySymbol}${_avgDailyCost.toStringAsFixed(2)}', settings.getLocalizedText('Avg/Day'), isDark),
+                  Flexible(
+                    child: _buildSummaryItem('${_totalMonthlyKwh.toStringAsFixed(1)} kWh', settings.getLocalizedText('Total Usage'), isDark),
+                  ),
+                  const SizedBox(width: 8),
+                  Flexible(
+                    child: _buildSummaryItem('${settings.currencySymbol}${_totalMonthlyCost.toStringAsFixed(0)}', settings.getLocalizedText('Total Cost'), isDark),
+                  ),
+                  const SizedBox(width: 8),
+                  Flexible(
+                    child: _buildSummaryItem('${settings.currencySymbol}${_avgDailyCost.toStringAsFixed(2)}', 'Avg/Day', isDark),
+                  ),
                 ],
               ),
             ],
@@ -383,28 +391,31 @@ class _TrackSaveScreenState extends State<TrackSaveScreen> {
             ),
           ),
           const SizedBox(height: 16),
-          SizedBox(
-            height: 200,
-            child: SfCartesianChart(
-              primaryXAxis: CategoryAxis(
-                labelStyle: const TextStyle(fontSize: 12),
-                majorGridLines: const MajorGridLines(width: 0),
-              ),
-              primaryYAxis: NumericAxis(
-                labelFormat: '₱{value}',
-                majorGridLines: const MajorGridLines(width: 0.5),
-              ),
-              series: <CartesianSeries<ChartData, String>>[
-                BarSeries<ChartData, String>(
-                  dataSource: topAppliances.map((e) => ChartData(e.key, e.value)).toList(),
-                  xValueMapper: (ChartData data, _) => data.x,
-                  yValueMapper: (ChartData data, _) => data.y,
-                  color: const Color(0xFF42A5F5),
-                  borderRadius: BorderRadius.circular(4),
-                  width: 0.6,
+          Consumer<SettingsProvider>(
+            builder: (context, settings, child) => SizedBox(
+              height: 200,
+              child: SfCartesianChart(
+                key: ValueKey(settings.currency),
+                primaryXAxis: CategoryAxis(
+                  labelStyle: const TextStyle(fontSize: 12),
+                  majorGridLines: const MajorGridLines(width: 0),
                 ),
-              ],
-              tooltipBehavior: TooltipBehavior(enable: true),
+                primaryYAxis: NumericAxis(
+                  labelFormat: '${settings.currencySymbol} {value}',
+                  majorGridLines: const MajorGridLines(width: 0.5),
+                ),
+                series: <CartesianSeries<ChartData, String>>[
+                  BarSeries<ChartData, String>(
+                    dataSource: topAppliances.map((e) => ChartData(e.key, e.value)).toList(),
+                    xValueMapper: (ChartData data, _) => data.x,
+                    yValueMapper: (ChartData data, _) => data.y,
+                    color: const Color(0xFF42A5F5),
+                    borderRadius: BorderRadius.circular(4),
+                    width: 0.6,
+                  ),
+                ],
+                tooltipBehavior: TooltipBehavior(enable: true),
+              ),
             ),
           ),
         ],
@@ -442,28 +453,31 @@ class _TrackSaveScreenState extends State<TrackSaveScreen> {
             ),
           ),
           const SizedBox(height: 16),
-          SizedBox(
-            height: 200,
-            child: SfCartesianChart(
-              primaryXAxis: CategoryAxis(
-                labelStyle: const TextStyle(fontSize: 12),
-                majorGridLines: const MajorGridLines(width: 0),
-              ),
-              primaryYAxis: NumericAxis(
-                labelFormat: '₱{value}',
-                majorGridLines: const MajorGridLines(width: 0.5),
-              ),
-              series: <CartesianSeries<ChartData, String>>[
-                LineSeries<ChartData, String>(
-                  dataSource: _weeklyTrendData,
-                  xValueMapper: (ChartData data, _) => data.x,
-                  yValueMapper: (ChartData data, _) => data.y,
-                  color: const Color(0xFF10B981),
-                  width: 3,
-                  markerSettings: const MarkerSettings(isVisible: true),
+          Consumer<SettingsProvider>(
+            builder: (context, settings, child) => SizedBox(
+              height: 200,
+              child: SfCartesianChart(
+                key: ValueKey(settings.currency),
+                primaryXAxis: CategoryAxis(
+                  labelStyle: const TextStyle(fontSize: 12),
+                  majorGridLines: const MajorGridLines(width: 0),
                 ),
-              ],
-              tooltipBehavior: TooltipBehavior(enable: true),
+                primaryYAxis: NumericAxis(
+                  labelFormat: '${settings.currencySymbol} {value}',
+                  majorGridLines: const MajorGridLines(width: 0.5),
+                ),
+                series: <CartesianSeries<ChartData, String>>[
+                  LineSeries<ChartData, String>(
+                    dataSource: _weeklyTrendData,
+                    xValueMapper: (ChartData data, _) => data.x,
+                    yValueMapper: (ChartData data, _) => data.y,
+                    color: const Color(0xFF10B981),
+                    width: 3,
+                    markerSettings: const MarkerSettings(isVisible: true),
+                  ),
+                ],
+                tooltipBehavior: TooltipBehavior(enable: true),
+              ),
             ),
           ),
         ],

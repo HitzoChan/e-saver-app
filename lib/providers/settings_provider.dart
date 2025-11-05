@@ -23,11 +23,11 @@ class SettingsProvider extends ChangeNotifier {
   String get currencySymbol {
     switch (_currency) {
       case 'PHP':
-        return '₱';
+        return 'PHP';
       case 'USD':
         return '\$';
       default:
-        return '₱';
+        return 'PHP';
     }
   }
 
@@ -244,7 +244,7 @@ class SettingsProvider extends ChangeNotifier {
         'Household Average': 'Average\nsa Bahay',
         'No appliances added yet.\nTap the + button to add your first appliance!': 'Wala pang appliance na naidagdag.\nPindutin ang + button para magdagdag ng unang appliance!',
         'Set Monthly Budget': 'Itakda ang Buwanang Budget',
-        'Monthly Budget (₱)': 'Buwanang Budget (₱)',
+        'Monthly Budget (PHP)': 'Buwanang Budget (PHP)',
         'Set your target monthly electricity expense': 'Itakda ang iyong target na buwanang gastos sa kuryente',
         'Alert Settings': 'Mga Setting sa Alerto',
         'Enable Budget Alerts': 'Paganahin ang mga Alerto sa Budget',

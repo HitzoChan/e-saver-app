@@ -101,7 +101,7 @@ class UsageRecord {
 
   bool get hasNotes => notes != null && notes!.isNotEmpty;
 
-  String get formattedCost => '₱${cost.toStringAsFixed(2)}';
+  String get formattedCost => 'PHP ${cost.toStringAsFixed(2)}';
 
   String get formattedHours => '${hoursUsed.toStringAsFixed(1)}h';
 
@@ -113,7 +113,7 @@ class UsageRecord {
 
   @override
   String toString() {
-    return 'UsageRecord(id: $id, applianceId: $applianceId, date: $date, hours: $hoursUsed, cost: ₱${cost.toStringAsFixed(2)})';
+    return 'UsageRecord(id: $id, applianceId: $applianceId, date: $date, hours: $hoursUsed, cost: PHP ${cost.toStringAsFixed(2)})';
   }
 
   @override

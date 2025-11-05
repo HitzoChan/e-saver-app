@@ -96,7 +96,7 @@ function analyzePost(post) {
   const rateKeywords = [
     'rate', 'rates', 'electricity rate', 'power rate',
     'samelco rate', 'rate update', 'new rate', 'rate change',
-    '₱', 'peso', 'centavo', 'per kwh', '/kWh', 'kwh'
+    'PHP', 'peso', 'centavo', 'per kwh', '/kWh', 'kwh'
   ];
 
   const lowerMessage = message.toLowerCase();
@@ -125,10 +125,10 @@ function analyzePost(post) {
 function extractRateFromMessage(message) {
   // Simple regex to extract rate patterns
   const ratePatterns = [
-    /₱(\d+\.?\d*)\/kWh/i,
-    /₱(\d+\.?\d*)\s*per\s*kWh/i,
+    /PHP(\d+\.?\d*)\/kWh/i,
+    /PHP(\d+\.?\d*)\s*per\s*kWh/i,
     /(\d+\.?\d*)\s*peso.*kWh/i,
-    /rate.*₱(\d+\.?\d*)/i,
+    /rate.*PHP(\d+\.?\d*)/i,
     /(\d+\.?\d*)\s*per\s*kilowatt/i,
     /(\d+\.?\d*)\s*\/kWh/i
   ];
@@ -226,7 +226,7 @@ export default async function handler(req, res) {
           headings: { en: '⚡ SAMELCO Rate Update' },
           contents: {
             en: analysis.extractedRate
-              ? `New electricity rate detected: ₱${analysis.extractedRate.toFixed(2)}/kWh. Tap to view details.`
+              ? `New electricity rate detected: PHP ${analysis.extractedRate.toFixed(2)}/kWh. Tap to view details.`
               : 'SAMELCO has posted about electricity rates. Tap to view details.'
           },
           included_segments: ['general'],
