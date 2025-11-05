@@ -305,120 +305,68 @@ class _DashboardScreenState extends State<DashboardScreen> {
                               height: context.isMobile ? context.responsiveSize(140) : context.responsiveSize(180),
                             ),
 
-                            // Stats Row with three cards
+                            // Stats Row with three cards - Responsive Wrap
                             Container(
                               padding: context.responsivePadding(horizontal: 20.0, vertical: 16.0),
-                              child: context.isMobile
-                                  ? Column(
-                                      children: [
-                                        Row(
-                                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                                          children: [
-                                            Expanded(
-                                              child: Consumer<SettingsProvider>(
-                                                builder: (context, settings, child) {
-                                                  return _buildStatCard(
-                                                    '${dashboardProvider.averageDailyUsage.toStringAsFixed(1)} kW',
-                                                    settings.getLocalizedText('Daily Usage'),
-                                                  );
-                                                },
-                                              ),
-                                            ),
-                                            SizedBox(width: context.responsiveSize(16)),
-                                            Expanded(
-                                              child: Consumer<SettingsProvider>(
-                                                builder: (context, settings, child) {
-                                                  return _buildStatCard(
-                                                    '${settings.currencySymbol}${dashboardProvider.totalMonthlyCost.toStringAsFixed(0)}',
-                                                    settings.getLocalizedText('Monthly Cost'),
-                                                  );
-                                                },
-                                              ),
-                                            ),
-                                          ],
+                              child: Wrap(
+                                spacing: context.responsiveSize(16),
+                                runSpacing: context.responsiveSize(16),
+                                alignment: WrapAlignment.center,
+                                children: [
+                                  Consumer<SettingsProvider>(
+                                    builder: (context, settings, child) {
+                                      return SizedBox(
+                                        width: context.isMobile ? (MediaQuery.of(context).size.width - context.responsiveSize(40) - context.responsiveSize(16)) / 2 : (MediaQuery.of(context).size.width - context.responsiveSize(40) - 2 * context.responsiveSize(16)) / 3,
+                                        child: _buildStatCard(
+                                          '${dashboardProvider.averageDailyUsage.toStringAsFixed(1)} kW',
+                                          settings.getLocalizedText('Daily Usage'),
                                         ),
-                                        SizedBox(height: context.responsiveSize(16)),
-                                        Consumer<SettingsProvider>(
-                                          builder: (context, settings, child) {
-                                            return GestureDetector(
-                                              onTap: () {
-                                                Navigator.push(
-                                                  context,
-                                                  MaterialPageRoute(
-                                                    builder: (context) => const ElectricityRateScreen(),
-                                                  ),
-                                                ).then((_) {
-                                                  // Refresh dashboard data when returning from rate screen
-                                                  dashboardProvider.loadDashboardData();
-                                                });
-                                              },
-                                              child: _buildStatCard(
-                                                dashboardProvider.currentRate != null
-                                                    ? '${settings.currencySymbol}${dashboardProvider.currentRate!.ratePerKwh.toStringAsFixed(2)}/kWh'
-                                                    : settings.getLocalizedText('Set Rate'),
-                                                settings.getLocalizedText('Electricity Rate'),
-                                              ),
-                                            );
-                                          },
+                                      );
+                                    },
+                                  ),
+                                  Consumer<SettingsProvider>(
+                                    builder: (context, settings, child) {
+                                      return SizedBox(
+                                        width: context.isMobile ? (MediaQuery.of(context).size.width - context.responsiveSize(40) - context.responsiveSize(16)) / 2 : (MediaQuery.of(context).size.width - context.responsiveSize(40) - 2 * context.responsiveSize(16)) / 3,
+                                        child: _buildStatCard(
+                                          '${settings.currencySymbol}${dashboardProvider.totalMonthlyCost.toStringAsFixed(0)}',
+                                          settings.getLocalizedText('Monthly Cost'),
                                         ),
-                                      ],
-                                    )
-                                  : Row(
-                                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                                      children: [
-                                        Expanded(
-                                          child: Consumer<SettingsProvider>(
-                                            builder: (context, settings, child) {
-                                              return _buildStatCard(
-                                                '${dashboardProvider.averageDailyUsage.toStringAsFixed(1)} kW',
-                                                settings.getLocalizedText('Daily Usage'),
-                                              );
-                                            },
+                                      );
+                                    },
+                                  ),
+                                  Consumer<SettingsProvider>(
+                                    builder: (context, settings, child) {
+                                      return GestureDetector(
+                                        onTap: () {
+                                          Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                              builder: (context) => const ElectricityRateScreen(),
+                                            ),
+                                          ).then((_) {
+                                            // Refresh dashboard data when returning from rate screen
+                                            dashboardProvider.loadDashboardData();
+                                          });
+                                        },
+                                        child: SizedBox(
+                                          width: context.isMobile ? MediaQuery.of(context).size.width - context.responsiveSize(40) : (MediaQuery.of(context).size.width - context.responsiveSize(40) - 2 * context.responsiveSize(16)) / 3,
+                                          child: _buildStatCard(
+                                            dashboardProvider.currentRate != null
+                                                ? '${settings.currencySymbol}${dashboardProvider.currentRate!.ratePerKwh.toStringAsFixed(2)}/kWh'
+                                                : settings.getLocalizedText('Set Rate'),
+                                            settings.getLocalizedText('Electricity Rate'),
                                           ),
                                         ),
-                                        SizedBox(width: context.responsiveSize(16)),
-                                        Expanded(
-                                          child: Consumer<SettingsProvider>(
-                                            builder: (context, settings, child) {
-                                              return _buildStatCard(
-                                                '${settings.currencySymbol}${dashboardProvider.totalMonthlyCost.toStringAsFixed(0)}',
-                                                settings.getLocalizedText('Monthly Cost'),
-                                              );
-                                            },
-                                          ),
-                                        ),
-                                        SizedBox(width: context.responsiveSize(16)),
-                                        Expanded(
-                                          child: GestureDetector(
-                                            onTap: () {
-                                              Navigator.push(
-                                                context,
-                                                MaterialPageRoute(
-                                                  builder: (context) => const ElectricityRateScreen(),
-                                                ),
-                                              ).then((_) {
-                                                // Refresh dashboard data when returning from rate screen
-                                                dashboardProvider.loadDashboardData();
-                                              });
-                                            },
-                                            child: Consumer<SettingsProvider>(
-                                              builder: (context, settings, child) {
-                                                return _buildStatCard(
-                                                  dashboardProvider.currentRate != null
-                                                      ? '${settings.currencySymbol}${dashboardProvider.currentRate!.ratePerKwh.toStringAsFixed(2)}/kWh'
-                                                      : settings.getLocalizedText('Set Rate'),
-                                                  settings.getLocalizedText('Electricity Rate'),
-                                                );
-                                              },
-                                            ),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
+                                      );
+                                    },
+                                  ),
+                                ],
+                              ),
                             ),
 
-                            // Add some bottom padding to ensure content doesn't get cut off
-                            SizedBox(height: context.responsiveSize(20)),
+                            // Add extra bottom padding on mobile to prevent overlap with bottom elements
+                            SizedBox(height: context.isMobile ? context.responsiveSize(40) : context.responsiveSize(20)),
                           ],
                         ),
                       ),
@@ -491,6 +439,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   Widget _buildDrawer(BuildContext context, SettingsProvider settings) {
     return Drawer(
+      width: context.isMobile ? MediaQuery.of(context).size.width * 0.8 : context.responsiveSize(320),
       child: Container(
         decoration: BoxDecoration(
           gradient: Theme.of(context).brightness == Brightness.dark
@@ -510,17 +459,17 @@ class _DashboardScreenState extends State<DashboardScreen> {
             children: [
               // Drawer Header
               Container(
-                padding: const EdgeInsets.all(24.0),
+                padding: context.responsivePadding(horizontal: 24.0, vertical: 32.0),
                 child: Column(
                   children: [
                     Container(
-                      width: 80,
-                      height: 80,
+                      width: context.responsiveSize(80),
+                      height: context.responsiveSize(80),
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
                         border: Border.all(
                           color: Colors.white,
-                          width: 3,
+                          width: context.responsiveSize(3),
                         ),
                         image: DecorationImage(
                           image: _userProfile?.photoUrl != null
@@ -530,22 +479,24 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         ),
                       ),
                     ),
-                    const SizedBox(height: 16),
+                    SizedBox(height: context.responsiveSize(16)),
                     Text(
                       _isLoadingProfile ? settings.getLocalizedText('Loading...') : (_userProfile?.name ?? settings.getLocalizedText('User')),
                       style: GoogleFonts.poppins(
                         color: Colors.white,
-                        fontSize: 20,
+                        fontSize: context.responsiveFontSize(20),
                         fontWeight: FontWeight.bold,
                       ),
+                      textAlign: TextAlign.center,
                     ),
-                    const SizedBox(height: 4),
+                    SizedBox(height: context.responsiveSize(4)),
                     Text(
                       settings.getLocalizedText('Energy Saver'),
                       style: GoogleFonts.poppins(
                         color: Colors.white70,
-                        fontSize: 14,
+                        fontSize: context.responsiveFontSize(14),
                       ),
+                      textAlign: TextAlign.center,
                     ),
                   ],
                 ),
@@ -554,149 +505,164 @@ class _DashboardScreenState extends State<DashboardScreen> {
               // Menu Items
               Expanded(
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                  child: Column(
-                    children: [
-                      Consumer<SettingsProvider>(
-                        builder: (context, settings, child) {
-                          return _buildDrawerItem(
-                            icon: Icons.home,
-                            title: settings.getLocalizedText('Dashboard'),
-                            onTap: () {
-                              Navigator.pop(context); // Close drawer
-                            },
-                          );
-                        },
-                      ),
-                      Consumer<SettingsProvider>(
-                        builder: (context, settings, child) {
-                          return _buildDrawerItem(
-                            icon: Icons.bar_chart,
-                            title: settings.getLocalizedText('Statistics'),
-                            onTap: () {
-                              Navigator.pop(context);
-                              // Navigate to stats screen (TrackSaveScreen)
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => const TrackSaveScreen(),
-                                ),
-                              );
-                            },
-                          );
-                        },
-                      ),
-                      Consumer<SettingsProvider>(
-                        builder: (context, settings, child) {
-                          return _buildDrawerItem(
-                            icon: Icons.add_circle,
-                            title: settings.getLocalizedText('Add Appliance'),
-                            onTap: () {
-                              Navigator.pop(context);
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => const AddApplianceScreen(),
-                                ),
-                              );
-                            },
-                          );
-                        },
-                      ),
-                      Consumer<SettingsProvider>(
-                        builder: (context, settings, child) {
-                          return _buildDrawerItem(
-                            icon: Icons.calendar_today,
-                            title: settings.getLocalizedText('Planner'),
-                            onTap: () {
-                              Navigator.pop(context);
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => const PlannerScreen(),
-                                ),
-                              );
-                            },
-                          );
-                        },
-                      ),
-                      Consumer<SettingsProvider>(
-                        builder: (context, settings, child) {
-                          return _buildDrawerItem(
-                            icon: Icons.person,
-                            title: settings.getLocalizedText('Profile'),
-                            onTap: () {
-                              Navigator.pop(context);
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => const ProfileScreen(),
-                                ),
-                              );
-                            },
-                          );
-                        },
-                      ),
-                      const Divider(color: Colors.white30, height: 32),
-                      Consumer<SettingsProvider>(
-                        builder: (context, settings, child) {
-                          return _buildDrawerItem(
-                            icon: Icons.settings,
-                            title: settings.getLocalizedText('Settings'),
-                            onTap: () {
-                              Navigator.pop(context);
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => const SettingsScreen(),
-                                ),
-                              );
-                            },
-                          );
-                        },
-                      ),
-                      Consumer<SettingsProvider>(
-                        builder: (context, settings, child) {
-                          return _buildDrawerItem(
-                            icon: Icons.help,
-                            title: settings.getLocalizedText('Help & Support'),
-                            onTap: () {
-                              Navigator.pop(context);
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => const HelpSupportScreen(),
-                                ),
-                              );
-                            },
-                          );
-                        },
-                      ),
-                      Consumer<SettingsProvider>(
-                        builder: (context, settings, child) {
-                          return _buildDrawerItem(
-                            icon: Icons.info,
-                            title: settings.getLocalizedText('About'),
-                            onTap: () {
-                              Navigator.pop(context);
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => const AboutScreen(),
-                                ),
-                              );
-                            },
-                          );
-                        },
-                      ),
-                    ],
+                  padding: context.responsivePadding(horizontal: 16.0),
+                  child: SingleChildScrollView(
+                    physics: const AlwaysScrollableScrollPhysics(),
+                    child: Column(
+                      children: [
+                        Consumer<SettingsProvider>(
+                          builder: (context, settings, child) {
+                            return _buildDrawerItem(
+                              context: context,
+                              icon: Icons.home,
+                              title: settings.getLocalizedText('Dashboard'),
+                              onTap: () {
+                                Navigator.pop(context); // Close drawer
+                              },
+                            );
+                          },
+                        ),
+                        Consumer<SettingsProvider>(
+                          builder: (context, settings, child) {
+                            return _buildDrawerItem(
+                              context: context,
+                              icon: Icons.bar_chart,
+                              title: settings.getLocalizedText('Statistics'),
+                              onTap: () {
+                                Navigator.pop(context);
+                                // Navigate to stats screen (TrackSaveScreen)
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => const TrackSaveScreen(),
+                                  ),
+                                );
+                              },
+                            );
+                          },
+                        ),
+                        Consumer<SettingsProvider>(
+                          builder: (context, settings, child) {
+                            return _buildDrawerItem(
+                              context: context,
+                              icon: Icons.add_circle,
+                              title: settings.getLocalizedText('Add Appliance'),
+                              onTap: () {
+                                Navigator.pop(context);
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => const AddApplianceScreen(),
+                                  ),
+                                );
+                              },
+                            );
+                          },
+                        ),
+                        Consumer<SettingsProvider>(
+                          builder: (context, settings, child) {
+                            return _buildDrawerItem(
+                              context: context,
+                              icon: Icons.calendar_today,
+                              title: settings.getLocalizedText('Planner'),
+                              onTap: () {
+                                Navigator.pop(context);
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => const PlannerScreen(),
+                                  ),
+                                );
+                              },
+                            );
+                          },
+                        ),
+                        Consumer<SettingsProvider>(
+                          builder: (context, settings, child) {
+                            return _buildDrawerItem(
+                              context: context,
+                              icon: Icons.person,
+                              title: settings.getLocalizedText('Profile'),
+                              onTap: () {
+                                Navigator.pop(context);
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => const ProfileScreen(),
+                                  ),
+                                );
+                              },
+                            );
+                          },
+                        ),
+                        Divider(
+                          color: Colors.white30,
+                          height: context.responsiveSize(32),
+                          thickness: context.responsiveSize(1),
+                        ),
+                        Consumer<SettingsProvider>(
+                          builder: (context, settings, child) {
+                            return _buildDrawerItem(
+                              context: context,
+                              icon: Icons.settings,
+                              title: settings.getLocalizedText('Settings'),
+                              onTap: () {
+                                Navigator.pop(context);
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => const SettingsScreen(),
+                                  ),
+                                );
+                              },
+                            );
+                          },
+                        ),
+                        Consumer<SettingsProvider>(
+                          builder: (context, settings, child) {
+                            return _buildDrawerItem(
+                              context: context,
+                              icon: Icons.help,
+                              title: settings.getLocalizedText('Help & Support'),
+                              onTap: () {
+                                Navigator.pop(context);
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => const HelpSupportScreen(),
+                                  ),
+                                );
+                              },
+                            );
+                          },
+                        ),
+                        Consumer<SettingsProvider>(
+                          builder: (context, settings, child) {
+                            return _buildDrawerItem(
+                              context: context,
+                              icon: Icons.info,
+                              title: settings.getLocalizedText('About'),
+                              onTap: () {
+                                Navigator.pop(context);
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => const AboutScreen(),
+                                  ),
+                                );
+                              },
+                            );
+                          },
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ),
 
               // Logout Button
               Container(
-                padding: const EdgeInsets.all(16.0),
+                padding: context.responsivePadding(horizontal: 16.0, vertical: 16.0),
                 child: ElevatedButton.icon(
                   onPressed: () async {
                     Navigator.pop(context); // Close drawer
@@ -707,20 +673,26 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       MaterialPageRoute(builder: (context) => LoginScreen()),
                     );
                   },
-                  icon: const Icon(Icons.logout, color: AppColors.primaryBlue),
+                  icon: Icon(
+                    Icons.logout,
+                    color: AppColors.primaryBlue,
+                    size: context.responsiveIconSize(24),
+                  ),
                   label: Text(
                     settings.getLocalizedText('Logout'),
                     style: GoogleFonts.poppins(
                       color: AppColors.primaryBlue,
                       fontWeight: FontWeight.w600,
+                      fontSize: context.responsiveFontSize(16),
                     ),
                   ),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.white,
-                    minimumSize: const Size(double.infinity, 48),
+                    minimumSize: Size(double.infinity, context.responsiveSize(48)),
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: BorderRadius.circular(context.responsiveBorderRadius(12)),
                     ),
+                    padding: context.responsivePadding(horizontal: 16.0, vertical: 12.0),
                   ),
                 ),
               ),
@@ -732,6 +704,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 
   Widget _buildDrawerItem({
+    required BuildContext context,
     required IconData icon,
     required String title,
     required VoidCallback onTap,
@@ -739,21 +712,21 @@ class _DashboardScreenState extends State<DashboardScreen> {
     return InkWell(
       onTap: onTap,
       child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 16.0),
+        padding: context.responsivePadding(vertical: 16.0, horizontal: 16.0),
         child: Row(
           children: [
             Icon(
               icon,
               color: Colors.white,
-              size: 24,
+              size: context.responsiveIconSize(24),
             ),
-            const SizedBox(width: 16),
+            SizedBox(width: context.responsiveSize(16)),
             Expanded(
               child: Text(
                 title,
                 style: GoogleFonts.poppins(
                   color: Colors.white,
-                  fontSize: 16,
+                  fontSize: context.responsiveFontSize(16),
                   fontWeight: FontWeight.w500,
                 ),
                 overflow: TextOverflow.ellipsis,

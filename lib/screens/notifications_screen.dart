@@ -28,185 +28,196 @@ class NotificationsScreen extends StatelessWidget {
               : AppColors.primaryGradient,
         ),
         child: SafeArea(
-          child: Column(
-            children: [
-              // App Bar
-              Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    IconButton(
-                      icon: const Icon(Icons.arrow_back, color: Colors.white),
-                      onPressed: () => Navigator.pop(context),
-                    ),
-                    Text(
-                      'Notifications',
-                      style: GoogleFonts.poppins(
-                        color: Colors.white,
-                        fontSize: 18,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                    PopupMenuButton<String>(
-                      icon: const Icon(Icons.more_vert, color: Colors.white),
-                      onSelected: (value) {
-                        switch (value) {
-                          case 'settings':
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => const SettingsScreen(),
-                              ),
-                            );
-                            break;
-                          case 'help':
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => const HelpSupportScreen(),
-                              ),
-                            );
-                            break;
-                          case 'about':
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => const AboutScreen(),
-                              ),
-                            );
-                            break;
-                        }
-                      },
-                      itemBuilder: (context) => [
-                        const PopupMenuItem(
-                          value: 'settings',
-                          child: Text('Settings'),
+          child: SingleChildScrollView(
+            physics: const AlwaysScrollableScrollPhysics(),
+            child: Padding(
+              padding: const EdgeInsets.only(bottom: 24.0),
+              child: Column(
+                children: [
+                  // App Bar
+                  Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        IconButton(
+                          icon: const Icon(Icons.arrow_back, color: Colors.white),
+                          onPressed: () => Navigator.pop(context),
                         ),
-                        const PopupMenuItem(
-                          value: 'help',
-                          child: Text('Help'),
+                        Text(
+                          'Notifications',
+                          style: GoogleFonts.poppins(
+                            color: Colors.white,
+                            fontSize: 18,
+                            fontWeight: FontWeight.w600,
+                          ),
                         ),
-                        const PopupMenuItem(
-                          value: 'about',
-                          child: Text('About'),
+                        PopupMenuButton<String>(
+                          icon: const Icon(Icons.more_vert, color: Colors.white),
+                          onSelected: (value) {
+                            switch (value) {
+                              case 'settings':
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => const SettingsScreen(),
+                                  ),
+                                );
+                                break;
+                              case 'help':
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => const HelpSupportScreen(),
+                                  ),
+                                );
+                                break;
+                              case 'about':
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => const AboutScreen(),
+                                  ),
+                                );
+                                break;
+                            }
+                          },
+                          itemBuilder: (context) => [
+                            const PopupMenuItem(
+                              value: 'settings',
+                              child: Text('Settings'),
+                            ),
+                            const PopupMenuItem(
+                              value: 'help',
+                              child: Text('Help'),
+                            ),
+                            const PopupMenuItem(
+                              value: 'about',
+                              child: Text('About'),
+                            ),
+                          ],
                         ),
                       ],
                     ),
-                  ],
-                ),
-              ),
+                  ),
 
-              const SizedBox(height: 20),
+                  const SizedBox(height: 20),
 
-              // Notifications Header
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 24.0),
-                child: Align(
-                  alignment: Alignment.centerLeft,
-                  child: Text(
-                    'Recent Notifications',
-                    style: GoogleFonts.poppins(
-                      color: Colors.white,
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
+                  // Notifications Header
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                    child: Align(
+                      alignment: Alignment.centerLeft,
+                      child: Text(
+                        'Recent Notifications',
+                        style: GoogleFonts.poppins(
+                          color: Colors.white,
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
                     ),
                   ),
-                ),
-              ),
 
-              const SizedBox(height: 20),
+                  const SizedBox(height: 20),
 
-              // Notifications List
-              Expanded(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 24.0),
-                  child: Consumer<DashboardProvider>(
-                    builder: (context, dashboardProvider, child) {
-                      final notifications = dashboardProvider.recentNotifications;
-                      if (notifications.isEmpty) {
-                        return Center(
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
+                  // Notifications List
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                    child: Consumer<DashboardProvider>(
+                      builder: (context, dashboardProvider, child) {
+                        final notifications = dashboardProvider.recentNotifications;
+                        if (notifications.isEmpty) {
+                          return Column(
                             children: [
-                              Icon(
-                                Icons.notifications_none,
-                                size: 64,
-                                color: Colors.white.withValues(alpha: 0.5),
-                              ),
-                              const SizedBox(height: 16),
-                              Text(
-                                'No notifications yet',
-                                style: GoogleFonts.poppins(
-                                  color: Colors.white.withValues(alpha: 0.7),
-                                  fontSize: 16,
+                              SizedBox(
+                                height: MediaQuery.of(context).size.height * 0.4,
+                                child: Center(
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Icon(
+                                        Icons.notifications_none,
+                                        size: 64,
+                                        color: Colors.white.withValues(alpha: 0.5),
+                                      ),
+                                      const SizedBox(height: 16),
+                                      Text(
+                                        'No notifications yet',
+                                        style: GoogleFonts.poppins(
+                                          color: Colors.white.withValues(alpha: 0.7),
+                                          fontSize: 16,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
                                 ),
                               ),
+                              const SizedBox(height: 40),
                             ],
-                          ),
-                        );
-                      }
+                          );
+                        }
 
-                      return ListView.builder(
-                        itemCount: notifications.length,
-                        itemBuilder: (context, index) {
-                          final notification = notifications[index];
-                          return Padding(
-                            padding: const EdgeInsets.only(bottom: 16.0),
-                            child: _buildNotificationCard(
-                              icon: notification['icon'] as IconData,
-                              title: notification['title'] as String,
-                              subtitle: notification['body'] as String,
-                              time: notification['time'] as String,
-                              color: notification['color'] as Color,
-                              isRead: notification['isRead'] as bool,
-                              onTap: () {
-                                dashboardProvider.markNotificationAsRead(notification['id'] as String);
-                              },
-                            ),
+                        return Column(
+                          children: [
+                            ...notifications.map((notification) {
+                              return Padding(
+                                padding: const EdgeInsets.only(bottom: 16.0),
+                                child: _buildNotificationCard(
+                                  icon: notification['icon'] as IconData,
+                                  title: notification['title'] as String,
+                                  subtitle: notification['body'] as String,
+                                  time: notification['time'] as String,
+                                  color: notification['color'] as Color,
+                                  isRead: notification['isRead'] as bool,
+                                  onTap: () {
+                                    dashboardProvider.markNotificationAsRead(notification['id'] as String);
+                                  },
+                                ),
+                              );
+                            }),
+                            const SizedBox(height: 40),
+                          ],
+                        );
+                      },
+                    ),
+                  ),
+
+                  // Clear All Button
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                    child: SizedBox(
+                      width: double.infinity,
+                      child: OutlinedButton(
+                        onPressed: () {
+                          // Clear all notifications functionality
+                          final dashboardProvider = Provider.of<DashboardProvider>(context, listen: false);
+                          dashboardProvider.clearAllNotifications();
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text('All notifications cleared')),
                           );
                         },
-                      );
-                    },
-                  ),
-                ),
-              ),
-
-              const SizedBox(height: 20),
-
-              // Clear All Button
-              Padding(
-                padding: const EdgeInsets.all(24.0),
-                child: SizedBox(
-                  width: double.infinity,
-                  child: OutlinedButton(
-                    onPressed: () {
-                      // Clear all notifications functionality
-                      final dashboardProvider = Provider.of<DashboardProvider>(context, listen: false);
-                      dashboardProvider.clearAllNotifications();
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('All notifications cleared')),
-                      );
-                    },
-                    style: OutlinedButton.styleFrom(
-                      side: const BorderSide(color: Colors.white, width: 1),
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(16),
-                      ),
-                    ),
-                    child: Text(
-                      'Clear All',
-                      style: GoogleFonts.poppins(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.white,
+                        style: OutlinedButton.styleFrom(
+                          side: const BorderSide(color: Colors.white, width: 1),
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                        ),
+                        child: Text(
+                          'Clear All',
+                          style: GoogleFonts.poppins(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.white,
+                          ),
+                        ),
                       ),
                     ),
                   ),
-                ),
+                ],
               ),
-            ],
+            ),
           ),
         ),
       ),
