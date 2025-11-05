@@ -5,7 +5,7 @@ import '../models/notification.dart';
 import '../services/appliance_service.dart';
 import '../services/electricity_rate_service.dart';
 import '../services/notification_storage_service.dart';
-import '../services/onesignal_service.dart';
+
 import 'dart:developer' as developer;
 
 class DashboardProvider with ChangeNotifier {

@@ -199,6 +199,7 @@ class _TrackSaveScreenState extends State<TrackSaveScreen> {
                   // Summary Card
                   _buildSummaryCard(),
 
+
                   const SizedBox(height: 24),
 
                   // Appliance Breakdown Chart
@@ -484,6 +485,8 @@ class _TrackSaveScreenState extends State<TrackSaveScreen> {
       ),
     );
   }
+
+
 
   Widget _buildInsightCard() {
     final isDark = Theme.of(context).brightness == Brightness.dark;
