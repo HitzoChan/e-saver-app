@@ -337,22 +337,23 @@ class _PlannerScreenState extends State<PlannerScreen> {
                                   // Show top 5 appliances or all if less than 5
                                   final displayAppliances = sortedAppliances.take(5).toList();
 
-                                  return ListView.builder(
-                                    itemCount: displayAppliances.length,
-                                    itemBuilder: (context, index) {
-                                      final appliance = displayAppliances[index];
-                                      final monthlyCost = appliance.calculateMonthlyCost(rate.ratePerKwh, appliance.hoursPerDay);
-                                      final categoryText = _getCategoryDisplayText(appliance.category, settingsProvider.language);
+                                  return SingleChildScrollView(
+                                    physics: const AlwaysScrollableScrollPhysics(),
+                                    child: Column(
+                                      children: displayAppliances.map((appliance) {
+                                        final monthlyCost = appliance.calculateMonthlyCost(rate.ratePerKwh, appliance.hoursPerDay);
+                                        final categoryText = _getCategoryDisplayText(appliance.category, settingsProvider.language);
 
-                                      return Padding(
-                                        padding: const EdgeInsets.only(bottom: 12),
-                                        child: _buildBudgetItem(
-                                          appliance.name,
-                                          categoryText,
-                                          '${settingsProvider.currencySymbol}${monthlyCost.toStringAsFixed(2)}',
-                                        ),
-                                      );
-                                    },
+                                        return Padding(
+                                          padding: const EdgeInsets.only(bottom: 12),
+                                          child: _buildBudgetItem(
+                                            appliance.name,
+                                            categoryText,
+                                            '${settingsProvider.currencySymbol}${monthlyCost.toStringAsFixed(2)}',
+                                          ),
+                                        );
+                                      }).toList(),
+                                    ),
                                   );
                                 },
                               ),

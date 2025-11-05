@@ -367,6 +367,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       child: LayoutBuilder(
                         builder: (context, constraints) {
                           return SingleChildScrollView(
+                            physics: const AlwaysScrollableScrollPhysics(),
                             padding: EdgeInsets.fromLTRB(
                               24,
                               24,

@@ -201,22 +201,27 @@ class _AddApplianceScreenState extends State<AddApplianceScreen> {
                         Consumer<ApplianceProvider>(
                           builder: (context, applianceProvider, child) {
                             final settingsProvider = Provider.of<SettingsProvider>(context, listen: false);
-                            return Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceAround,
-                              children: [
-                                _buildStatCard(
-                                  applianceProvider.connectionCount.toString(),
-                                  settingsProvider.getLocalizedText('Connections'),
-                                ),
-                                _buildStatCard(
-                                  '${settingsProvider.currencySymbol}${applianceProvider.averageMonthlyBill.toStringAsFixed(0)}',
-                                  settingsProvider.getLocalizedText('Avg Bill Monthly'),
-                                ),
-                                _buildStatCard(
-                                  '${applianceProvider.householdAverageUsage.toStringAsFixed(1)} kW',
-                                  settingsProvider.getLocalizedText('Household Average'),
-                                ),
-                              ],
+                            return SingleChildScrollView(
+                              scrollDirection: Axis.horizontal,
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.start,
+                                children: [
+                                  _buildStatCard(
+                                    applianceProvider.connectionCount.toString(),
+                                    settingsProvider.getLocalizedText('Connections'),
+                                  ),
+                                  const SizedBox(width: 16),
+                                  _buildStatCard(
+                                    '${settingsProvider.currencySymbol}${applianceProvider.averageMonthlyBill.toStringAsFixed(0)}',
+                                    settingsProvider.getLocalizedText('Avg Bill Monthly'),
+                                  ),
+                                  const SizedBox(width: 16),
+                                  _buildStatCard(
+                                    '${applianceProvider.householdAverageUsage.toStringAsFixed(1)} kW',
+                                    settingsProvider.getLocalizedText('Household Average'),
+                                  ),
+                                ],
+                              ),
                             );
                           },
                         ),

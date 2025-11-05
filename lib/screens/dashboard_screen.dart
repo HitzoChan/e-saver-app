@@ -147,17 +147,20 @@ class _DashboardScreenState extends State<DashboardScreen> {
                             icon: const Icon(Icons.menu, color: Colors.white),
                             onPressed: () => _openDrawer(context),
                           ),
-                          Consumer<SettingsProvider>(
-                            builder: (context, settings, child) {
-                              return Text(
-                                settings.getLocalizedText('E-Saver Dashboard'),
-                                style: GoogleFonts.poppins(
-                                  color: Colors.white,
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              );
-                            },
+                          Expanded(
+                            child: Consumer<SettingsProvider>(
+                              builder: (context, settings, child) {
+                                return Text(
+                                  settings.getLocalizedText('E-Saver Dashboard'),
+                                  style: GoogleFonts.poppins(
+                                    color: Colors.white,
+                                    fontSize: context.responsiveFontSize(18),
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                  textAlign: TextAlign.center,
+                                );
+                              },
+                            ),
                           ),
                           Consumer<DashboardProvider>(
                             builder: (context, dashboardProvider, child) {
@@ -247,6 +250,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     // Scrollable Content
                     Expanded(
                       child: SingleChildScrollView(
+                        physics: const AlwaysScrollableScrollPhysics(),
                         child: Column(
                           children: [
                             // Logo and Title - Reduced space
