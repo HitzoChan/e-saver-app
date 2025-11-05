@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:http/http.dart' as http;
 import 'package:provider/provider.dart';
 import '../utils/app_colors.dart';
 import '../providers/auth_provider.dart';
@@ -122,10 +123,33 @@ class _ElectricityRateScreenState extends State<ElectricityRateScreen> {
   }
 
   Future<void> _checkForUpdates() async {
-    // TODO: Implement Facebook Graph API integration
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Facebook integration coming soon')),
-    );
+    // Capture messenger before async gap
+    final messenger = ScaffoldMessenger.of(context);
+
+    // Trigger Facebook rate monitoring
+    try {
+      final response = await http.get(
+        Uri.parse('https://your-app.vercel.app/api/facebook-rate-monitor'),
+      );
+
+      if (!mounted) return;
+
+      if (response.statusCode == 200) {
+        messenger.showSnackBar(
+          const SnackBar(content: Text('Checking for rate updates...')),
+        );
+      } else {
+        messenger.showSnackBar(
+          const SnackBar(content: Text('Failed to check for updates')),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        messenger.showSnackBar(
+          SnackBar(content: Text('Error: $e')),
+        );
+      }
+    }
   }
 
   @override

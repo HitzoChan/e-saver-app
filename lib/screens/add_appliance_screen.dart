@@ -307,8 +307,10 @@ class _AddApplianceScreenState extends State<AddApplianceScreen> {
                               ),
                             );
                             // Refresh the list when returning from add form
-                            if (result == true && mounted) {
-                              context.read<ApplianceProvider>().refresh();
+                            if (result == true) {
+                              if (mounted) {
+                                context.read<ApplianceProvider>().refresh();
+                              }
                             }
                           },
                           child: Container(
@@ -413,23 +415,21 @@ class _AddApplianceScreenState extends State<AddApplianceScreen> {
         );
       },
       onDismissed: (direction) async {
+        // Capture messenger and provider before async gap
+        final messenger = ScaffoldMessenger.of(context);
+        final provider = context.read<ApplianceProvider>();
+
         try {
-          await context.read<ApplianceProvider>().deleteAppliance(appliance.id);
-          if (mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text('$name deleted successfully')),
-            );
-          }
+          await provider.deleteAppliance(appliance.id);
+          messenger.showSnackBar(
+            SnackBar(content: Text('$name deleted successfully')),
+          );
         } catch (e) {
-          if (mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text('Error deleting appliance: $e')),
-            );
-          }
+          messenger.showSnackBar(
+            SnackBar(content: Text('Error deleting appliance: $e')),
+          );
           // Reload the list to restore the item if deletion failed
-          if (mounted) {
-            context.read<ApplianceProvider>().refresh();
-          }
+          provider.refresh();
         }
       },
       child: GestureDetector(

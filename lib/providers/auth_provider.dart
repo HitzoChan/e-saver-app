@@ -117,6 +117,7 @@ class AuthProvider with ChangeNotifier {
       notifyListeners();
     } catch (e) {
       debugPrint('Sign out error: $e');
+      rethrow;
     }
   }
 }

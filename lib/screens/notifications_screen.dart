@@ -1,13 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:url_launcher/url_launcher.dart';
 import '../utils/app_colors.dart';
 import 'settings_screen.dart';
 import 'help_support_screen.dart';
 import 'about_screen.dart';
 
-class EnergyTipsScreen extends StatelessWidget {
-  const EnergyTipsScreen({super.key});
+class NotificationsScreen extends StatelessWidget {
+  const NotificationsScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -40,7 +39,7 @@ class EnergyTipsScreen extends StatelessWidget {
                       onPressed: () => Navigator.pop(context),
                     ),
                     Text(
-                      'Energy Saving Tips',
+                      'Notifications',
                       style: GoogleFonts.poppins(
                         color: Colors.white,
                         fontSize: 18,
@@ -95,16 +94,16 @@ class EnergyTipsScreen extends StatelessWidget {
                   ],
                 ),
               ),
-              
+
               const SizedBox(height: 20),
-              
-              // Tips & Notifications Header
+
+              // Notifications Header
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 24.0),
                 child: Align(
                   alignment: Alignment.centerLeft,
                   child: Text(
-                    'Tips & Notifications',
+                    'Recent Notifications',
                     style: GoogleFonts.poppins(
                       color: Colors.white,
                       fontSize: 16,
@@ -113,76 +112,78 @@ class EnergyTipsScreen extends StatelessWidget {
                   ),
                 ),
               ),
-              
+
               const SizedBox(height: 20),
-              
-              // Tips List
+
+              // Notifications List
               Expanded(
                 child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 24.0),
                   child: ListView(
                     children: [
-                      _buildTipCard(
-                        icon: Icons.power_settings_new,
-                        title: 'Unplug idle devices',
-                        subtitle: 'Save Power',
-                        color: AppColors.primaryBlue,
-                      ),
-                      const SizedBox(height: 16),
-                      _buildTipCard(
-                        icon: Icons.wb_sunny,
-                        title: 'Use natural light',
-                        subtitle: 'Save Power',
-                        color: AppColors.primaryBlue,
-                      ),
-                      const SizedBox(height: 16),
-                      _buildTipCard(
+                      _buildNotificationCard(
                         icon: Icons.notifications_active,
-                        title: 'SAME/C rice update!',
-                        subtitle: 'View changes',
+                        title: 'Electricity Rate Update',
+                        subtitle: 'New rate available for Meralco',
+                        time: '2 hours ago',
                         color: AppColors.accentGreen,
+                      ),
+                      const SizedBox(height: 16),
+                      _buildNotificationCard(
+                        icon: Icons.lightbulb,
+                        title: 'Energy Saving Tip',
+                        subtitle: 'Unplug idle devices to save power',
+                        time: '1 day ago',
+                        color: AppColors.primaryBlue,
+                      ),
+                      const SizedBox(height: 16),
+                      _buildNotificationCard(
+                        icon: Icons.warning,
+                        title: 'Budget Alert',
+                        subtitle: 'You\'ve exceeded 80% of your monthly budget',
+                        time: '3 days ago',
+                        color: Colors.orange,
+                      ),
+                      const SizedBox(height: 16),
+                      _buildNotificationCard(
+                        icon: Icons.calendar_today,
+                        title: 'Weekly Report',
+                        subtitle: 'Your energy usage report is ready',
+                        time: '1 week ago',
+                        color: AppColors.primaryBlue,
                       ),
                     ],
                   ),
                 ),
               ),
-              
+
               const SizedBox(height: 20),
-              
-              // View on Facebook Button
+
+              // Clear All Button
               Padding(
                 padding: const EdgeInsets.all(24.0),
                 child: SizedBox(
                   width: double.infinity,
-                  child: ElevatedButton(
-                    onPressed: () async {
-                      // Capture messenger before async gap
-                      final messenger = ScaffoldMessenger.of(context);
-
-                      // Open Facebook page
-                      const url = 'https://www.facebook.com/HotChocolates';
-                      try {
-                        await launchUrl(Uri.parse(url));
-                      } catch (e) {
-                        messenger.showSnackBar(
-                          const SnackBar(content: Text('Could not open Facebook page')),
-                        );
-                      }
+                  child: OutlinedButton(
+                    onPressed: () {
+                      // Clear all notifications functionality
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('Notifications cleared')),
+                      );
                     },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.white,
+                    style: OutlinedButton.styleFrom(
+                      side: const BorderSide(color: Colors.white, width: 1),
                       padding: const EdgeInsets.symmetric(vertical: 16),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(16),
                       ),
-                      elevation: 0,
                     ),
                     child: Text(
-                      'View on Facebook',
+                      'Clear All',
                       style: GoogleFonts.poppins(
                         fontSize: 16,
                         fontWeight: FontWeight.w600,
-                        color: AppColors.primaryBlue,
+                        color: Colors.white,
                       ),
                     ),
                   ),
@@ -194,11 +195,12 @@ class EnergyTipsScreen extends StatelessWidget {
       ),
     );
   }
-  
-  Widget _buildTipCard({
+
+  Widget _buildNotificationCard({
     required IconData icon,
     required String title,
     required String subtitle,
+    required String time,
     required Color color,
   }) {
     return Container(
@@ -222,7 +224,7 @@ class EnergyTipsScreen extends StatelessWidget {
             ),
             child: Icon(
               icon,
-              color: Colors.white,
+              color: color,
               size: 28,
             ),
           ),
@@ -245,6 +247,14 @@ class EnergyTipsScreen extends StatelessWidget {
                   style: GoogleFonts.poppins(
                     fontSize: 12,
                     color: Colors.white70,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  time,
+                  style: GoogleFonts.poppins(
+                    fontSize: 10,
+                    color: Colors.white60,
                   ),
                 ),
               ],

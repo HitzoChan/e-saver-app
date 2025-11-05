@@ -1,3 +1,4 @@
+import 'dart:developer' as developer;
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'notification_service.dart';
 
@@ -85,7 +86,9 @@ class WeeklyReportService {
       );
 
     } catch (e) {
-      print('Error generating weekly report: $e');
+      // Log error in development, handle gracefully in production
+      // TODO: Replace with proper logging framework
+      developer.log('Error generating weekly report: $e', name: 'WeeklyReportService');
     }
   }
 

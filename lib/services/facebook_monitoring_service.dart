@@ -1,11 +1,12 @@
 import 'dart:convert';
+import 'dart:developer' as developer;
 import 'package:http/http.dart' as http;
 import 'notification_service.dart';
 
 class FacebookMonitoringService {
-  static const String _samElcoPageId = 'samElcoPage'; // Replace with actual SAMELCO page ID
+  static const String _samElcoPageId = '117290636838993'; // Updated with your Facebook page ID for "𝐻𝑜𝓉-𝒞𝒽𝑜𝒸𝑜𝓁𝒶𝓉𝑒"
   static const String _facebookGraphApiUrl = 'https://graph.facebook.com/v18.0';
-  static const String _accessToken = 'YOUR_FACEBOOK_ACCESS_TOKEN'; // Replace with actual token
+  static const String _accessToken = 'EAATR4ZBcmDZBUBPz8rwAK2SVJYCAlJ5EfBZCZCX6KxIUG99CUndmrATywgogHbF3QHphUZAzb31MhdvwyzDJfjZAepI3s9YpD2IJzIIDW8KQ8yN4ZCvd2bWfrHmpqJM7yzfOVsG6tpldvmsCZA4vZCZBOwZCvj940IwUlB2uGttHZAD6410u5j76CExt9jdGvhLFh6GVDY5ZBrePQmo5ZCQjkp1L0oXnUfZC1m3FsOeysmf3TBQLBXnezQsJxYldqoqLOQx0eCTqcseokWrIQP1SpdrzcGM6sJM'; // Updated with provided access token
 
   final NotificationService _notificationService = NotificationService();
 
@@ -30,7 +31,8 @@ class FacebookMonitoringService {
         }
       }
     } catch (e) {
-      print('Error checking Facebook posts: $e');
+      // Log error in development, handle gracefully in production
+      developer.log('Error checking Facebook posts: $e', name: 'FacebookMonitoringService');
     }
   }
 
@@ -38,7 +40,6 @@ class FacebookMonitoringService {
     final message = post['message'] as String? ?? '';
     final postId = post['id'] as String;
     final permalinkUrl = post['permalink_url'] as String?;
-    final createdTime = post['created_time'] as String;
 
     // Check if post contains rate-related keywords
     final rateKeywords = [
@@ -91,6 +92,7 @@ class FacebookMonitoringService {
   Future<void> startMonitoring() async {
     // Check for updates every 30 minutes
     // In a real app, this would be handled by a background service/worker
+    // Note: This infinite loop is for demonstration; in production, use proper scheduling
     while (true) {
       await checkForRateUpdates();
       await Future.delayed(const Duration(minutes: 30));

@@ -17,6 +17,7 @@ import '../screens/settings_screen.dart';
 import '../screens/login_screen.dart';
 import '../screens/about_screen.dart';
 import '../screens/help_support_screen.dart';
+import '../screens/notifications_screen.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -159,9 +160,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         IconButton(
                           icon: const Icon(Icons.notifications_outlined, color: Colors.white),
                           onPressed: () {
-                            // TODO: Open notifications screen
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(content: Text('Notifications coming soon!')),
+                            // Open notifications screen
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => const NotificationsScreen(),
+                              ),
                             );
                           },
                         ),

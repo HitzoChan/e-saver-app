@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../utils/app_colors.dart';
 import '../main.dart';
 import '../providers/dashboard_provider.dart';
@@ -25,6 +26,14 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     // Load dashboard data to get current estimate
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<DashboardProvider>().loadDashboardData();
+      _loadTrackUsagePreference();
+    });
+  }
+
+  Future<void> _loadTrackUsagePreference() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _trackUsageEnabled = prefs.getBool('track_usage_enabled') ?? true;
     });
   }
 
@@ -195,12 +204,16 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                     ),
                     Switch(
                       value: _trackUsageEnabled,
-                      onChanged: (value) {
+                      onChanged: (value) async {
                         setState(() {
                           _trackUsageEnabled = value;
                         });
-                        // TODO: Save track usage preference to shared preferences
-                        ScaffoldMessenger.of(context).showSnackBar(
+                        // Save track usage preference to shared preferences
+                        final prefs = await SharedPreferences.getInstance();
+                        await prefs.setBool('track_usage_enabled', value);
+                        // Capture messenger before async gap
+                        final messenger = ScaffoldMessenger.of(context);
+                        messenger.showSnackBar(
                           SnackBar(content: Text('Track usage ${value ? 'enabled' : 'disabled'}')),
                         );
                       },

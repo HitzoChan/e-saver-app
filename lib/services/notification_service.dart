@@ -15,17 +15,22 @@ class NotificationService {
   final FlutterLocalNotificationsPlugin _localNotifications = FlutterLocalNotificationsPlugin();
 
   Future<void> initialize() async {
-    // Initialize local notifications
-    const AndroidInitializationSettings androidSettings = AndroidInitializationSettings('@mipmap/ic_launcher');
-    const DarwinInitializationSettings iosSettings = DarwinInitializationSettings();
-    const InitializationSettings settings = InitializationSettings(
-      android: androidSettings,
-      iOS: iosSettings,
-    );
+    try {
+      // Initialize local notifications
+      const AndroidInitializationSettings androidSettings = AndroidInitializationSettings('@mipmap/ic_launcher');
+      const DarwinInitializationSettings iosSettings = DarwinInitializationSettings();
+      const InitializationSettings settings = InitializationSettings(
+        android: androidSettings,
+        iOS: iosSettings,
+      );
 
-    await _localNotifications.initialize(settings);
+      await _localNotifications.initialize(settings);
 
-    developer.log('Notification service initialized', name: 'NotificationService');
+      developer.log('Notification service initialized', name: 'NotificationService');
+    } catch (e) {
+      developer.log('Failed to initialize notification service: $e', name: 'NotificationService');
+      rethrow;
+    }
   }
 
   // static Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {

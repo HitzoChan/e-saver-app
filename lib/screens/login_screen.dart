@@ -344,8 +344,13 @@ class _LoginScreenState extends State<LoginScreen> {
                                 final email = emailController.text.trim();
                                 final password = passwordController.text;
 
+                                // Capture providers before async gap
+                                final auth = Provider.of<AuthProvider>(
+                                    scaffoldContext, listen: false);
+                                final messenger = ScaffoldMessenger.of(scaffoldContext);
+
                                 if (email.isEmpty || password.isEmpty) {
-                                  ScaffoldMessenger.of(scaffoldContext).showSnackBar(
+                                  messenger.showSnackBar(
                                     const SnackBar(
                                       content: Text('Please fill in all fields'),
                                     ),
@@ -355,34 +360,29 @@ class _LoginScreenState extends State<LoginScreen> {
 
                                 setState(() => isDialogLoading = true);
 
-                                final auth = Provider.of<AuthProvider>(
-                                    context, listen: false);
-
                                 final success = isSignIn
                                     ? await auth.signIn(email, password)
                                     : await auth.register(email, password);
 
                                 setState(() => isDialogLoading = false);
 
-                                if (mounted) {
-                                  if (success) {
-                                    Navigator.of(context).pop();
-                                    ScaffoldMessenger.of(scaffoldContext).showSnackBar(
-                                      SnackBar(
-                                        content: Text(isSignIn
-                                            ? 'Signed in successfully'
-                                            : 'Account created successfully'),
-                                      ),
-                                    );
-                                  } else {
-                                    ScaffoldMessenger.of(scaffoldContext).showSnackBar(
-                                      SnackBar(
-                                        content: Text(isSignIn
-                                            ? 'Sign in failed'
-                                            : 'Account creation failed'),
-                                      ),
-                                    );
-                                  }
+                                if (success) {
+                                  Navigator.of(scaffoldContext).pop();
+                                  messenger.showSnackBar(
+                                    SnackBar(
+                                      content: Text(isSignIn
+                                          ? 'Signed in successfully'
+                                          : 'Account created successfully'),
+                                    ),
+                                  );
+                                } else {
+                                  messenger.showSnackBar(
+                                    SnackBar(
+                                      content: Text(isSignIn
+                                          ? 'Sign in failed'
+                                          : 'Account creation failed'),
+                                    ),
+                                  );
                                 }
                               },
                         style: ElevatedButton.styleFrom(
