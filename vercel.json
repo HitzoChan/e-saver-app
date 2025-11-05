@@ -3,14 +3,18 @@
   "version": 2,
   "builds": [
     {
-      "src": "lib/main.dart",
-      "use": "@vercel/flutter"
+      "src": "web/index.html",
+      "use": "@vercel/static"
     }
   ],
   "routes": [
     {
+      "src": "/api/(.*)",
+      "dest": "/api/$1"
+    },
+    {
       "src": "/(.*)",
-      "dest": "/lib/main.dart"
+      "dest": "/index.html"
     }
   ],
   "crons": [
