@@ -9,22 +9,10 @@
   ],
   "routes": [
     {
-      "src": "/api/(.*)",
-      "dest": "/api/$1"
-    },
-    {
       "src": "/(.*)",
       "dest": "/lib/main.dart"
     }
   ],
-  "functions": {
-    "api/send-notification.js": {
-      "runtime": "nodejs18.x"
-    },
-    "api/scheduled-notifications.js": {
-      "runtime": "nodejs18.x"
-    }
-  },
   "crons": [
     {
       "path": "/api/scheduled-notifications?type=morning",
