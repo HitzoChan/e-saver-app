@@ -160,7 +160,7 @@ class EnergyTipsScreen extends StatelessWidget {
                       final messenger = ScaffoldMessenger.of(context);
 
                       // Open Facebook page
-                      const url = 'https://www.facebook.com/HotChocolates';
+                      const url = 'https://www.facebook.com/samelco';
                       try {
                         await launchUrl(Uri.parse(url));
                       } catch (e) {
