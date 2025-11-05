@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
 import '../utils/app_colors.dart';
+import '../providers/dashboard_provider.dart';
 import 'settings_screen.dart';
 import 'help_support_screen.dart';
 import 'about_screen.dart';
@@ -119,40 +121,53 @@ class NotificationsScreen extends StatelessWidget {
               Expanded(
                 child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 24.0),
-                  child: ListView(
-                    children: [
-                      _buildNotificationCard(
-                        icon: Icons.notifications_active,
-                        title: 'Electricity Rate Update',
-                        subtitle: 'New rate available for Meralco',
-                        time: '2 hours ago',
-                        color: AppColors.accentGreen,
-                      ),
-                      const SizedBox(height: 16),
-                      _buildNotificationCard(
-                        icon: Icons.lightbulb,
-                        title: 'Energy Saving Tip',
-                        subtitle: 'Unplug idle devices to save power',
-                        time: '1 day ago',
-                        color: AppColors.primaryBlue,
-                      ),
-                      const SizedBox(height: 16),
-                      _buildNotificationCard(
-                        icon: Icons.warning,
-                        title: 'Budget Alert',
-                        subtitle: 'You\'ve exceeded 80% of your monthly budget',
-                        time: '3 days ago',
-                        color: Colors.orange,
-                      ),
-                      const SizedBox(height: 16),
-                      _buildNotificationCard(
-                        icon: Icons.calendar_today,
-                        title: 'Weekly Report',
-                        subtitle: 'Your energy usage report is ready',
-                        time: '1 week ago',
-                        color: AppColors.primaryBlue,
-                      ),
-                    ],
+                  child: Consumer<DashboardProvider>(
+                    builder: (context, dashboardProvider, child) {
+                      final notifications = dashboardProvider.recentNotifications;
+                      if (notifications.isEmpty) {
+                        return Center(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(
+                                Icons.notifications_none,
+                                size: 64,
+                                color: Colors.white.withValues(alpha: 0.5),
+                              ),
+                              const SizedBox(height: 16),
+                              Text(
+                                'No notifications yet',
+                                style: GoogleFonts.poppins(
+                                  color: Colors.white.withValues(alpha: 0.7),
+                                  fontSize: 16,
+                                ),
+                              ),
+                            ],
+                          ),
+                        );
+                      }
+
+                      return ListView.builder(
+                        itemCount: notifications.length,
+                        itemBuilder: (context, index) {
+                          final notification = notifications[index];
+                          return Padding(
+                            padding: const EdgeInsets.only(bottom: 16.0),
+                            child: _buildNotificationCard(
+                              icon: notification['icon'] as IconData,
+                              title: notification['title'] as String,
+                              subtitle: notification['body'] as String,
+                              time: notification['time'] as String,
+                              color: notification['color'] as Color,
+                              isRead: notification['isRead'] as bool,
+                              onTap: () {
+                                dashboardProvider.markNotificationAsRead(notification['id'] as String);
+                              },
+                            ),
+                          );
+                        },
+                      );
+                    },
                   ),
                 ),
               ),
@@ -167,8 +182,10 @@ class NotificationsScreen extends StatelessWidget {
                   child: OutlinedButton(
                     onPressed: () {
                       // Clear all notifications functionality
+                      final dashboardProvider = Provider.of<DashboardProvider>(context, listen: false);
+                      dashboardProvider.clearAllNotifications();
                       ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Notifications cleared')),
+                        const SnackBar(content: Text('All notifications cleared')),
                       );
                     },
                     style: OutlinedButton.styleFrom(
@@ -202,70 +219,87 @@ class NotificationsScreen extends StatelessWidget {
     required String subtitle,
     required String time,
     required Color color,
+    bool isRead = false,
+    VoidCallback? onTap,
   }) {
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.15),
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(
-          color: Colors.white.withValues(alpha: 0.2),
-          width: 1,
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          color: isRead
+              ? Colors.white.withValues(alpha: 0.1)
+              : Colors.white.withValues(alpha: 0.15),
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(
+            color: Colors.white.withValues(alpha: 0.2),
+            width: 1,
+          ),
         ),
-      ),
-      child: Row(
-        children: [
-          Container(
-            width: 50,
-            height: 50,
-            decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.2),
-              borderRadius: BorderRadius.circular(12),
+        child: Row(
+          children: [
+            Container(
+              width: 50,
+              height: 50,
+              decoration: BoxDecoration(
+                color: Colors.white.withValues(alpha: 0.2),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Icon(
+                icon,
+                color: color,
+                size: 28,
+              ),
             ),
-            child: Icon(
-              icon,
-              color: color,
-              size: 28,
+            const SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: GoogleFonts.poppins(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.white,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    subtitle,
+                    style: GoogleFonts.poppins(
+                      fontSize: 12,
+                      color: Colors.white70,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    time,
+                    style: GoogleFonts.poppins(
+                      fontSize: 10,
+                      color: Colors.white60,
+                    ),
+                  ),
+                ],
+              ),
             ),
-          ),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title,
-                  style: GoogleFonts.poppins(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.white,
-                  ),
+            if (!isRead)
+              Container(
+                width: 8,
+                height: 8,
+                decoration: const BoxDecoration(
+                  color: Colors.red,
+                  shape: BoxShape.circle,
                 ),
-                const SizedBox(height: 4),
-                Text(
-                  subtitle,
-                  style: GoogleFonts.poppins(
-                    fontSize: 12,
-                    color: Colors.white70,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  time,
-                  style: GoogleFonts.poppins(
-                    fontSize: 10,
-                    color: Colors.white60,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          Icon(
-            Icons.arrow_forward_ios,
-            color: Colors.white.withValues(alpha: 0.5),
-            size: 16,
-          ),
-        ],
+              )
+            else
+              Icon(
+                Icons.arrow_forward_ios,
+                color: Colors.white.withValues(alpha: 0.5),
+                size: 16,
+              ),
+          ],
+        ),
       ),
     );
   }

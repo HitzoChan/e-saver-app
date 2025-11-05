@@ -1,6 +1,8 @@
 // import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../models/notification.dart';
+import 'notification_storage_service.dart';
 import 'dart:developer' as developer;
 import 'onesignal_service.dart';
 
@@ -91,56 +93,170 @@ class NotificationService {
     required String body,
     String? postUrl,
     String? updateId,
+    String? userId,
   }) async {
     await _showLocalNotification(
       title: title,
       body: body,
       payload: 'rate_update|$postUrl|$updateId',
     );
+
+    // Store notification in persistent storage
+    if (userId != null) {
+      final notification = NotificationModel(
+        id: DateTime.now().millisecondsSinceEpoch.toString(),
+        type: 'rate_update',
+        title: title,
+        body: body,
+        timestamp: DateTime.now(),
+        isRead: false,
+        data: {'postUrl': postUrl, 'updateId': updateId},
+        iconName: 'notifications_active',
+        colorHex: 'FF4CAF50',
+      );
+
+      await NotificationStorageService().storeNotification(userId, notification);
+    }
   }
 
   Future<void> showEnergyTipNotification({
     required String title,
     required String body,
+    String? userId,
   }) async {
     await _showLocalNotification(
       title: title,
       body: body,
       payload: 'energy_tip',
     );
+
+    // Store notification in persistent storage
+    if (userId != null) {
+      final notification = NotificationModel(
+        id: DateTime.now().millisecondsSinceEpoch.toString(),
+        type: 'energy_tip',
+        title: title,
+        body: body,
+        timestamp: DateTime.now(),
+        isRead: false,
+        iconName: 'lightbulb',
+        colorHex: 'FF2196F3',
+      );
+
+      await NotificationStorageService().storeNotification(userId, notification);
+    }
   }
 
   Future<void> showWeeklyReportNotification({
     required String title,
     required String body,
+    String? userId,
   }) async {
     await _showLocalNotification(
       title: title,
       body: body,
       payload: 'weekly_report',
     );
+
+    // Store notification in persistent storage
+    if (userId != null) {
+      final notification = NotificationModel(
+        id: DateTime.now().millisecondsSinceEpoch.toString(),
+        type: 'weekly_report',
+        title: title,
+        body: body,
+        timestamp: DateTime.now(),
+        isRead: false,
+        iconName: 'calendar_today',
+        colorHex: 'FF2196F3',
+      );
+
+      await NotificationStorageService().storeNotification(userId, notification);
+    }
   }
 
   Future<void> showPlannerTipNotification({
     required String title,
     required String body,
+    String? userId,
   }) async {
     await _showLocalNotification(
       title: title,
       body: body,
       payload: 'planner_tip',
     );
+
+    // Store notification in persistent storage
+    if (userId != null) {
+      final notification = NotificationModel(
+        id: DateTime.now().millisecondsSinceEpoch.toString(),
+        type: 'planner_tip',
+        title: title,
+        body: body,
+        timestamp: DateTime.now(),
+        isRead: false,
+        iconName: 'tips_and_updates',
+        colorHex: 'FF9C27B0',
+      );
+
+      await NotificationStorageService().storeNotification(userId, notification);
+    }
   }
 
   Future<void> showConsumptionAlertNotification({
     required String title,
     required String body,
+    String? userId,
   }) async {
     await _showLocalNotification(
       title: title,
       body: body,
       payload: 'consumption_alert',
     );
+
+    // Store notification in persistent storage
+    if (userId != null) {
+      final notification = NotificationModel(
+        id: DateTime.now().millisecondsSinceEpoch.toString(),
+        type: 'consumption_alert',
+        title: title,
+        body: body,
+        timestamp: DateTime.now(),
+        isRead: false,
+        iconName: 'trending_up',
+        colorHex: 'FFE91E63',
+      );
+
+      await NotificationStorageService().storeNotification(userId, notification);
+    }
+  }
+
+  Future<void> showBudgetAlertNotification({
+    required String title,
+    required String body,
+    String? userId,
+  }) async {
+    await _showLocalNotification(
+      title: title,
+      body: body,
+      payload: 'budget_alert',
+    );
+
+    // Store notification in persistent storage
+    if (userId != null) {
+      final notification = NotificationModel(
+        id: DateTime.now().millisecondsSinceEpoch.toString(),
+        type: 'budget_alert',
+        title: title,
+        body: body,
+        timestamp: DateTime.now(),
+        isRead: false,
+        iconName: 'warning',
+        colorHex: 'FFFF9800',
+      );
+
+      await NotificationStorageService().storeNotification(userId, notification);
+    }
   }
 
   Future<void> _showLocalNotification({

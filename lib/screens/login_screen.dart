@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import '../providers/auth_provider.dart';
 import '../utils/app_colors.dart';
+import '../utils/responsive_utils.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -33,7 +34,7 @@ class _LoginScreenState extends State<LoginScreen> {
         ),
         child: SafeArea(
           child: Padding(
-            padding: const EdgeInsets.all(24.0),
+            padding: context.responsivePadding(horizontal: 24.0, vertical: 24.0),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -41,41 +42,41 @@ class _LoginScreenState extends State<LoginScreen> {
                 Text(
                   'E-Saver',
                   style: GoogleFonts.poppins(
-                    fontSize: 48,
+                    fontSize: context.responsiveFontSize(48),
                     fontWeight: FontWeight.bold,
                     color: Colors.white,
                   ),
                 ),
-                const SizedBox(height: 8),
+                SizedBox(height: context.responsiveSize(8)),
                 Text(
                   'Track Your Energy Usage',
                   style: GoogleFonts.poppins(
-                    fontSize: 16,
+                    fontSize: context.responsiveFontSize(16),
                     color: Colors.white70,
                   ),
                 ),
-                const SizedBox(height: 80),
+                SizedBox(height: context.responsiveSize(80)),
 
                 // Google Sign-In Button
                 SizedBox(
                   width: double.infinity,
-                  height: 60,
+                  height: context.responsiveSize(60),
                   child: ElevatedButton.icon(
                     onPressed: _isLoading ? null : _signInWithGoogle,
                     icon: _isLoading
-                        ? const SizedBox(
-                            width: 24,
-                            height: 24,
-                            child: CircularProgressIndicator(
+                        ? SizedBox(
+                            width: context.responsiveSize(24),
+                            height: context.responsiveSize(24),
+                            child: const CircularProgressIndicator(
                               color: Colors.white,
                               strokeWidth: 2,
                             ),
                           )
-                        : const Icon(Icons.g_mobiledata, size: 24),
+                        : Icon(Icons.g_mobiledata, size: context.responsiveIconSize(24)),
                     label: Text(
                       _isLoading ? 'Signing in...' : 'Continue with Google',
                       style: GoogleFonts.poppins(
-                        fontSize: 16,
+                        fontSize: context.responsiveFontSize(16),
                         fontWeight: FontWeight.w600,
                         color: AppColors.primaryBlue,
                       ),
@@ -83,14 +84,14 @@ class _LoginScreenState extends State<LoginScreen> {
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.white,
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(16),
+                        borderRadius: BorderRadius.circular(context.responsiveBorderRadius(16)),
                       ),
                       elevation: 2,
                     ),
                   ),
                 ),
 
-                const SizedBox(height: 24),
+                SizedBox(height: context.responsiveSize(24)),
 
                 // Divider
                 Row(
@@ -102,12 +103,12 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                     ),
                     Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      padding: context.responsivePadding(horizontal: 16),
                       child: Text(
                         'or',
                         style: GoogleFonts.poppins(
                           color: Colors.white70,
-                          fontSize: 14,
+                          fontSize: context.responsiveFontSize(14),
                         ),
                       ),
                     ),
@@ -120,24 +121,24 @@ class _LoginScreenState extends State<LoginScreen> {
                   ],
                 ),
 
-                const SizedBox(height: 24),
+                SizedBox(height: context.responsiveSize(24)),
 
                 // Email/Password Sign In Button
                 SizedBox(
                   width: double.infinity,
-                  height: 60,
+                  height: context.responsiveSize(60),
                   child: OutlinedButton(
                     onPressed: _isLoading ? null : _showEmailSignIn,
                     style: OutlinedButton.styleFrom(
                       side: const BorderSide(color: Colors.white, width: 1.5),
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(16),
+                        borderRadius: BorderRadius.circular(context.responsiveBorderRadius(16)),
                       ),
                     ),
                     child: Text(
                       'Sign in with Email',
                       style: GoogleFonts.poppins(
-                        fontSize: 16,
+                        fontSize: context.responsiveFontSize(16),
                         fontWeight: FontWeight.w600,
                         color: Colors.white,
                       ),
@@ -145,14 +146,14 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                 ),
 
-                const SizedBox(height: 40),
+                SizedBox(height: context.responsiveSize(40)),
 
                 // Terms and Privacy
                 Text(
                   'By continuing, you agree to our Terms of Service and Privacy Policy',
                   textAlign: TextAlign.center,
                   style: GoogleFonts.poppins(
-                    fontSize: 12,
+                    fontSize: context.responsiveFontSize(12),
                     color: Colors.white70,
                   ),
                 ),

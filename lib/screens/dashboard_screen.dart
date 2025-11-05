@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import '../utils/app_colors.dart';
+import '../utils/responsive_utils.dart';
 import '../widgets/wave_graph.dart';
 import '../providers/dashboard_provider.dart';
 import '../providers/settings_provider.dart';
@@ -133,202 +134,293 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 );
               }
 
-              return Column(
-                children: [
-                  // App Bar
-                  Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        IconButton(
-                          icon: const Icon(Icons.menu, color: Colors.white),
-                          onPressed: () => _openDrawer(context),
-                        ),
-                        Consumer<SettingsProvider>(
-                          builder: (context, settings, child) {
-                            return Text(
-                              settings.getLocalizedText('E-Saver Dashboard'),
+              return SizedBox.expand(
+                child: Column(
+                  children: [
+                    // App Bar
+                    Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          IconButton(
+                            icon: const Icon(Icons.menu, color: Colors.white),
+                            onPressed: () => _openDrawer(context),
+                          ),
+                          Consumer<SettingsProvider>(
+                            builder: (context, settings, child) {
+                              return Text(
+                                settings.getLocalizedText('E-Saver Dashboard'),
+                                style: GoogleFonts.poppins(
+                                  color: Colors.white,
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              );
+                            },
+                          ),
+                          Consumer<DashboardProvider>(
+                            builder: (context, dashboardProvider, child) {
+                              return Stack(
+                                children: [
+                                  IconButton(
+                                    icon: const Icon(Icons.notifications_outlined, color: Colors.white),
+                                    onPressed: () {
+                                      // Open notifications screen
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) => const NotificationsScreen(),
+                                        ),
+                                      ).then((_) {
+                                        // Refresh notifications when returning from notifications screen
+                                        dashboardProvider.loadRecentNotifications();
+                                      });
+                                    },
+                                  ),
+                                  if (dashboardProvider.hasUnreadNotifications)
+                                    Positioned(
+                                      right: 8,
+                                      top: 8,
+                                      child: Container(
+                                        width: 8,
+                                        height: 8,
+                                        decoration: const BoxDecoration(
+                                          color: Colors.red,
+                                          shape: BoxShape.circle,
+                                        ),
+                                      ),
+                                    ),
+                                ],
+                              );
+                            },
+                          ),
+                          PopupMenuButton<String>(
+                            icon: const Icon(Icons.more_vert, color: Colors.white),
+                            onSelected: (value) {
+                              switch (value) {
+                                case 'settings':
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => const SettingsScreen(),
+                                    ),
+                                  );
+                                  break;
+                                case 'help':
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => const HelpSupportScreen(),
+                                    ),
+                                  );
+                                  break;
+                                case 'about':
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => const AboutScreen(),
+                                    ),
+                                  );
+                                  break;
+                              }
+                            },
+                            itemBuilder: (context) => [
+                              const PopupMenuItem(
+                                value: 'settings',
+                                child: Text('Settings'),
+                              ),
+                              const PopupMenuItem(
+                                value: 'help',
+                                child: Text('Help'),
+                              ),
+                              const PopupMenuItem(
+                                value: 'about',
+                                child: Text('About'),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+
+                    // Scrollable Content
+                    Expanded(
+                      child: SingleChildScrollView(
+                        child: Column(
+                          children: [
+                            // Logo and Title - Reduced space
+                            SizedBox(height: context.responsiveSize(10)),
+                            Container(
+                              width: context.responsiveSize(80),
+                              height: context.responsiveSize(80),
+                              decoration: BoxDecoration(
+                                color: Colors.white.withValues(alpha: 0.2),
+                                borderRadius: BorderRadius.circular(context.responsiveBorderRadius(20)),
+                              ),
+                              child: Icon(
+                                Icons.eco,
+                                size: context.responsiveIconSize(50),
+                                color: AppColors.accentGreen,
+                              ),
+                            ),
+                            SizedBox(height: context.responsiveSize(8)),
+                            Text(
+                              'E-Saver',
                               style: GoogleFonts.poppins(
                                 color: Colors.white,
-                                fontSize: 18,
-                                fontWeight: FontWeight.w600,
+                                fontSize: context.responsiveFontSize(32),
+                                fontWeight: FontWeight.bold,
                               ),
-                            );
-                          },
-                        ),
-                        IconButton(
-                          icon: const Icon(Icons.notifications_outlined, color: Colors.white),
-                          onPressed: () {
-                            // Open notifications screen
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => const NotificationsScreen(),
+                            ),
+
+                            SizedBox(height: context.responsiveSize(20)),
+
+                            // Appliance Count
+                            Padding(
+                              padding: context.responsivePadding(horizontal: 24.0),
+                              child: Align(
+                                alignment: Alignment.centerLeft,
+                                child: Text(
+                                  '${dashboardProvider.applianceCount} Appliances',
+                                  style: GoogleFonts.poppins(
+                                    color: Colors.white70,
+                                    fontSize: context.responsiveFontSize(14),
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
                               ),
-                            );
-                          },
-                        ),
-                        PopupMenuButton<String>(
-                          icon: const Icon(Icons.more_vert, color: Colors.white),
-                          onSelected: (value) {
-                            switch (value) {
-                              case 'settings':
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => const SettingsScreen(),
-                                  ),
-                                );
-                                break;
-                              case 'help':
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => const HelpSupportScreen(),
-                                  ),
-                                );
-                                break;
-                              case 'about':
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => const AboutScreen(),
-                                  ),
-                                );
-                                break;
-                            }
-                          },
-                          itemBuilder: (context) => [
-                            const PopupMenuItem(
-                              value: 'settings',
-                              child: Text('Settings'),
                             ),
-                            const PopupMenuItem(
-                              value: 'help',
-                              child: Text('Help'),
+
+                            SizedBox(height: context.responsiveSize(10)),
+
+                            // Wave Graph with dynamic data - Reduced height for mobile
+                            WaveGraph(
+                              dataPoints: dashboardProvider.weeklyUsageData,
+                              labels: dashboardProvider.applianceLabels,
+                              height: context.isMobile ? context.responsiveSize(140) : context.responsiveSize(180),
                             ),
-                            const PopupMenuItem(
-                              value: 'about',
-                              child: Text('About'),
+
+                            // Stats Row with three cards
+                            Container(
+                              padding: context.responsivePadding(horizontal: 20.0, vertical: 16.0),
+                              child: context.isMobile
+                                  ? Column(
+                                      children: [
+                                        Row(
+                                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                          children: [
+                                            Expanded(
+                                              child: Consumer<SettingsProvider>(
+                                                builder: (context, settings, child) {
+                                                  return _buildStatCard(
+                                                    '${dashboardProvider.averageDailyUsage.toStringAsFixed(1)} kW',
+                                                    settings.getLocalizedText('Daily Usage'),
+                                                  );
+                                                },
+                                              ),
+                                            ),
+                                            SizedBox(width: context.responsiveSize(16)),
+                                            Expanded(
+                                              child: Consumer<SettingsProvider>(
+                                                builder: (context, settings, child) {
+                                                  return _buildStatCard(
+                                                    '${settings.currencySymbol}${dashboardProvider.totalMonthlyCost.toStringAsFixed(0)}',
+                                                    settings.getLocalizedText('Monthly Cost'),
+                                                  );
+                                                },
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                        SizedBox(height: context.responsiveSize(16)),
+                                        Consumer<SettingsProvider>(
+                                          builder: (context, settings, child) {
+                                            return GestureDetector(
+                                              onTap: () {
+                                                Navigator.push(
+                                                  context,
+                                                  MaterialPageRoute(
+                                                    builder: (context) => const ElectricityRateScreen(),
+                                                  ),
+                                                ).then((_) {
+                                                  // Refresh dashboard data when returning from rate screen
+                                                  dashboardProvider.loadDashboardData();
+                                                });
+                                              },
+                                              child: _buildStatCard(
+                                                dashboardProvider.currentRate != null
+                                                    ? '${settings.currencySymbol}${dashboardProvider.currentRate!.ratePerKwh.toStringAsFixed(2)}/kWh'
+                                                    : settings.getLocalizedText('Set Rate'),
+                                                settings.getLocalizedText('Electricity Rate'),
+                                              ),
+                                            );
+                                          },
+                                        ),
+                                      ],
+                                    )
+                                  : Row(
+                                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                      children: [
+                                        Expanded(
+                                          child: Consumer<SettingsProvider>(
+                                            builder: (context, settings, child) {
+                                              return _buildStatCard(
+                                                '${dashboardProvider.averageDailyUsage.toStringAsFixed(1)} kW',
+                                                settings.getLocalizedText('Daily Usage'),
+                                              );
+                                            },
+                                          ),
+                                        ),
+                                        SizedBox(width: context.responsiveSize(16)),
+                                        Expanded(
+                                          child: Consumer<SettingsProvider>(
+                                            builder: (context, settings, child) {
+                                              return _buildStatCard(
+                                                '${settings.currencySymbol}${dashboardProvider.totalMonthlyCost.toStringAsFixed(0)}',
+                                                settings.getLocalizedText('Monthly Cost'),
+                                              );
+                                            },
+                                          ),
+                                        ),
+                                        SizedBox(width: context.responsiveSize(16)),
+                                        Expanded(
+                                          child: GestureDetector(
+                                            onTap: () {
+                                              Navigator.push(
+                                                context,
+                                                MaterialPageRoute(
+                                                  builder: (context) => const ElectricityRateScreen(),
+                                                ),
+                                              ).then((_) {
+                                                // Refresh dashboard data when returning from rate screen
+                                                dashboardProvider.loadDashboardData();
+                                              });
+                                            },
+                                            child: Consumer<SettingsProvider>(
+                                              builder: (context, settings, child) {
+                                                return _buildStatCard(
+                                                  dashboardProvider.currentRate != null
+                                                      ? '${settings.currencySymbol}${dashboardProvider.currentRate!.ratePerKwh.toStringAsFixed(2)}/kWh'
+                                                      : settings.getLocalizedText('Set Rate'),
+                                                  settings.getLocalizedText('Electricity Rate'),
+                                                );
+                                              },
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
                             ),
+
+                            // Add some bottom padding to ensure content doesn't get cut off
+                            SizedBox(height: context.responsiveSize(20)),
                           ],
-                        ),
-                      ],
-                    ),
-                  ),
-
-                  // Logo and Title
-                  const SizedBox(height: 20),
-                  Container(
-                    width: 80,
-                    height: 80,
-                    decoration: BoxDecoration(
-                      color: Colors.white.withValues(alpha: 0.2),
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    child: const Icon(
-                      Icons.eco,
-                      size: 50,
-                      color: AppColors.accentGreen,
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  Text(
-                    'E-Saver',
-                    style: GoogleFonts.poppins(
-                      color: Colors.white,
-                      fontSize: 32,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-
-                  const SizedBox(height: 40),
-
-                  // Appliance Count
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 24.0),
-                    child: Align(
-                      alignment: Alignment.centerLeft,
-                      child: Text(
-                        '${dashboardProvider.applianceCount} Appliances',
-                        style: GoogleFonts.poppins(
-                          color: Colors.white70,
-                          fontSize: 14,
-                          fontWeight: FontWeight.w500,
                         ),
                       ),
                     ),
-                  ),
-
-                  const SizedBox(height: 20),
-
-                  // Wave Graph with dynamic data
-                  WaveGraph(
-                    dataPoints: dashboardProvider.weeklyUsageData,
-                    labels: dashboardProvider.applianceLabels,
-                    height: 180,
-                  ),
-
-                  // Stats Row with three cards - centered between wave graph and bottom nav
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 24.0),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: [
-                        Expanded(
-                          child: Consumer<SettingsProvider>(
-                            builder: (context, settings, child) {
-                              return _buildStatCard(
-                                '${dashboardProvider.averageDailyUsage.toStringAsFixed(1)} kW',
-                                settings.getLocalizedText('Daily Usage'),
-                              );
-                            },
-                          ),
-                        ),
-                        const SizedBox(width: 16),
-                        Expanded(
-                          child: Consumer<SettingsProvider>(
-                            builder: (context, settings, child) {
-                              return _buildStatCard(
-                                '${settings.currencySymbol}${dashboardProvider.totalMonthlyCost.toStringAsFixed(0)}',
-                                settings.getLocalizedText('Monthly Cost'),
-                              );
-                            },
-                          ),
-                        ),
-                        const SizedBox(width: 16),
-                        Expanded(
-                          child: GestureDetector(
-                            onTap: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => const ElectricityRateScreen(),
-                                ),
-                              ).then((_) {
-                                // Refresh dashboard data when returning from rate screen
-                                dashboardProvider.loadDashboardData();
-                              });
-                            },
-                            child: Consumer<SettingsProvider>(
-                              builder: (context, settings, child) {
-                                return _buildStatCard(
-                                  dashboardProvider.currentRate != null
-                                      ? '${settings.currencySymbol}${dashboardProvider.currentRate!.ratePerKwh.toStringAsFixed(2)}/kWh'
-                                      : settings.getLocalizedText('Set Rate'),
-                                  settings.getLocalizedText('Electricity Rate'),
-                                );
-                              },
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-
-                  const Spacer(),
-                ],
+                  ],
+                ),
               );
             },
           ),

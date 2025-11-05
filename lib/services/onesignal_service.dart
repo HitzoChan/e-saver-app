@@ -19,13 +19,13 @@ class OneSignalService {
       // Handle notification opened
       OneSignal.Notifications.addClickListener((event) {
         developer.log('Notification clicked: ${event.notification.additionalData}', name: 'OneSignalService');
-        // Handle notification click here
+        // Handle notification click here - could navigate to specific screen based on data
       });
 
       // Handle notification received
       OneSignal.Notifications.addForegroundWillDisplayListener((event) {
         developer.log('Notification received: ${event.notification.additionalData}', name: 'OneSignalService');
-        // Handle notification received here
+        // Handle notification received here - could update dashboard notifications
       });
 
       developer.log('OneSignal initialized successfully', name: 'OneSignalService');

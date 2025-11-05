@@ -2,8 +2,8 @@
 
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:demo_app/main.dart';
-import 'package:demo_app/providers/settings_provider.dart';
+import 'package:e_saver/main.dart';
+import 'package:e_saver/providers/settings_provider.dart';
 
 void main() {
   testWidgets('E-Saver app smoke test', (WidgetTester tester) async {

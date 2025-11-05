@@ -23,8 +23,8 @@
       "schedule": "0 8 * * *"
     },
     {
-      "path": "/api/scheduled-notifications?type=weekly",
-      "schedule": "0 9 * * 1"
+      "path": "/api/facebook-rate-monitor",
+      "schedule": "*/30 * * * *"
     }
   ]
 }
