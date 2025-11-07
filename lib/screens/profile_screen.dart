@@ -363,83 +363,71 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           topRight: Radius.circular(30),
                         ),
                       ),
-                      // Use a scrollable area with constraints so small overflows are avoided.
-                      child: LayoutBuilder(
-                        builder: (context, constraints) {
-                          return SingleChildScrollView(
-                            physics: const AlwaysScrollableScrollPhysics(),
-                            padding: EdgeInsets.fromLTRB(
-                              24,
-                              24,
-                              24,
-                              24 + MediaQuery.of(context).viewInsets.bottom,
-                            ),
-                            child: ConstrainedBox(
-                              constraints:
-                                  BoxConstraints(minHeight: constraints.maxHeight),
-                              child: IntrinsicHeight(
-                                child: Column(
-                                  children: [
-                                    _buildProfileOption(
-                                      icon: Icons.person,
-                                      title: settingsProvider.getLocalizedText('Personal Information'),
-                                      subtitle: settingsProvider.getLocalizedText('Update your profile details'),
-                                      onTap: () async {
-                                        final result = await Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                            builder: (context) => const PersonalInformationScreen(),
-                                          ),
-                                        );
+                      child: SingleChildScrollView(
+                        physics: const AlwaysScrollableScrollPhysics(),
+                        padding: EdgeInsets.fromLTRB(
+                          24,
+                          24,
+                          24,
+                          24 + MediaQuery.of(context).viewInsets.bottom,
+                        ),
+                        child: Column(
+                          children: [
+                            _buildProfileOption(
+                              icon: Icons.person,
+                              title: settingsProvider.getLocalizedText('Personal Information'),
+                              subtitle: settingsProvider.getLocalizedText('Update your profile details'),
+                              onTap: () async {
+                                final result = await Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => const PersonalInformationScreen(),
+                                  ),
+                                );
 
-                                        // If changes were saved, reload the profile data
-                                        if (result == true) {
-                                          _loadUserProfile();
-                                        }
-                                      },
-                                    ),
-                                    const SizedBox(height: 16),
-                                    _buildProfileOption(
-                                      icon: Icons.notifications,
-                                      title: settingsProvider.getLocalizedText('Notifications'),
-                                      subtitle: settingsProvider.getLocalizedText('Manage notification preferences'),
-                                      onTap: () => _showNotificationSettings(context),
-                                    ),
-                                    const SizedBox(height: 16),
-                                    _buildProfileOption(
-                                      icon: Icons.lightbulb,
-                                      title: settingsProvider.getLocalizedText('Energy Tips'),
-                                      subtitle: settingsProvider.getLocalizedText('View energy saving tips'),
-                                      onTap: () {
-                                        Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                            builder: (context) => const EnergyTipsScreen(),
-                                          ),
-                                        );
-                                      },
-                                    ),
-                                    const SizedBox(height: 16),
-                                    _buildProfileOption(
-                                      icon: Icons.settings,
-                                      title: settingsProvider.getLocalizedText('Settings'),
-                                      subtitle: settingsProvider.getLocalizedText('App preferences and configuration'),
-                                      onTap: () {
-                                        Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                            builder: (context) => const SettingsScreen(),
-                                          ),
-                                        );
-                                      },
-                                    ),
-
-                                  ],
-                                ),
-                              ),
+                                // If changes were saved, reload the profile data
+                                if (result == true) {
+                                  _loadUserProfile();
+                                }
+                              },
                             ),
-                          );
-                        },
+                            const SizedBox(height: 16),
+                            _buildProfileOption(
+                              icon: Icons.notifications,
+                              title: settingsProvider.getLocalizedText('Notifications'),
+                              subtitle: settingsProvider.getLocalizedText('Manage notification preferences'),
+                              onTap: () => _showNotificationSettings(context),
+                            ),
+                            const SizedBox(height: 16),
+                            _buildProfileOption(
+                              icon: Icons.lightbulb,
+                              title: settingsProvider.getLocalizedText('Energy Tips'),
+                              subtitle: settingsProvider.getLocalizedText('View energy saving tips'),
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => const EnergyTipsScreen(),
+                                  ),
+                                );
+                              },
+                            ),
+                            const SizedBox(height: 16),
+                            _buildProfileOption(
+                              icon: Icons.settings,
+                              title: settingsProvider.getLocalizedText('Settings'),
+                              subtitle: settingsProvider.getLocalizedText('App preferences and configuration'),
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => const SettingsScreen(),
+                                  ),
+                                );
+                              },
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                   ),

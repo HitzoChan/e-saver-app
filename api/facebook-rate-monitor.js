@@ -194,9 +194,9 @@ function sendOneSignalNotification(notificationData) {
 }
 
 export default async function handler(req, res) {
-  // Only allow GET requests for manual triggering
-  if (req.method !== 'GET') {
-    return res.status(405).json({ error: 'Method not allowed. Use GET to trigger monitoring.' });
+  // Allow both GET (manual) and POST (cron) requests
+  if (req.method !== 'GET' && req.method !== 'POST') {
+    return res.status(405).json({ error: 'Method not allowed. Use GET or POST to trigger monitoring.' });
   }
 
   try {

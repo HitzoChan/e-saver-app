@@ -197,31 +197,43 @@ class _AddApplianceScreenState extends State<AddApplianceScreen> {
                     padding: const EdgeInsets.all(24.0),
                     child: Column(
                       children: [
-                        // Stats Row
+                        // Stats Row - Responsive Wrap
                         Consumer<ApplianceProvider>(
                           builder: (context, applianceProvider, child) {
                             final settingsProvider = Provider.of<SettingsProvider>(context, listen: false);
-                            return SingleChildScrollView(
-                              scrollDirection: Axis.horizontal,
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.start,
-                                children: [
-                                  _buildStatCard(
+                            return Wrap(
+                              spacing: 16,
+                              runSpacing: 16,
+                              alignment: WrapAlignment.center,
+                              children: [
+                                SizedBox(
+                                  width: MediaQuery.of(context).size.width < 600
+                                      ? (MediaQuery.of(context).size.width - 48 - 16) / 2
+                                      : (MediaQuery.of(context).size.width - 48 - 32) / 3,
+                                  child: _buildStatCard(
                                     applianceProvider.connectionCount.toString(),
                                     settingsProvider.getLocalizedText('Connections'),
                                   ),
-                                  const SizedBox(width: 16),
-                                  _buildStatCard(
+                                ),
+                                SizedBox(
+                                  width: MediaQuery.of(context).size.width < 600
+                                      ? (MediaQuery.of(context).size.width - 48 - 16) / 2
+                                      : (MediaQuery.of(context).size.width - 48 - 32) / 3,
+                                  child: _buildStatCard(
                                     '${settingsProvider.currencySymbol}${applianceProvider.averageMonthlyBill.toStringAsFixed(0)}',
                                     settingsProvider.getLocalizedText('Avg Bill Monthly'),
                                   ),
-                                  const SizedBox(width: 16),
-                                  _buildStatCard(
+                                ),
+                                SizedBox(
+                                  width: MediaQuery.of(context).size.width < 600
+                                      ? MediaQuery.of(context).size.width - 48
+                                      : (MediaQuery.of(context).size.width - 48 - 32) / 3,
+                                  child: _buildStatCard(
                                     '${applianceProvider.householdAverageUsage.toStringAsFixed(1)} kW',
                                     settingsProvider.getLocalizedText('Household Average'),
                                   ),
-                                ],
-                              ),
+                                ),
+                              ],
                             );
                           },
                         ),

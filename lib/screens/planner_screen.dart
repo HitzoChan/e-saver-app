@@ -230,45 +230,46 @@ class _PlannerScreenState extends State<PlannerScreen> {
                           topRight: Radius.circular(30),
                         ),
                       ),
-                      child: Padding(
-                        padding: const EdgeInsets.all(24.0),
-                        child: Column(
-                          children: [
-                            Row(
-                              children: [
-                                Expanded(
-                                  child: _buildCategoryChip(settingsProvider.getLocalizedText('Keep\nGoodHabits'), true, () {
-                                    // Navigate to good habits screen
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (context) => const GoodHabitsScreen(),
-                                      ),
-                                    );
-                                  }),
-                                ),
-                                const SizedBox(width: 8),
+                      child: SingleChildScrollView(
+                        physics: const AlwaysScrollableScrollPhysics(),
+                        child: Padding(
+                          padding: const EdgeInsets.all(24.0),
+                          child: Column(
+                            children: [
+                              Row(
+                                children: [
+                                  Expanded(
+                                    child: _buildCategoryChip(settingsProvider.getLocalizedText('Keep\nGoodHabits'), true, () {
+                                      // Navigate to good habits screen
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) => const GoodHabitsScreen(),
+                                        ),
+                                      );
+                                    }),
+                                  ),
+                                  const SizedBox(width: 8),
 
-                                const SizedBox(width: 8),
-                                Expanded(
-                                  child: _buildCategoryChip(settingsProvider.getLocalizedText('Tips\nTricks'), false, () {
-                                    // Navigate to energy tips screen
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (context) => const EnergyTipsScreen(),
-                                      ),
-                                    );
-                                  }),
-                                ),
-                              ],
-                            ),
+                                  const SizedBox(width: 8),
+                                  Expanded(
+                                    child: _buildCategoryChip(settingsProvider.getLocalizedText('Tips\nTricks'), false, () {
+                                      // Navigate to energy tips screen
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) => const EnergyTipsScreen(),
+                                        ),
+                                      );
+                                    }),
+                                  ),
+                                ],
+                              ),
 
-                            const SizedBox(height: 24),
+                              const SizedBox(height: 24),
 
-                            // Appliance Budget List
-                            Expanded(
-                              child: Consumer<ApplianceProvider>(
+                              // Appliance Budget List
+                              Consumer<ApplianceProvider>(
                                 builder: (context, applianceProvider, child) {
                                   if (applianceProvider.isLoading) {
                                     return const Center(child: CircularProgressIndicator());
@@ -337,65 +338,62 @@ class _PlannerScreenState extends State<PlannerScreen> {
                                   // Show top 5 appliances or all if less than 5
                                   final displayAppliances = sortedAppliances.take(5).toList();
 
-                                  return SingleChildScrollView(
-                                    physics: const AlwaysScrollableScrollPhysics(),
-                                    child: Column(
-                                      children: displayAppliances.map((appliance) {
-                                        final monthlyCost = appliance.calculateMonthlyCost(rate.ratePerKwh, appliance.hoursPerDay);
-                                        final categoryText = _getCategoryDisplayText(appliance.category, settingsProvider.language);
+                                  return Column(
+                                    children: displayAppliances.map((appliance) {
+                                      final monthlyCost = appliance.calculateMonthlyCost(rate.ratePerKwh, appliance.hoursPerDay);
+                                      final categoryText = _getCategoryDisplayText(appliance.category, settingsProvider.language);
 
-                                        return Padding(
-                                          padding: const EdgeInsets.only(bottom: 12),
-                                          child: _buildBudgetItem(
-                                            appliance.name,
-                                            categoryText,
-                                            '${settingsProvider.currencySymbol}${monthlyCost.toStringAsFixed(2)}',
+                                      return Padding(
+                                        padding: const EdgeInsets.only(bottom: 12),
+                                        child: _buildBudgetItem(
+                                          appliance.name,
+                                          categoryText,
+                                          '${settingsProvider.currencySymbol}${monthlyCost.toStringAsFixed(2)}',
+                                        ),
+                                      );
+                                    }).toList(),
+                                  );
+                                },
+                              ),
+
+                              const SizedBox(height: 24),
+
+                              // Set Monthly Budget Button
+                              Consumer<BudgetProvider>(
+                                builder: (context, budgetProvider, child) {
+                                  return SizedBox(
+                                    width: double.infinity,
+                                    child: ElevatedButton(
+                                      onPressed: () {
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (context) => const BudgetSettingScreen(),
                                           ),
                                         );
-                                      }).toList(),
+                                      },
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor: AppColors.primaryBlue,
+                                        padding: const EdgeInsets.symmetric(vertical: 16),
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(16),
+                                        ),
+                                        elevation: 0,
+                                      ),
+                                      child: Text(
+                                        budgetProvider.hasActiveBudget ? settingsProvider.getLocalizedText('Update Monthly Budget') : settingsProvider.getLocalizedText('Set Monthly Budget'),
+                                        style: GoogleFonts.poppins(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.w600,
+                                          color: Colors.white,
+                                        ),
+                                      ),
                                     ),
                                   );
                                 },
                               ),
-                            ),
-
-                            const SizedBox(height: 24),
-
-                            // Set Monthly Budget Button
-                            Consumer<BudgetProvider>(
-                              builder: (context, budgetProvider, child) {
-                                return SizedBox(
-                                  width: double.infinity,
-                                  child: ElevatedButton(
-                                    onPressed: () {
-                                      Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                          builder: (context) => const BudgetSettingScreen(),
-                                        ),
-                                      );
-                                    },
-                                    style: ElevatedButton.styleFrom(
-                                      backgroundColor: AppColors.primaryBlue,
-                                      padding: const EdgeInsets.symmetric(vertical: 16),
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(16),
-                                      ),
-                                      elevation: 0,
-                                    ),
-                                    child: Text(
-                                      budgetProvider.hasActiveBudget ? settingsProvider.getLocalizedText('Update Monthly Budget') : settingsProvider.getLocalizedText('Set Monthly Budget'),
-                                      style: GoogleFonts.poppins(
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.w600,
-                                        color: Colors.white,
-                                      ),
-                                    ),
-                                  ),
-                                );
-                              },
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
                       ),
                     ),

@@ -218,9 +218,14 @@ export default async function handler(req, res) {
   }
 
   try {
-    const { type } = req.body;
+    let { type } = req.body;
 
-    if (!type || !SCHEDULED_MESSAGES[type]) {
+    // Default to 'morning' if type is not provided (for Vercel cron jobs)
+    if (!type) {
+      type = 'morning';
+    }
+
+    if (!SCHEDULED_MESSAGES[type]) {
       return res.status(400).json({
         error: 'Invalid notification type. Available types: ' +
                Object.keys(SCHEDULED_MESSAGES).join(', ')
