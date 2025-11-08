@@ -164,6 +164,7 @@ class NotificationsScreen extends StatelessWidget {
                               return Padding(
                                 padding: const EdgeInsets.only(bottom: 16.0),
                                 child: _buildNotificationCard(
+                                  context,
                                   icon: notification['icon'] as IconData,
                                   title: notification['title'] as String,
                                   subtitle: notification['body'] as String,
@@ -224,7 +225,7 @@ class NotificationsScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildNotificationCard({
+  Widget _buildNotificationCard(BuildContext context, {
     required IconData icon,
     required String title,
     required String subtitle,
@@ -233,10 +234,11 @@ class NotificationsScreen extends StatelessWidget {
     bool isRead = false,
     VoidCallback? onTap,
   }) {
+    final isSmallScreen = MediaQuery.of(context).size.width < 600;
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        padding: const EdgeInsets.all(20),
+        padding: EdgeInsets.all(isSmallScreen ? 16 : 20),
         decoration: BoxDecoration(
           color: isRead
               ? Colors.white.withValues(alpha: 0.1)
@@ -250,8 +252,8 @@ class NotificationsScreen extends StatelessWidget {
         child: Row(
           children: [
             Container(
-              width: 50,
-              height: 50,
+              width: isSmallScreen ? 40 : 50,
+              height: isSmallScreen ? 40 : 50,
               decoration: BoxDecoration(
                 color: Colors.white.withValues(alpha: 0.2),
                 borderRadius: BorderRadius.circular(12),
@@ -259,10 +261,10 @@ class NotificationsScreen extends StatelessWidget {
               child: Icon(
                 icon,
                 color: color,
-                size: 28,
+                size: isSmallScreen ? 24 : 28,
               ),
             ),
-            const SizedBox(width: 16),
+            SizedBox(width: isSmallScreen ? 12 : 16),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -270,24 +272,28 @@ class NotificationsScreen extends StatelessWidget {
                   Text(
                     title,
                     style: GoogleFonts.poppins(
-                      fontSize: 16,
+                      fontSize: isSmallScreen ? 14 : 16,
                       fontWeight: FontWeight.w600,
                       color: Colors.white,
                     ),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
                   ),
-                  const SizedBox(height: 4),
+                  SizedBox(height: isSmallScreen ? 2 : 4),
                   Text(
                     subtitle,
                     style: GoogleFonts.poppins(
-                      fontSize: 12,
+                      fontSize: isSmallScreen ? 11 : 12,
                       color: Colors.white70,
                     ),
+                    maxLines: 3,
+                    overflow: TextOverflow.ellipsis,
                   ),
-                  const SizedBox(height: 4),
+                  SizedBox(height: isSmallScreen ? 2 : 4),
                   Text(
                     time,
                     style: GoogleFonts.poppins(
-                      fontSize: 10,
+                      fontSize: isSmallScreen ? 9 : 10,
                       color: Colors.white60,
                     ),
                   ),
@@ -307,7 +313,7 @@ class NotificationsScreen extends StatelessWidget {
               Icon(
                 Icons.arrow_forward_ios,
                 color: Colors.white.withValues(alpha: 0.5),
-                size: 16,
+                size: isSmallScreen ? 14 : 16,
               ),
           ],
         ),

@@ -73,6 +73,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Future<void> _showNotificationSettings(BuildContext context) async {
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
     return showModalBottomSheet(
       context: context,
       shape: const RoundedRectangleBorder(
@@ -90,7 +91,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 style: GoogleFonts.poppins(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
-                  color: AppColors.textDark,
+                  color: isDarkMode ? Colors.white : AppColors.textDark,
                 ),
               ),
               const SizedBox(height: 24),
@@ -100,14 +101,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   style: GoogleFonts.poppins(
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
-                    color: AppColors.textDark,
+                    color: isDarkMode ? Colors.white : AppColors.textDark,
                   ),
                 ),
                 subtitle: Text(
                   'Receive updates about electricity rates and energy tips',
                   style: GoogleFonts.poppins(
                     fontSize: 12,
-                    color: AppColors.textGray,
+                    color: isDarkMode ? Colors.white70 : AppColors.textGray,
                   ),
                 ),
                 value: _notificationsEnabled,
@@ -126,23 +127,26 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 style: GoogleFonts.poppins(
                   fontSize: 16,
                   fontWeight: FontWeight.w600,
-                  color: AppColors.textDark,
+                  color: isDarkMode ? Colors.white : AppColors.textDark,
                 ),
               ),
               const SizedBox(height: 12),
               _buildNotificationTypeTile(
+                context,
                 icon: Icons.electrical_services,
                 title: 'Electricity Rate Updates',
                 subtitle: 'Get notified when SAMELCO updates rates',
                 enabled: _notificationsEnabled,
               ),
               _buildNotificationTypeTile(
+                context,
                 icon: Icons.lightbulb,
                 title: 'Energy Saving Tips',
                 subtitle: 'Weekly tips to reduce your electricity bill',
                 enabled: _notificationsEnabled,
               ),
               _buildNotificationTypeTile(
+                context,
                 icon: Icons.bar_chart,
                 title: 'Weekly Reports',
                 subtitle: 'Summary of your energy usage',
@@ -177,12 +181,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  Widget _buildNotificationTypeTile({
+  Widget _buildNotificationTypeTile(BuildContext context, {
     required IconData icon,
     required String title,
     required String subtitle,
     required bool enabled,
   }) {
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
     return ListTile(
       leading: Container(
         width: 40,
@@ -203,14 +208,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
         style: GoogleFonts.poppins(
           fontSize: 14,
           fontWeight: FontWeight.w600,
-          color: enabled ? AppColors.textDark : AppColors.textGray,
+          color: enabled ? (isDarkMode ? Colors.white : AppColors.textDark) : AppColors.textGray,
         ),
       ),
       subtitle: Text(
         subtitle,
         style: GoogleFonts.poppins(
           fontSize: 12,
-          color: AppColors.textGray,
+          color: isDarkMode ? Colors.white70 : AppColors.textGray,
         ),
       ),
       trailing: Icon(

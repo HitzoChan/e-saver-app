@@ -6,6 +6,7 @@ import '../models/appliance.dart';
 import '../providers/appliance_provider.dart';
 import '../providers/settings_provider.dart';
 import '../screens/add_appliance_screen.dart';
+import '../utils/responsive_utils.dart';
 
 class TrackSaveScreen extends StatefulWidget {
   const TrackSaveScreen({super.key});
@@ -311,21 +312,28 @@ class _TrackSaveScreenState extends State<TrackSaveScreen> {
   Widget _buildSummaryItem(String value, String label, bool isDark) {
     return Column(
       children: [
-        Text(
-          value,
-          style: TextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
-            color: isDark ? Colors.white : const Color(0xFF0D47A1),
+        FittedBox(
+          fit: BoxFit.scaleDown,
+          child: Text(
+            value,
+            style: TextStyle(
+              fontSize: context.responsiveFontSize(18), // Responsive font size, smaller base
+              fontWeight: FontWeight.bold,
+              color: isDark ? Colors.white : const Color(0xFF0D47A1),
+            ),
+            maxLines: 1,
           ),
         ),
         const SizedBox(height: 4),
         Text(
           label,
           style: TextStyle(
-            fontSize: 12,
+            fontSize: context.responsiveFontSize(10), // Responsive font size for label
             color: isDark ? Colors.white70 : Colors.grey[600],
           ),
+          textAlign: TextAlign.center,
+          maxLines: 2,
+          overflow: TextOverflow.ellipsis,
         ),
       ],
     );

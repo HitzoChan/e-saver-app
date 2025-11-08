@@ -185,175 +185,184 @@ class _AddApplianceScreenState extends State<AddApplianceScreen> {
               
               // Appliance List
               Expanded(
-                child: Container(
-                  decoration: const BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.only(
-                      topLeft: Radius.circular(30),
-                      topRight: Radius.circular(30),
-                    ),
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.all(24.0),
-                    child: Column(
-                      children: [
-                        // Stats Row - Responsive Wrap
-                        Consumer<ApplianceProvider>(
-                          builder: (context, applianceProvider, child) {
-                            final settingsProvider = Provider.of<SettingsProvider>(context, listen: false);
-                            return Wrap(
-                              spacing: 16,
-                              runSpacing: 16,
-                              alignment: WrapAlignment.center,
-                              children: [
-                                SizedBox(
-                                  width: MediaQuery.of(context).size.width < 600
-                                      ? (MediaQuery.of(context).size.width - 48 - 16) / 2
-                                      : (MediaQuery.of(context).size.width - 48 - 32) / 3,
-                                  child: _buildStatCard(
-                                    applianceProvider.connectionCount.toString(),
-                                    settingsProvider.getLocalizedText('Connections'),
-                                  ),
-                                ),
-                                SizedBox(
-                                  width: MediaQuery.of(context).size.width < 600
-                                      ? (MediaQuery.of(context).size.width - 48 - 16) / 2
-                                      : (MediaQuery.of(context).size.width - 48 - 32) / 3,
-                                  child: _buildStatCard(
-                                    '${settingsProvider.currencySymbol}${applianceProvider.averageMonthlyBill.toStringAsFixed(0)}',
-                                    settingsProvider.getLocalizedText('Avg Bill Monthly'),
-                                  ),
-                                ),
-                                SizedBox(
-                                  width: MediaQuery.of(context).size.width < 600
-                                      ? MediaQuery.of(context).size.width - 48
-                                      : (MediaQuery.of(context).size.width - 48 - 32) / 3,
-                                  child: _buildStatCard(
-                                    '${applianceProvider.householdAverageUsage.toStringAsFixed(1)} kW',
-                                    settingsProvider.getLocalizedText('Household Average'),
-                                  ),
-                                ),
-                              ],
-                            );
-                          },
+                child: Stack(
+                  children: [
+                    Container(
+                      decoration: const BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.only(
+                          topLeft: Radius.circular(30),
+                          topRight: Radius.circular(30),
                         ),
-                        
-                        const SizedBox(height: 24),
-                        
-                        // Appliance List
-                        Expanded(
-                          child: Consumer<ApplianceProvider>(
-                            builder: (context, applianceProvider, child) {
-                              if (applianceProvider.isLoading) {
-                                return const Center(child: CircularProgressIndicator());
-                              }
-
-                              if (applianceProvider.error != null) {
-                                return Center(
-                                  child: Column(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      const Icon(
-                                        Icons.error_outline,
-                                        color: AppColors.textGray,
-                                        size: 48,
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.all(24.0),
+                        child: Column(
+                          children: [
+                            // Stats Row - Responsive Wrap
+                            Consumer<ApplianceProvider>(
+                              builder: (context, applianceProvider, child) {
+                                final settingsProvider = Provider.of<SettingsProvider>(context, listen: false);
+                                return Wrap(
+                                  spacing: 12,
+                                  runSpacing: 12,
+                                  alignment: WrapAlignment.center,
+                                  children: [
+                                    SizedBox(
+                                      width: MediaQuery.of(context).size.width < 600
+                                          ? (MediaQuery.of(context).size.width - 48 - 12) / 2
+                                          : (MediaQuery.of(context).size.width - 48 - 24) / 3,
+                                      child: _buildStatCard(
+                                        applianceProvider.connectionCount.toString(),
+                                        settingsProvider.getLocalizedText('Connections'),
                                       ),
-                                      const SizedBox(height: 16),
-                                      Text(
-                                        'Error loading appliances',
-                                        style: GoogleFonts.poppins(
-                                          color: AppColors.textGray,
-                                          fontSize: 16,
-                                        ),
-                                      ),
-                                      const SizedBox(height: 8),
-                                      ElevatedButton(
-                                        onPressed: applianceProvider.refresh,
-                                        child: const Text('Retry'),
-                                      ),
-                                    ],
-                                  ),
-                                );
-                              }
-
-                              final appliances = applianceProvider.appliances;
-                              return appliances.isEmpty
-                                ? Center(
-                                    child: Consumer<SettingsProvider>(
-                                      builder: (context, settingsProvider, child) {
-                                        return Text(
-                                          settingsProvider.getLocalizedText('No appliances added yet.\nTap the + button to add your first appliance!'),
-                                          textAlign: TextAlign.center,
-                                          style: GoogleFonts.poppins(
-                                            color: AppColors.textGray,
-                                            fontSize: 16,
-                                          ),
-                                        );
-                                      },
                                     ),
-                                  )
-                                : ListView.builder(
-                                    itemCount: appliances.length,
-                                    itemBuilder: (context, index) {
-                                      final appliance = appliances[index];
-                                      return Column(
+                                    SizedBox(
+                                      width: MediaQuery.of(context).size.width < 600
+                                          ? (MediaQuery.of(context).size.width - 48 - 12) / 2
+                                          : (MediaQuery.of(context).size.width - 48 - 24) / 3,
+                                      child: _buildStatCard(
+                                        '${settingsProvider.currencySymbol}${applianceProvider.averageMonthlyBill.toStringAsFixed(0)}',
+                                        settingsProvider.getLocalizedText('Avg Bill Monthly'),
+                                      ),
+                                    ),
+                                    SizedBox(
+                                      width: MediaQuery.of(context).size.width < 600
+                                          ? MediaQuery.of(context).size.width - 48
+                                          : (MediaQuery.of(context).size.width - 48 - 24) / 3,
+                                      child: _buildStatCard(
+                                        '${applianceProvider.householdAverageUsage.toStringAsFixed(1)} kW',
+                                        settingsProvider.getLocalizedText('Household Average'),
+                                      ),
+                                    ),
+                                  ],
+                                );
+                              },
+                            ),
+
+                            const SizedBox(height: 24),
+
+                            // Appliance List
+                            Expanded(
+                              child: Consumer<ApplianceProvider>(
+                                builder: (context, applianceProvider, child) {
+                                  if (applianceProvider.isLoading) {
+                                    return const Center(child: CircularProgressIndicator());
+                                  }
+
+                                  if (applianceProvider.error != null) {
+                                    return Center(
+                                      child: Column(
+                                        mainAxisAlignment: MainAxisAlignment.center,
                                         children: [
-                                          _buildApplianceItem(
-                                            appliance.name,
-                                            appliance.category.displayName,
-                                            '${appliance.wattage}W',
-                                            appliance,
+                                          const Icon(
+                                            Icons.error_outline,
+                                            color: AppColors.textGray,
+                                            size: 48,
                                           ),
-                                          if (index < appliances.length - 1)
-                                            const SizedBox(height: 12),
+                                          const SizedBox(height: 16),
+                                          Text(
+                                            'Error loading appliances',
+                                            style: GoogleFonts.poppins(
+                                              color: AppColors.textGray,
+                                              fontSize: 16,
+                                            ),
+                                          ),
+                                          const SizedBox(height: 8),
+                                          ElevatedButton(
+                                            onPressed: applianceProvider.refresh,
+                                            child: const Text('Retry'),
+                                          ),
                                         ],
+                                      ),
+                                    );
+                                  }
+
+                                  final appliances = applianceProvider.appliances;
+                                  return appliances.isEmpty
+                                    ? Center(
+                                        child: Consumer<SettingsProvider>(
+                                          builder: (context, settingsProvider, child) {
+                                            return Text(
+                                              settingsProvider.getLocalizedText('No appliances added yet.\nTap the + button to add your first appliance!'),
+                                              textAlign: TextAlign.center,
+                                              style: GoogleFonts.poppins(
+                                                color: AppColors.textGray,
+                                                fontSize: 16,
+                                              ),
+                                            );
+                                          },
+                                        ),
+                                      )
+                                    : ListView.builder(
+                                        itemCount: appliances.length,
+                                        padding: const EdgeInsets.only(bottom: 100), // Add more space at bottom
+                                        itemBuilder: (context, index) {
+                                          final appliance = appliances[index];
+                                          return Column(
+                                            children: [
+                                              _buildApplianceItem(
+                                                appliance.name,
+                                                appliance.category.displayName,
+                                                '${appliance.wattage}W',
+                                                appliance,
+                                              ),
+                                              if (index < appliances.length - 1)
+                                                const SizedBox(height: 16), // Increased spacing between items
+                                            ],
+                                          );
+                                        },
                                       );
-                                    },
-                                  );
-                            },
-                          ),
-                        ),
-                        
-                        // Add Button
-                        GestureDetector(
-                          onTap: () async {
-                            final result = await Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => const AddApplianceFormScreen(),
+                                },
                               ),
-                            );
-                            // Refresh the list when returning from add form
-                            if (result == true) {
-                              if (mounted) {
-                                context.read<ApplianceProvider>().refresh();
-                              }
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+
+                    // Add Button
+                    Positioned(
+                      bottom: 20,
+                      right: 20,
+                      child: GestureDetector(
+                        onTap: () async {
+                          final result = await Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const AddApplianceFormScreen(),
+                            ),
+                          );
+                          // Refresh the list when returning from add form
+                          if (result == true) {
+                            if (mounted) {
+                              context.read<ApplianceProvider>().refresh();
                             }
-                          },
-                          child: Container(
-                            width: 60,
-                            height: 60,
-                            decoration: BoxDecoration(
-                              color: AppColors.primaryBlue,
-                              shape: BoxShape.circle,
-                              boxShadow: [
-                                BoxShadow(
-                                  color: AppColors.primaryBlue.withValues(alpha: 0.3),
-                                  blurRadius: 10,
-                                  offset: const Offset(0, 4),
-                                ),
-                              ],
-                            ),
-                            child: const Icon(
-                              Icons.add,
-                              color: Colors.white,
-                              size: 30,
-                            ),
+                          }
+                        },
+                        child: Container(
+                          width: 60,
+                          height: 60,
+                          decoration: BoxDecoration(
+                            color: AppColors.primaryBlue,
+                            shape: BoxShape.circle,
+                            boxShadow: [
+                              BoxShadow(
+                                color: AppColors.primaryBlue.withValues(alpha: 0.3),
+                                blurRadius: 10,
+                                offset: const Offset(0, 4),
+                              ),
+                            ],
+                          ),
+                          child: const Icon(
+                            Icons.add,
+                            color: Colors.white,
+                            size: 30,
                           ),
                         ),
-                      ],
+                      ),
                     ),
-                  ),
+                  ],
                 ),
               ),
             ],
@@ -365,27 +374,29 @@ class _AddApplianceScreenState extends State<AddApplianceScreen> {
   
   Widget _buildStatCard(String value, String label) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      height: MediaQuery.of(context).size.width < 600 ? 70 : 80,
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
       decoration: BoxDecoration(
         color: AppColors.primaryBlue.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(12),
       ),
       child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Text(
             value,
             style: GoogleFonts.poppins(
-              fontSize: 16,
+              fontSize: MediaQuery.of(context).size.width < 600 ? (value.length > 6 ? 12 : 14) : 16,
               fontWeight: FontWeight.bold,
               color: AppColors.primaryBlue,
             ),
           ),
-          const SizedBox(height: 4),
+          const SizedBox(height: 2),
           Text(
             label,
             textAlign: TextAlign.center,
             style: GoogleFonts.poppins(
-              fontSize: 10,
+              fontSize: MediaQuery.of(context).size.width < 600 ? 8 : 10,
               color: AppColors.textGray,
             ),
           ),

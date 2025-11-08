@@ -309,14 +309,16 @@ class _DashboardScreenState extends State<DashboardScreen> {
                             Container(
                               padding: context.responsivePadding(horizontal: 20.0, vertical: 16.0),
                               child: Wrap(
-                                spacing: context.responsiveSize(16),
-                                runSpacing: context.responsiveSize(16),
+                                spacing: context.responsiveSize(12),
+                                runSpacing: context.responsiveSize(12),
                                 alignment: WrapAlignment.center,
                                 children: [
                                   Consumer<SettingsProvider>(
                                     builder: (context, settings, child) {
                                       return SizedBox(
-                                        width: context.isMobile ? (MediaQuery.of(context).size.width - context.responsiveSize(40) - context.responsiveSize(16)) / 2 : (MediaQuery.of(context).size.width - context.responsiveSize(40) - 2 * context.responsiveSize(16)) / 3,
+                                        width: context.isMobile
+                                            ? (MediaQuery.of(context).size.width - context.responsiveSize(40) - context.responsiveSize(12)) / 2
+                                            : (MediaQuery.of(context).size.width - context.responsiveSize(40) - 2 * context.responsiveSize(12)) / 3,
                                         child: _buildStatCard(
                                           '${dashboardProvider.averageDailyUsage.toStringAsFixed(1)} kW',
                                           settings.getLocalizedText('Daily Usage'),
@@ -327,7 +329,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                   Consumer<SettingsProvider>(
                                     builder: (context, settings, child) {
                                       return SizedBox(
-                                        width: context.isMobile ? (MediaQuery.of(context).size.width - context.responsiveSize(40) - context.responsiveSize(16)) / 2 : (MediaQuery.of(context).size.width - context.responsiveSize(40) - 2 * context.responsiveSize(16)) / 3,
+                                        width: context.isMobile
+                                            ? (MediaQuery.of(context).size.width - context.responsiveSize(40) - context.responsiveSize(12)) / 2
+                                            : (MediaQuery.of(context).size.width - context.responsiveSize(40) - 2 * context.responsiveSize(12)) / 3,
                                         child: _buildStatCard(
                                           '${settings.currencySymbol}${dashboardProvider.totalMonthlyCost.toStringAsFixed(0)}',
                                           settings.getLocalizedText('Monthly Cost'),
@@ -350,7 +354,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                           });
                                         },
                                         child: SizedBox(
-                                          width: context.isMobile ? MediaQuery.of(context).size.width - context.responsiveSize(40) : (MediaQuery.of(context).size.width - context.responsiveSize(40) - 2 * context.responsiveSize(16)) / 3,
+                                          width: context.isMobile
+                                              ? MediaQuery.of(context).size.width - context.responsiveSize(40)
+                                              : (MediaQuery.of(context).size.width - context.responsiveSize(40) - 2 * context.responsiveSize(12)) / 3,
                                           child: _buildStatCard(
                                             dashboardProvider.currentRate != null
                                                 ? '${settings.currencySymbol}${dashboardProvider.currentRate!.ratePerKwh.toStringAsFixed(2)}/kWh'
@@ -383,8 +389,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   Widget _buildStatCard(String value, String label) {
     return Container(
-      height: 80,
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      height: context.isMobile ? 70 : 80,
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
       decoration: BoxDecoration(
         color: Colors.white.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(12),
@@ -399,7 +405,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       TextSpan(
                         text: value.split('/')[0],
                         style: GoogleFonts.poppins(
-                          fontSize: value.length > 6 ? 14 : 16,
+                          fontSize: context.isMobile ? (value.length > 6 ? 12 : 14) : (value.length > 6 ? 14 : 16),
                           fontWeight: FontWeight.bold,
                           color: Colors.white,
                         ),
@@ -407,7 +413,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       TextSpan(
                         text: '/kWh',
                         style: GoogleFonts.poppins(
-                          fontSize: (value.length > 6 ? 14 : 16) * 0.75,
+                          fontSize: context.isMobile ? ((value.length > 6 ? 12 : 14) * 0.75) : ((value.length > 6 ? 14 : 16) * 0.75),
                           fontWeight: FontWeight.bold,
                           color: Colors.white,
                         ),
@@ -418,17 +424,17 @@ class _DashboardScreenState extends State<DashboardScreen> {
               : Text(
                   value,
                   style: GoogleFonts.poppins(
-                    fontSize: value.length > 6 ? 14 : 16,
+                    fontSize: context.isMobile ? (value.length > 6 ? 12 : 14) : (value.length > 6 ? 14 : 16),
                     fontWeight: FontWeight.bold,
                     color: Colors.white,
                   ),
                 ),
-          const SizedBox(height: 4),
+          const SizedBox(height: 2),
           Text(
             label,
             textAlign: TextAlign.center,
             style: GoogleFonts.poppins(
-              fontSize: 9,
+              fontSize: context.isMobile ? 8 : 9,
               color: Colors.white70,
             ),
           ),

@@ -180,7 +180,7 @@ class _LoginScreenState extends State<LoginScreen> {
       } else {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Google sign in cancelled or failed')),
+            const SnackBar(content: Text('Google sign in cancelled')),
           );
         }
       }
