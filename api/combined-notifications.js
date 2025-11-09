@@ -4,7 +4,7 @@ const ONESIGNAL_APP_ID = process.env.ONESIGNAL_APP_ID || '418744e0-0f43-40b7-ab7
 const ONESIGNAL_REST_API_KEY = process.env.ONESIGNAL_REST_API_KEY || 'p3us5d5f7esyvyrket4lbcf7q';
 const FACEBOOK_APP_ID = process.env.FACEBOOK_APP_ID;
 const FACEBOOK_APP_SECRET = process.env.FACEBOOK_APP_SECRET;
-const SAMELCO_PAGE_ID = process.env.SAMELCO_PAGE_ID || 'samElcoPage';
+const SAMELCO_PAGE_ID = process.env.SAMELCO_PAGE_ID || '117290636838993';
 
 // Scheduled notification messages
 const SCHEDULED_MESSAGES = {
@@ -164,52 +164,7 @@ function extractRateFromMessage(message) {
   return null;
 }
 
-// Send OneSignal notification
-function sendOneSignalNotification(data) {
-  return new Promise((resolve, reject) => {
-    const postData = JSON.stringify(data);
-
-    const options = {
-      hostname: 'onesignal.com',
-      port: 443,
-      path: '/api/v1/notifications',
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Basic ${ONESIGNAL_REST_API_KEY}`,
-        'Content-Length': Buffer.byteLength(postData)
-      }
-    };
-
-    const req = https.request(options, (res) => {
-      let body = '';
-
-      res.on('data', (chunk) => {
-        body += chunk;
-      });
-
-      res.on('end', () => {
-        try {
-          const response = JSON.parse(body);
-          if (res.statusCode === 200 && response.id) {
-            resolve({ success: true, id: response.id });
-          } else {
-            resolve({ success: false, error: response });
-          }
-        } catch (e) {
-          resolve({ success: false, error: 'Invalid response from OneSignal' });
-        }
-      });
-    });
-
-    req.on('error', (e) => {
-      reject(e);
-    });
-
-    req.write(postData);
-    req.end();
-  });
-}
+const { sendOneSignalNotification, createRateUpdateNotificationData, createScheduledNotificationData } = require('./shared-notification-utils');
 
 export default async function handler(req, res) {
   // Only allow POST requests
@@ -241,17 +196,12 @@ export default async function handler(req, res) {
     if (type === 'morning' || type === 'weekly') {
       const messageConfig = SCHEDULED_MESSAGES[type];
 
-      const notificationData = {
-        app_id: ONESIGNAL_APP_ID,
-        headings: { en: messageConfig.heading },
-        contents: { en: messageConfig.message },
-        included_segments: [messageConfig.segment],
-        // Add data for app handling
-        data: {
-          type: type,
-          timestamp: new Date().toISOString()
-        }
-      };
+      const notificationData = createScheduledNotificationData(
+        type,
+        messageConfig.heading,
+        messageConfig.message,
+        messageConfig.segment
+      );
 
       console.log(`Sending scheduled notification: ${type}`);
 
@@ -288,24 +238,12 @@ export default async function handler(req, res) {
             rateUpdatesFound++;
             console.log(`Rate update found in post ${analysis.postId}`);
 
-            // Prepare notification
-            const notificationData = {
-              app_id: ONESIGNAL_APP_ID,
-              headings: { en: '⚡ SAMELCO Rate Update' },
-              contents: {
-                en: analysis.extractedRate
-                  ? `New electricity rate detected: PHP ${analysis.extractedRate.toFixed(2)}/kWh. Tap to view details.`
-                  : 'SAMELCO has posted about electricity rates. Tap to view details.'
-              },
-              included_segments: ['general'],
-              data: {
-                type: 'rate_update',
-                postUrl: analysis.permalinkUrl || `https://www.facebook.com/samelco/posts/${analysis.postId}`,
-                updateId: analysis.postId,
-                extractedRate: analysis.extractedRate
-              },
-              url: analysis.permalinkUrl || `https://www.facebook.com/samelco/posts/${analysis.postId}`
-            };
+            // Prepare notification using shared utility
+            const notificationData = createRateUpdateNotificationData(
+              analysis.extractedRate,
+              analysis.permalinkUrl,
+              analysis.postId
+            );
 
             // Send notification
             const result = await sendOneSignalNotification(notificationData);

@@ -1,11 +1,12 @@
 import 'dart:convert';
 import 'dart:developer' as developer;
 import 'package:http/http.dart' as http;
+import '../utils/constants.dart';
 import 'notification_service.dart';
 
 class FacebookMonitoringService {
-  static const String _samElcoPageId = '117290636838993'; // Updated with your Facebook page ID for "𝐻𝑜𝓉-𝒞𝒽𝑜𝒸𝑜𝓁𝒶𝓉𝑒"
-  static const String _facebookGraphApiUrl = 'https://graph.facebook.com/v18.0';
+  static const String _samElcoPageId = AppConstants.samElcoPageId;
+  static const String _facebookGraphApiUrl = AppConstants.facebookGraphApiUrl;
   static const String _accessToken = 'EAATR4ZBcmDZBUBPZBK2oZBZChbLyEmbEZCUHtmRKJidx0NGZCNAJOJnuXXYNR8EnfDOrHmX27iHrZB6qJKH8ffwfyejlAXJcXPOqZChZBLuf3TZAGz3YSgcZBKMhfZCjBjJqZC6ELYtD6ZApZCH9gAtIGvHwaGlbtHDxrT1DINFDBL1CMQpq9su3ZANkr6vksZBDtSWZBDeCAj9uKUZD'; // Updated with provided access token
 
   final NotificationService _notificationService = NotificationService();
@@ -90,12 +91,17 @@ class FacebookMonitoringService {
   }
 
   Future<void> startMonitoring() async {
-    // Check for updates every 30 minutes
+    // Check for updates every 5 minutes for near real-time monitoring
     // In a real app, this would be handled by a background service/worker
-    // Note: This infinite loop is for demonstration; in production, use proper scheduling
+    // Note: This loop is for demonstration; in production, use proper scheduling
     while (true) {
-      await checkForRateUpdates();
-      await Future.delayed(const Duration(minutes: 30));
+      try {
+        await checkForRateUpdates();
+      } catch (e) {
+        developer.log('Error during monitoring cycle: $e', name: 'FacebookMonitoringService');
+        // Continue monitoring despite errors
+      }
+      await Future.delayed(const Duration(minutes: 5));
     }
   }
 

@@ -1,7 +1,4 @@
-const https = require('https');
-
-const ONESIGNAL_APP_ID = process.env.ONESIGNAL_APP_ID || '418744e0-0f43-40b7-ab7b-70c2748fe2f9';
-const ONESIGNAL_REST_API_KEY = process.env.ONESIGNAL_REST_API_KEY || 'p3us5d5f7esyvyrket4lbcf7q';
+const { sendOneSignalNotification, createScheduledNotificationData } = require('./shared-notification-utils');
 
 // Scheduled notification messages
 const SCHEDULED_MESSAGES = {
@@ -50,17 +47,12 @@ export default async function handler(req, res) {
 
     const messageConfig = SCHEDULED_MESSAGES[type];
 
-    const notificationData = {
-      app_id: ONESIGNAL_APP_ID,
-      headings: { en: messageConfig.heading },
-      contents: { en: messageConfig.message },
-      included_segments: [messageConfig.segment],
-      // Add data for app handling
-      data: {
-        type: type,
-        timestamp: new Date().toISOString()
-      }
-    };
+    const notificationData = createScheduledNotificationData(
+      type,
+      messageConfig.heading,
+      messageConfig.message,
+      messageConfig.segment
+    );
 
     console.log(`Sending scheduled notification: ${type}`);
 
@@ -89,50 +81,4 @@ export default async function handler(req, res) {
       details: error.message
     });
   }
-}
-
-function sendOneSignalNotification(data) {
-  return new Promise((resolve, reject) => {
-    const postData = JSON.stringify(data);
-
-    const options = {
-      hostname: 'onesignal.com',
-      port: 443,
-      path: '/api/v1/notifications',
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Basic ${ONESIGNAL_REST_API_KEY}`,
-        'Content-Length': Buffer.byteLength(postData)
-      }
-    };
-
-    const req = https.request(options, (res) => {
-      let body = '';
-
-      res.on('data', (chunk) => {
-        body += chunk;
-      });
-
-      res.on('end', () => {
-        try {
-          const response = JSON.parse(body);
-          if (res.statusCode === 200 && response.id) {
-            resolve({ success: true, id: response.id });
-          } else {
-            resolve({ success: false, error: response });
-          }
-        } catch (e) {
-          resolve({ success: false, error: 'Invalid response from OneSignal' });
-        }
-      });
-    });
-
-    req.on('error', (e) => {
-      reject(e);
-    });
-
-    req.write(postData);
-    req.end();
-  });
 }
