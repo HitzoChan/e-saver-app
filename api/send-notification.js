@@ -1,7 +1,7 @@
 const https = require('https');
 
-const ONESIGNAL_APP_ID = process.env.ONESIGNAL_APP_ID;
-const ONESIGNAL_REST_API_KEY = process.env.ONESIGNAL_REST_API_KEY;
+const ONESIGNAL_APP_ID = process.env.ONESIGNAL_APP_ID || '418744e0-0f43-40b7-ab7b-70c2748fe2f9';
+const ONESIGNAL_REST_API_KEY = process.env.ONESIGNAL_REST_API_KEY || 'p3us5d5f7esyvyrket4lbcf7q';
 
 export default async function handler(req, res) {
   // Only allow POST requests
@@ -17,7 +17,12 @@ export default async function handler(req, res) {
       app_id: ONESIGNAL_APP_ID,
       headings: { en: heading || "E-Saver Reminder" },
       contents: { en: message || "Time to check your energy usage!" },
-      included_segments: segment ? [segment] : ["All"]
+      included_segments: segment ? [segment] : ["All"],
+      // Add data for app handling
+      data: {
+        type: "manual_notification",
+        timestamp: new Date().toISOString()
+      }
     };
 
     // Send notification via OneSignal REST API

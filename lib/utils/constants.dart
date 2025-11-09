@@ -2,7 +2,11 @@ class AppConstants {
   // App Info
   static const String appName = 'E-Saver';
   static const String appTagline = 'Track Your Energy Usage';
-  
+
+  // OneSignal Configuration
+  static const String oneSignalAppId = '418744e0-0f43-40b7-ab7b-70c2748fe2f9';
+  static const String oneSignalRestApiKey = 'p3us5d5f7esyvyrket4lbcf7q';
+
   // Navigation
   static const List<String> navItems = [
     'Home',
@@ -11,7 +15,7 @@ class AppConstants {
     'Planner',
     'Profile',
   ];
-  
+
   // Appliance Categories
   static const List<Map<String, dynamic>> applianceCategories = [
     {'name': 'Washing', 'icon': '🧺', 'count': 1},
@@ -20,7 +24,7 @@ class AppConstants {
     {'name': 'Hairdryer', 'icon': '💨', 'count': 1},
     {'name': 'Roomcooler', 'icon': '❄️', 'count': 1},
   ];
-  
+
   // Sample Appliances
   static const List<Map<String, dynamic>> sampleAppliances = [
     {
@@ -42,7 +46,7 @@ class AppConstants {
       'usage': 'EUI 104 (G) PHP 13.XX',
     },
   ];
-  
+
   // Energy Saving Tips
   static const List<Map<String, String>> energyTips = [
     {

@@ -126,6 +126,11 @@ class NotificationsScreen extends StatelessWidget {
                     padding: const EdgeInsets.symmetric(horizontal: 24.0),
                     child: Consumer<DashboardProvider>(
                       builder: (context, dashboardProvider, child) {
+                        // Refresh notifications when entering the screen
+                        WidgetsBinding.instance.addPostFrameCallback((_) {
+                          dashboardProvider.refreshNotificationsFromStorage();
+                        });
+
                         final notifications = dashboardProvider.recentNotifications;
                         if (notifications.isEmpty) {
                           return Column(

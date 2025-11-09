@@ -177,7 +177,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                         ),
                                       ).then((_) {
                                         // Refresh notifications when returning from notifications screen
-                                        dashboardProvider.loadRecentNotifications();
+                                        dashboardProvider.refreshNotifications();
                                       });
                                     },
                                   ),

@@ -59,13 +59,23 @@ class NotificationModel {
 
   // Create from OneSignal notification data
   factory NotificationModel.fromOneSignal(Map<String, dynamic> data) {
+    // Extract timestamp from data if available, otherwise use current time
+    DateTime timestamp = DateTime.now();
+    if (data['timestamp'] != null) {
+      try {
+        timestamp = DateTime.parse(data['timestamp']);
+      } catch (e) {
+        // Keep current time if parsing fails
+      }
+    }
+
     return NotificationModel(
       id: data['notification_id'] ?? DateTime.now().millisecondsSinceEpoch.toString(),
       type: data['type'] ?? 'general',
       title: data['title'] ?? 'Notification',
       body: data['body'] ?? '',
       subtitle: data['subtitle'],
-      timestamp: DateTime.now(),
+      timestamp: timestamp,
       isRead: false,
       data: data,
       iconName: _getIconNameForType(data['type']),

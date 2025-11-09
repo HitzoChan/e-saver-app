@@ -6,7 +6,7 @@ import 'notification_service.dart';
 class FacebookMonitoringService {
   static const String _samElcoPageId = '117290636838993'; // Updated with your Facebook page ID for "𝐻𝑜𝓉-𝒞𝒽𝑜𝒸𝑜𝓁𝒶𝓉𝑒"
   static const String _facebookGraphApiUrl = 'https://graph.facebook.com/v18.0';
-  static const String _accessToken = 'EAATR4ZBcmDZBUBPz8rwAK2SVJYCAlJ5EfBZCZCX6KxIUG99CUndmrATywgogHbF3QHphUZAzb31MhdvwyzDJfjZAepI3s9YpD2IJzIIDW8KQ8yN4ZCvd2bWfrHmpqJM7yzfOVsG6tpldvmsCZA4vZCZBOwZCvj940IwUlB2uGttHZAD6410u5j76CExt9jdGvhLFh6GVDY5ZBrePQmo5ZCQjkp1L0oXnUfZC1m3FsOeysmf3TBQLBXnezQsJxYldqoqLOQx0eCTqcseokWrIQP1SpdrzcGM6sJM'; // Updated with provided access token
+  static const String _accessToken = 'EAATR4ZBcmDZBUBPZBK2oZBZChbLyEmbEZCUHtmRKJidx0NGZCNAJOJnuXXYNR8EnfDOrHmX27iHrZB6qJKH8ffwfyejlAXJcXPOqZChZBLuf3TZAGz3YSgcZBKMhfZCjBjJqZC6ELYtD6ZApZCH9gAtIGvHwaGlbtHDxrT1DINFDBL1CMQpq9su3ZANkr6vksZBDtSWZBDeCAj9uKUZD'; // Updated with provided access token
 
   final NotificationService _notificationService = NotificationService();
 

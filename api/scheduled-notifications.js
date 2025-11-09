@@ -1,7 +1,7 @@
 const https = require('https');
 
-const ONESIGNAL_APP_ID = process.env.ONESIGNAL_APP_ID;
-const ONESIGNAL_REST_API_KEY = process.env.ONESIGNAL_REST_API_KEY;
+const ONESIGNAL_APP_ID = process.env.ONESIGNAL_APP_ID || '418744e0-0f43-40b7-ab7b-70c2748fe2f9';
+const ONESIGNAL_REST_API_KEY = process.env.ONESIGNAL_REST_API_KEY || 'p3us5d5f7esyvyrket4lbcf7q';
 
 // Scheduled notification messages
 const SCHEDULED_MESSAGES = {
@@ -54,7 +54,12 @@ export default async function handler(req, res) {
       app_id: ONESIGNAL_APP_ID,
       headings: { en: messageConfig.heading },
       contents: { en: messageConfig.message },
-      included_segments: [messageConfig.segment]
+      included_segments: [messageConfig.segment],
+      // Add data for app handling
+      data: {
+        type: type,
+        timestamp: new Date().toISOString()
+      }
     };
 
     console.log(`Sending scheduled notification: ${type}`);

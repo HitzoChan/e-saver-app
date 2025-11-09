@@ -207,6 +207,11 @@ class DashboardProvider with ChangeNotifier {
     }
   }
 
+  // Method to refresh notifications (call this when returning to dashboard)
+  Future<void> refreshNotifications() async {
+    await loadRecentNotifications();
+  }
+
   void _loadSampleNotifications() {
     _recentNotifications = [
       NotificationModel(
@@ -312,5 +317,10 @@ class DashboardProvider with ChangeNotifier {
   void setCurrentUserId(String userId) {
     _currentUserId = userId;
     loadRecentNotifications(); // Reload notifications for the new user
+  }
+
+  // Refresh notifications from storage (call this when returning to notifications screen)
+  Future<void> refreshNotificationsFromStorage() async {
+    await loadRecentNotifications();
   }
 }

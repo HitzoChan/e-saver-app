@@ -35,6 +35,8 @@ class AuthProvider with ChangeNotifier {
       // Set user ID for OneSignal (using Firebase UID)
       if (_user?.uid != null) {
         await OneSignalService().setUserId(_user!.uid);
+        // Also set current user ID for notification storage
+        OneSignalService().setCurrentUserId(_user!.uid);
       }
 
       // Initialize local notifications

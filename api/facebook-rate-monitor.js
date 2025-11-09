@@ -3,9 +3,9 @@ const https = require('https');
 const FACEBOOK_APP_ID = process.env.FACEBOOK_APP_ID;
 const FACEBOOK_APP_SECRET = process.env.FACEBOOK_APP_SECRET;
 const SAMELCO_PAGE_ID = process.env.SAMELCO_PAGE_ID || '117290636838993'; // Updated with your Facebook page ID for "𝐻𝑜𝓉-𝒞𝒽𝑜𝒸𝑜𝓁𝒶𝓉𝑒"
-const FACEBOOK_ACCESS_TOKEN = process.env.FACEBOOK_ACCESS_TOKEN || 'EAATR4ZBcmDZBUBPz8rwAK2SVJYCAlJ5EfBZCZCX6KxIUG99CUndmrATywgogHbF3QHphUZAzb31MhdvwyzDJfjZAepI3s9YpD2IJzIIDW8KQ8yN4ZCvd2bWfrHmpqJM7yzfOVsG6tpldvmsCZA4vZCZBOwZCvj940IwUlB2uGttHZAD6410u5j76CExt9jdGvhLFh6GVDY5ZBrePQmo5ZCQjkp1L0oXnUfZC1m3FsOeysmf3TBQLBXnezQsJxYldqoqLOQx0eCTqcseokWrIQP1SpdrzcGM6sJM'; // Updated with provided access token
-const ONESIGNAL_APP_ID = process.env.ONESIGNAL_APP_ID || '733af534-3c80-4a46-b0d3-63bb2ec6a158'; // Updated with provided App ID
-const ONESIGNAL_REST_API_KEY = process.env.ONESIGNAL_REST_API_KEY || '4o6g5dt6guqwft535shi774m6'; // Updated with provided REST API Key
+const FACEBOOK_ACCESS_TOKEN = process.env.FACEBOOK_ACCESS_TOKEN || 'EAATR4ZBcmDZBUBPZBK2oZBZChbLyEmbEZCUHtmRKJidx0NGZCNAJOJnuXXYNR8EnfDOrHmX27iHrZB6qJKH8ffwfyejlAXJcXPOqZChZBLuf3TZAGz3YSgcZBKMhfZCjBjJqZC6ELYtD6ZApZCH9gAtIGvHwaGlbtHDxrT1DINFDBL1CMQpq9su3ZANkr6vksZBDtSWZBDeCAj9uKUZD'; // Updated with provided access token
+const ONESIGNAL_APP_ID = process.env.ONESIGNAL_APP_ID || '418744e0-0f43-40b7-ab7b-70c2748fe2f9';
+const ONESIGNAL_REST_API_KEY = process.env.ONESIGNAL_REST_API_KEY || 'p3us5d5f7esyvyrket4lbcf7q';
 
 // Get Facebook access token
 async function getFacebookAccessToken() {
@@ -234,7 +234,8 @@ export default async function handler(req, res) {
             type: 'rate_update',
             postUrl: analysis.permalinkUrl || `https://www.facebook.com/samelco/posts/${analysis.postId}`,
             updateId: analysis.postId,
-            extractedRate: analysis.extractedRate
+            extractedRate: analysis.extractedRate,
+            timestamp: new Date().toISOString()
           },
           url: analysis.permalinkUrl || `https://www.facebook.com/samelco/posts/${analysis.postId}`
         };

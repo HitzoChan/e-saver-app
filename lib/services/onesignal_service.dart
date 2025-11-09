@@ -1,12 +1,17 @@
 import 'package:onesignal_flutter/onesignal_flutter.dart';
 import 'dart:developer' as developer;
+import '../models/notification.dart';
+import '../services/notification_storage_service.dart';
 
 class OneSignalService {
   static final OneSignalService _instance = OneSignalService._internal();
   factory OneSignalService() => _instance;
   OneSignalService._internal();
 
-  static const String _appId = '733af534-3c80-4a46-b0d3-63bb2ec6a158'; // Updated with provided App ID
+  static const String _appId = '418744e0-0f43-40b7-ab7b-70c2748fe2f9'; // Updated with provided App ID
+  final NotificationStorageService _notificationStorage = NotificationStorageService();
+
+  String? _currentUserId;
 
   Future<void> initialize() async {
     try {
@@ -20,12 +25,14 @@ class OneSignalService {
       OneSignal.Notifications.addClickListener((event) {
         developer.log('Notification clicked: ${event.notification.additionalData}', name: 'OneSignalService');
         // Handle notification click here - could navigate to specific screen based on data
+        _handleNotificationClick(event.notification.additionalData ?? {});
       });
 
       // Handle notification received
       OneSignal.Notifications.addForegroundWillDisplayListener((event) {
         developer.log('Notification received: ${event.notification.additionalData}', name: 'OneSignalService');
-        // Handle notification received here - could update dashboard notifications
+        // Store the notification when received
+        _handleNotificationReceived(event.notification.additionalData ?? {});
       });
 
       developer.log('OneSignal initialized successfully', name: 'OneSignalService');
@@ -70,5 +77,37 @@ class OneSignalService {
 
   Future<void> removeExternalUserId() async {
     OneSignal.logout();
+  }
+
+  // Set current user ID for notification storage
+  void setCurrentUserId(String userId) {
+    _currentUserId = userId;
+  }
+
+  // Handle notification received - store it locally
+  void _handleNotificationReceived(Map<String, dynamic> data) {
+    if (_currentUserId == null) {
+      developer.log('No user ID set, cannot store notification', name: 'OneSignalService');
+      return;
+    }
+
+    try {
+      // Create notification from OneSignal data
+      final notification = NotificationModel.fromOneSignal(data);
+
+      // Store the notification
+      _notificationStorage.storeNotification(_currentUserId!, notification);
+
+      developer.log('Notification stored from OneSignal: ${notification.id}', name: 'OneSignalService');
+    } catch (e) {
+      developer.log('Error storing notification from OneSignal: $e', name: 'OneSignalService');
+    }
+  }
+
+  // Handle notification click
+  void _handleNotificationClick(Map<String, dynamic> data) {
+    developer.log('Handling notification click with data: $data', name: 'OneSignalService');
+    // TODO: Implement navigation based on notification type
+    // For example, navigate to rate screen for rate_update type
   }
 }
