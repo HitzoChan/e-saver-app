@@ -2,13 +2,14 @@ import 'package:onesignal_flutter/onesignal_flutter.dart';
 import 'dart:developer' as developer;
 import '../models/notification.dart';
 import '../services/notification_storage_service.dart';
+import '../utils/constants.dart';
 
 class OneSignalService {
   static final OneSignalService _instance = OneSignalService._internal();
   factory OneSignalService() => _instance;
   OneSignalService._internal();
 
-  static const String _appId = '418744e0-0f43-40b7-ab7b-70c2748fe2f9'; // Updated with provided App ID
+  static const String _appId = '418744e0-0f43-40b7-ab7b-70c2748fe2f9'; // Use constant instead of hardcoded
   final NotificationStorageService _notificationStorage = NotificationStorageService();
 
   String? _currentUserId;
@@ -33,6 +34,10 @@ class OneSignalService {
         developer.log('Notification received: ${event.notification.additionalData}', name: 'OneSignalService');
         // Store the notification when received
         _handleNotificationReceived(event.notification.additionalData ?? {});
+
+        // Allow the notification to be displayed
+        event.preventDefault();
+        event.notification.display();
       });
 
       developer.log('OneSignal initialized successfully', name: 'OneSignalService');

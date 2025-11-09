@@ -28,11 +28,30 @@ class NotificationService {
 
       await _localNotifications.initialize(settings);
 
+      // Create notification channel for Android
+      await _createNotificationChannel();
+
       developer.log('Notification service initialized', name: 'NotificationService');
     } catch (e) {
       developer.log('Failed to initialize notification service: $e', name: 'NotificationService');
       rethrow;
     }
+  }
+
+  Future<void> _createNotificationChannel() async {
+    const AndroidNotificationChannel channel = AndroidNotificationChannel(
+      'e_saver_channel',
+      'E-Saver Notifications',
+      description: 'Notifications for energy saving tips and updates',
+      importance: Importance.high,
+      playSound: true,
+      enableVibration: true,
+      showBadge: true,
+    );
+
+    await _localNotifications
+        .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>()
+        ?.createNotificationChannel(channel);
   }
 
   // static Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
