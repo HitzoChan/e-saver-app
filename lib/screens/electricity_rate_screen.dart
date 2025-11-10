@@ -26,6 +26,7 @@ class _ElectricityRateScreenState extends State<ElectricityRateScreen> {
   ElectricityRate? _currentRate;
   final bool _isLoading = false;
   bool _isSaving = false;
+  bool _isCheckingUpdates = false;
 
   @override
   void initState() {
@@ -126,29 +127,45 @@ class _ElectricityRateScreenState extends State<ElectricityRateScreen> {
     // Capture messenger before async gap
     final messenger = ScaffoldMessenger.of(context);
 
-    // Trigger Facebook rate monitoring
+    // Show loading indicator
+    setState(() => _isCheckingUpdates = true);
+
     try {
+      // Use the actual Vercel deployment URL
       final response = await http.get(
-        Uri.parse('https://your-app.vercel.app/api/facebook-rate-monitor'),
+        Uri.parse('https://e-saver-app.vercel.app/api/facebook-rate-monitor'),
       );
 
       if (!mounted) return;
 
       if (response.statusCode == 200) {
-        messenger.showSnackBar(
-          const SnackBar(content: Text('Checking for rate updates...')),
-        );
+        // Parse the response to check if updates were found
+        final responseData = response.body;
+        if (responseData.contains('rate updates found') || responseData.contains('Rate update found')) {
+          messenger.showSnackBar(
+            const SnackBar(content: Text('✅ New rate updates found! Check notifications.')),
+          );
+        } else {
+          messenger.showSnackBar(
+            const SnackBar(content: Text('✅ Checked for updates. No new rates found.')),
+          );
+        }
+
+        // Reload current rate to show any updates
+        await _loadCurrentRate();
       } else {
         messenger.showSnackBar(
-          const SnackBar(content: Text('Failed to check for updates')),
+          const SnackBar(content: Text('❌ Failed to check for updates. Try again later.')),
         );
       }
     } catch (e) {
       if (mounted) {
         messenger.showSnackBar(
-          SnackBar(content: Text('Error: $e')),
+          SnackBar(content: Text('❌ Error checking updates: $e')),
         );
       }
+    } finally {
+      if (mounted) setState(() => _isCheckingUpdates = false);
     }
   }
 
@@ -390,7 +407,7 @@ class _ElectricityRateScreenState extends State<ElectricityRateScreen> {
                           SizedBox(
                             width: double.infinity,
                             child: OutlinedButton(
-                              onPressed: _checkForUpdates,
+                              onPressed: _isCheckingUpdates ? null : _checkForUpdates,
                               style: OutlinedButton.styleFrom(
                                 side: const BorderSide(color: Colors.white, width: 1),
                                 padding: const EdgeInsets.symmetric(vertical: 16),
@@ -398,14 +415,23 @@ class _ElectricityRateScreenState extends State<ElectricityRateScreen> {
                                   borderRadius: BorderRadius.circular(16),
                                 ),
                               ),
-                              child: Text(
-                                'Check for Updates',
-                                style: GoogleFonts.poppins(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w600,
-                                  color: Colors.white,
-                                ),
-                              ),
+                              child: _isCheckingUpdates
+                                  ? const SizedBox(
+                                      height: 20,
+                                      width: 20,
+                                      child: CircularProgressIndicator(
+                                        strokeWidth: 2,
+                                        valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                                      ),
+                                    )
+                                  : Text(
+                                      'Check for Updates',
+                                      style: GoogleFonts.poppins(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.w600,
+                                        color: Colors.white,
+                                      ),
+                                    ),
                             ),
                           ),
                         ],
