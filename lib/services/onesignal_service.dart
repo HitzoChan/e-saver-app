@@ -2,14 +2,13 @@ import 'package:onesignal_flutter/onesignal_flutter.dart';
 import 'dart:developer' as developer;
 import '../models/notification.dart';
 import '../services/notification_storage_service.dart';
-import '../utils/constants.dart';
 
 class OneSignalService {
   static final OneSignalService _instance = OneSignalService._internal();
   factory OneSignalService() => _instance;
   OneSignalService._internal();
 
-  static const String _appId = '418744e0-0f43-40b7-ab7b-70c2748fe2f9'; // Use constant instead of hardcoded
+  static const String _appId = '50beb769-6563-4cd3-a98a-ef3437ae5a2e'; // Use constant instead of hardcoded
   final NotificationStorageService _notificationStorage = NotificationStorageService();
 
   String? _currentUserId;

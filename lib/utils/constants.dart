@@ -4,8 +4,8 @@ class AppConstants {
   static const String appTagline = 'Track Your Energy Usage';
 
   // OneSignal Configuration
-  static const String oneSignalAppId = '418744e0-0f43-40b7-ab7b-70c2748fe2f9';
-  static const String oneSignalRestApiKey = 'p3us5d5f7esyvyrket4lbcf7q';
+  static const String oneSignalAppId = '50beb769-6563-4cd3-a98a-ef3437ae5a2e';
+  static const String oneSignalRestApiKey = 'dqhkwveftehde5aqftvp3ri2u';
 
   // Facebook Monitoring Configuration
   static const String samElcoPageId = '117290636838993'; // SAMELCO Facebook Page ID
