@@ -373,6 +373,6 @@ class _BudgetSettingScreenState extends State<BudgetSettingScreen> {
           ),
         ),
       ),
-    );
+    ));
   }
 }

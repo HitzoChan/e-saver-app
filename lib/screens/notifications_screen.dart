@@ -31,7 +31,7 @@ class NotificationsScreen extends StatelessWidget {
           child: SingleChildScrollView(
             physics: const AlwaysScrollableScrollPhysics(),
             child: Padding(
-              padding: const EdgeInsets.only(bottom: 24.0),
+              padding: const EdgeInsets.only(bottom: 100.0), // Increased bottom padding for small screens to ensure all content is scrollable
               child: Column(
                 children: [
                   // App Bar
