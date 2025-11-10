@@ -124,8 +124,9 @@ class _BudgetSettingScreenState extends State<BudgetSettingScreen> {
               : AppColors.primaryGradient,
         ),
         child: SafeArea(
-          child: Column(
-            children: [
+          child: SingleChildScrollView(
+            child: Column(
+              children: [
               // App Bar
               Padding(
                 padding: const EdgeInsets.all(16.0),
@@ -328,8 +329,6 @@ class _BudgetSettingScreenState extends State<BudgetSettingScreen> {
                 ),
               ),
 
-              const Spacer(),
-
               // Save Button
               Padding(
                 padding: const EdgeInsets.all(24.0),
@@ -369,6 +368,7 @@ class _BudgetSettingScreenState extends State<BudgetSettingScreen> {
                   ),
                 ),
               ),
+              const SizedBox(height: 16), // Add bottom padding for small screens
             ],
           ),
         ),
