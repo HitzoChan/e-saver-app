@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:http/http.dart' as http;
 import 'package:provider/provider.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../utils/app_colors.dart';
 import '../providers/auth_provider.dart';
 import '../services/electricity_rate_service.dart';
@@ -124,44 +124,30 @@ class _ElectricityRateScreenState extends State<ElectricityRateScreen> {
   }
 
   Future<void> _checkForUpdates() async {
-    // Capture messenger before async gap
+    // Capture messenger before any async gap
     final messenger = ScaffoldMessenger.of(context);
 
     // Show loading indicator
     setState(() => _isCheckingUpdates = true);
 
     try {
-      // Use the actual Vercel deployment URL
-      final response = await http.get(
-        Uri.parse('https://e-saver-app.vercel.app/api/facebook-rate-monitor'),
-      );
+      // Directly open the SAMELCO Facebook page
+      final Uri facebookUrl = Uri.parse('https://www.facebook.com/ElectricitySaver2025');
 
-      if (!mounted) return;
-
-      if (response.statusCode == 200) {
-        // Parse the response to check if updates were found
-        final responseData = response.body;
-        if (responseData.contains('rate updates found') || responseData.contains('Rate update found')) {
-          messenger.showSnackBar(
-            const SnackBar(content: Text('✅ New rate updates found! Check notifications.')),
-          );
-        } else {
-          messenger.showSnackBar(
-            const SnackBar(content: Text('✅ Checked for updates. No new rates found.')),
-          );
-        }
-
-        // Reload current rate to show any updates
-        await _loadCurrentRate();
+      if (await canLaunchUrl(facebookUrl)) {
+        await launchUrl(facebookUrl, mode: LaunchMode.externalApplication);
+        messenger.showSnackBar(
+          const SnackBar(content: Text('🌐 Opening Facebook page...')),
+        );
       } else {
         messenger.showSnackBar(
-          const SnackBar(content: Text('❌ Failed to check for updates. Try again later.')),
+          const SnackBar(content: Text('❌ Could not open Facebook page')),
         );
       }
     } catch (e) {
       if (mounted) {
         messenger.showSnackBar(
-          SnackBar(content: Text('❌ Error checking updates: $e')),
+          SnackBar(content: Text('❌ Error opening Facebook: $e')),
         );
       }
     } finally {
@@ -425,7 +411,7 @@ class _ElectricityRateScreenState extends State<ElectricityRateScreen> {
                                       ),
                                     )
                                   : Text(
-                                      'Check for Updates',
+                                      'View Facebook',
                                       style: GoogleFonts.poppins(
                                         fontSize: 16,
                                         fontWeight: FontWeight.w600,

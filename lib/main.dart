@@ -11,7 +11,6 @@ import 'screens/profile_screen.dart';
 import 'widgets/custom_bottom_nav.dart';
 import 'utils/app_colors.dart';
 import 'services/firebase_service.dart';
-import 'services/notification_service.dart';
 import 'providers/auth_provider.dart';
 import 'providers/dashboard_provider.dart';
 import 'providers/appliance_provider.dart';
@@ -64,22 +63,12 @@ final ThemeData darkTheme = ThemeData(
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await FirebaseService.initialize();
-
-  // Initialize notifications
-  final notificationService = NotificationService();
-  await notificationService.initialize();
-
-  // Initialize settings
-  final settingsProvider = SettingsProvider();
-  await settingsProvider.loadSettings();
-
-  runApp(MyApp(settingsProvider: settingsProvider));
+  // OneSignal will be initialized when user signs in (after permission check)
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
-  final SettingsProvider settingsProvider;
-
-  const MyApp({super.key, required this.settingsProvider});
+  const MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -90,17 +79,13 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => ApplianceProvider()),
         ChangeNotifierProvider(create: (_) => BudgetProvider()),
         ChangeNotifierProvider(create: (_) => UsageRecordProvider()),
-        ChangeNotifierProvider.value(value: settingsProvider),
+        ChangeNotifierProvider(create: (_) => SettingsProvider()),
       ],
-      child: Consumer<SettingsProvider>(
-        builder: (context, settings, _) {
-          return MaterialApp(
-            title: 'E-Saver',
-            debugShowCheckedModeBanner: false,
-            theme: settings.isDarkMode ? darkTheme : lightTheme,
-            home: const AuthWrapper(),
-          );
-        },
+      child: MaterialApp(
+        title: 'E-Saver',
+        debugShowCheckedModeBanner: false,
+        theme: lightTheme,
+        home: const AuthWrapper(),
       ),
     );
   }

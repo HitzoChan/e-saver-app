@@ -29,8 +29,8 @@ class AuthProvider with ChangeNotifier {
 
   Future<void> _initializeNotifications() async {
     try {
-      // Initialize OneSignal first
-      await OneSignalService().initialize();
+      // Initialize OneSignal with handlers
+      await OneSignalService.initializeService();
 
       // Set user ID for OneSignal (using Firebase UID)
       if (_user?.uid != null) {
@@ -42,8 +42,19 @@ class AuthProvider with ChangeNotifier {
       // Initialize local notifications
       await NotificationService().initialize();
 
-      // Enable notifications and subscribe to topics
-      await NotificationService().setNotificationsEnabled(true);
+      // Check if we already have permission before enabling
+      final hasPermission = await OneSignalService().hasPermission();
+      if (hasPermission) {
+        // Enable notifications and subscribe to topics only if permission granted
+        await NotificationService().setNotificationsEnabled(true);
+      } else {
+        // If no permission, request it
+        final granted = await OneSignalService().requestPermission();
+        if (granted) {
+          await NotificationService().setNotificationsEnabled(true);
+        }
+      }
+      // If no permission, we'll handle this in the UI later
     } catch (e) {
       debugPrint('Failed to initialize notifications: $e');
     }
