@@ -253,10 +253,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        IconButton(
-                          icon: const Icon(Icons.arrow_back, color: Colors.white),
-                          onPressed: () => Navigator.pop(context),
-                        ),
+                        // Back button IconButton removed to disable back navigation
+                        // IconButton(
+                        //   icon: const Icon(Icons.arrow_back, color: Colors.white),
+                        //   onPressed: () => Navigator.pop(context),
+                        // ),
                         Text(
                           settingsProvider.getLocalizedText('Profile'),
                           style: GoogleFonts.poppins(
