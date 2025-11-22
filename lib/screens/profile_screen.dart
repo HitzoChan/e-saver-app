@@ -35,7 +35,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    // Reload profile data when returning to this screen
     _loadUserProfile();
   }
 
@@ -55,13 +54,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
         final userProfileService = UserProfileService();
         _userProfile = await userProfileService.getUserProfile();
 
-        // If no profile exists, create one from auth data
         _userProfile ??= await userProfileService.createDefaultProfile(
-            userId: authProvider.user!.uid,
-            name: authProvider.user!.displayName ?? 'User',
-            email: authProvider.user!.email ?? '',
-            photoUrl: authProvider.user!.photoURL,
-          );
+          userId: authProvider.user!.uid,
+          name: authProvider.user!.displayName ?? 'User',
+          email: authProvider.user!.email ?? '',
+          photoUrl: authProvider.user!.photoURL,
+        );
       }
     } catch (e) {
       debugPrint('Error loading user profile: $e');
@@ -74,6 +72,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   Future<void> _showNotificationSettings(BuildContext context) async {
     final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+
     return showModalBottomSheet(
       context: context,
       shape: const RoundedRectangleBorder(
@@ -113,11 +112,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ),
                 value: _notificationsEnabled,
                 onChanged: (value) async {
-                  setState(() {
-                    _notificationsEnabled = value;
-                  });
+                  setState(() => _notificationsEnabled = value);
                   await NotificationService().setNotificationsEnabled(value);
-                  this.setState(() {}); // Update parent state
+                  this.setState(() {});
                 },
                 activeThumbColor: AppColors.primaryBlue,
               ),
@@ -181,13 +178,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  Widget _buildNotificationTypeTile(BuildContext context, {
+  Widget _buildNotificationTypeTile(
+    BuildContext context, {
     required IconData icon,
     required String title,
     required String subtitle,
     required bool enabled,
   }) {
     final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+
     return ListTile(
       leading: Container(
         width: 40,
@@ -208,7 +207,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
         style: GoogleFonts.poppins(
           fontSize: 14,
           fontWeight: FontWeight.w600,
-          color: enabled ? (isDarkMode ? Colors.white : AppColors.textDark) : AppColors.textGray,
+          color: enabled
+              ? (isDarkMode ? Colors.white : AppColors.textDark)
+              : AppColors.textGray,
         ),
       ),
       subtitle: Text(
@@ -220,7 +221,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
       ),
       trailing: Icon(
         Icons.check_circle,
-        color: enabled ? AppColors.primaryBlue : AppColors.textGray.withValues(alpha: 0.3),
+        color: enabled
+            ? AppColors.primaryBlue
+            : AppColors.textGray.withValues(alpha: 0.3),
       ),
     );
   }
@@ -247,17 +250,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
             child: SafeArea(
               child: Column(
                 children: [
-                  // App Bar
+                  // ----- CENTERED TITLE -----
                   Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    padding: const EdgeInsets.only(top: 28.0, left: 16, right: 16, bottom: 16),
+                    child: Stack(
+                      alignment: Alignment.center,
                       children: [
-                        // Back button IconButton removed to disable back navigation
-                        // IconButton(
-                        //   icon: const Icon(Icons.arrow_back, color: Colors.white),
-                        //   onPressed: () => Navigator.pop(context),
-                        // ),
+                        // Centered Title
                         Text(
                           settingsProvider.getLocalizedText('Profile'),
                           style: GoogleFonts.poppins(
@@ -266,50 +265,49 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             fontWeight: FontWeight.w600,
                           ),
                         ),
-                        PopupMenuButton<String>(
-                          icon: const Icon(Icons.more_vert, color: Colors.white),
-                          onSelected: (value) {
-                            switch (value) {
-                              case 'settings':
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => const SettingsScreen(),
-                                  ),
-                                );
-                                break;
-                              case 'help':
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => const HelpSupportScreen(),
-                                  ),
-                                );
-                                break;
-                              case 'about':
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => const AboutScreen(),
-                                  ),
-                                );
-                                break;
-                            }
-                          },
-                          itemBuilder: (context) => [
-                            PopupMenuItem(
-                              value: 'settings',
-                              child: Text(settingsProvider.getLocalizedText('Settings')),
-                            ),
-                            PopupMenuItem(
-                              value: 'help',
-                              child: Text(settingsProvider.getLocalizedText('Help')),
-                            ),
-                            PopupMenuItem(
-                              value: 'about',
-                              child: Text(settingsProvider.getLocalizedText('About')),
-                            ),
-                          ],
+
+                        // Menu Button - right aligned
+                        Positioned(
+                          right: 0,
+                          child: PopupMenuButton<String>(
+                            icon: const Icon(Icons.more_vert, color: Colors.white),
+                            onSelected: (value) {
+                              switch (value) {
+                                case 'settings':
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(builder: (context) => const SettingsScreen()),
+                                  );
+                                  break;
+                                case 'help':
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(builder: (context) => const HelpSupportScreen()),
+                                  );
+                                  break;
+                                case 'about':
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(builder: (context) => const AboutScreen()),
+                                  );
+                                  break;
+                              }
+                            },
+                            itemBuilder: (context) => [
+                              PopupMenuItem(
+                                value: 'settings',
+                                child: Text(settingsProvider.getLocalizedText('Settings')),
+                              ),
+                              PopupMenuItem(
+                                value: 'help',
+                                child: Text(settingsProvider.getLocalizedText('Help')),
+                              ),
+                              PopupMenuItem(
+                                value: 'about',
+                                child: Text(settingsProvider.getLocalizedText('About')),
+                              ),
+                            ],
+                          ),
                         ),
                       ],
                     ),
@@ -317,7 +315,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
                   const SizedBox(height: 20),
 
-                  // User Profile
+                  // ----- PROFILE AVATAR + NAME -----
                   Column(
                     children: [
                       Container(
@@ -325,21 +323,22 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         height: 100,
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
-                          border: Border.all(
-                            color: Colors.white,
-                            width: 4,
-                          ),
+                          border: Border.all(color: Colors.white, width: 4),
                           image: DecorationImage(
                             image: _userProfile?.photoUrl != null
                                 ? NetworkImage(_userProfile!.photoUrl!)
-                                : const AssetImage('assets/images/default_avatar.png') as ImageProvider,
+                                : const AssetImage('assets/images/default_avatar.png')
+                                    as ImageProvider,
                             fit: BoxFit.cover,
                           ),
                         ),
                       ),
                       const SizedBox(height: 16),
                       Text(
-                        _isLoading ? settingsProvider.getLocalizedText('Loading...') : (_userProfile?.name ?? settingsProvider.getLocalizedText('User')),
+                        _isLoading
+                            ? settingsProvider.getLocalizedText('Loading...')
+                            : (_userProfile?.name ??
+                                settingsProvider.getLocalizedText('User')),
                         style: GoogleFonts.poppins(
                           color: Colors.white,
                           fontSize: 24,
@@ -359,7 +358,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
                   const SizedBox(height: 40),
 
-                  // Profile Options
+                  // ----- OPTIONS -----
                   Expanded(
                     child: Container(
                       decoration: const BoxDecoration(
@@ -370,7 +369,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         ),
                       ),
                       child: SingleChildScrollView(
-                        physics: const AlwaysScrollableScrollPhysics(),
                         padding: EdgeInsets.fromLTRB(
                           24,
                           24,
@@ -381,53 +379,61 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           children: [
                             _buildProfileOption(
                               icon: Icons.person,
-                              title: settingsProvider.getLocalizedText('Personal Information'),
-                              subtitle: settingsProvider.getLocalizedText('Update your profile details'),
+                              title: settingsProvider
+                                  .getLocalizedText('Personal Information'),
+                              subtitle: settingsProvider
+                                  .getLocalizedText('Update your profile details'),
                               onTap: () async {
                                 final result = await Navigator.push(
                                   context,
                                   MaterialPageRoute(
-                                    builder: (context) => const PersonalInformationScreen(),
+                                    builder: (context) =>
+                                        const PersonalInformationScreen(),
                                   ),
                                 );
-
-                                // If changes were saved, reload the profile data
-                                if (result == true) {
-                                  _loadUserProfile();
-                                }
+                                if (result == true) _loadUserProfile();
                               },
                             ),
                             const SizedBox(height: 16),
+
                             _buildProfileOption(
                               icon: Icons.notifications,
-                              title: settingsProvider.getLocalizedText('Notifications'),
-                              subtitle: settingsProvider.getLocalizedText('Manage notification preferences'),
+                              title: settingsProvider
+                                  .getLocalizedText('Notifications'),
+                              subtitle: settingsProvider.getLocalizedText(
+                                  'Manage notification preferences'),
                               onTap: () => _showNotificationSettings(context),
                             ),
                             const SizedBox(height: 16),
+
                             _buildProfileOption(
                               icon: Icons.lightbulb,
                               title: settingsProvider.getLocalizedText('Energy Tips'),
-                              subtitle: settingsProvider.getLocalizedText('View energy saving tips'),
+                              subtitle: settingsProvider
+                                  .getLocalizedText('View energy saving tips'),
                               onTap: () {
                                 Navigator.push(
                                   context,
                                   MaterialPageRoute(
-                                    builder: (context) => const EnergyTipsScreen(),
+                                    builder: (context) =>
+                                        const EnergyTipsScreen(),
                                   ),
                                 );
                               },
                             ),
                             const SizedBox(height: 16),
+
                             _buildProfileOption(
                               icon: Icons.settings,
                               title: settingsProvider.getLocalizedText('Settings'),
-                              subtitle: settingsProvider.getLocalizedText('App preferences and configuration'),
+                              subtitle: settingsProvider.getLocalizedText(
+                                  'App preferences and configuration'),
                               onTap: () {
                                 Navigator.push(
                                   context,
                                   MaterialPageRoute(
-                                    builder: (context) => const SettingsScreen(),
+                                    builder: (context) =>
+                                        const SettingsScreen(),
                                   ),
                                 );
                               },
@@ -469,10 +475,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 color: AppColors.primaryBlue.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(12),
               ),
-              child: Icon(
-                icon,
-                color: AppColors.primaryBlue,
-              ),
+              child: Icon(icon, color: AppColors.primaryBlue),
             ),
             const SizedBox(width: 16),
             Expanded(
@@ -498,11 +501,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ],
               ),
             ),
-            const Icon(
-              Icons.arrow_forward_ios,
-              color: AppColors.textGray,
-              size: 16,
-            ),
+            const Icon(Icons.arrow_forward_ios,
+                color: AppColors.textGray, size: 16),
           ],
         ),
       ),

@@ -27,7 +27,6 @@ class _AddApplianceScreenState extends State<AddApplianceScreen> {
   @override
   void initState() {
     super.initState();
-    // Load appliances when screen initializes
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<ApplianceProvider>().loadAppliances();
       _loadUserProfile();
@@ -43,13 +42,12 @@ class _AddApplianceScreenState extends State<AddApplianceScreen> {
         final userProfileService = UserProfileService();
         _userProfile = await userProfileService.getUserProfile();
 
-        // If no profile exists, create one from auth data
         _userProfile ??= await userProfileService.createDefaultProfile(
-            userId: authProvider.user!.uid,
-            name: authProvider.user!.displayName ?? 'User',
-            email: authProvider.user!.email ?? '',
-            photoUrl: authProvider.user!.photoURL,
-          );
+          userId: authProvider.user!.uid,
+          name: authProvider.user!.displayName ?? 'User',
+          email: authProvider.user!.email ?? '',
+          photoUrl: authProvider.user!.photoURL,
+        );
       }
     } catch (e) {
       debugPrint('Error loading user profile: $e');
@@ -80,16 +78,13 @@ class _AddApplianceScreenState extends State<AddApplianceScreen> {
         child: SafeArea(
           child: Column(
             children: [
-              // App Bar
+              // ===== Centered App Bar =====
               Padding(
                 padding: const EdgeInsets.all(16.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                child: Stack(
+                  alignment: Alignment.center,
                   children: [
-                    IconButton(
-                      icon: const Icon(Icons.arrow_back, color: Colors.white),
-                      onPressed: () => Navigator.pop(context),
-                    ),
+                    // Center Title
                     Text(
                       'Add Appliance',
                       style: GoogleFonts.poppins(
@@ -98,57 +93,62 @@ class _AddApplianceScreenState extends State<AddApplianceScreen> {
                         fontWeight: FontWeight.w600,
                       ),
                     ),
-                    PopupMenuButton<String>(
-                      icon: const Icon(Icons.more_vert, color: Colors.white),
-                      onSelected: (value) {
-                        switch (value) {
-                          case 'settings':
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => const SettingsScreen(),
-                              ),
-                            );
-                            break;
-                          case 'help':
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => const HelpSupportScreen(),
-                              ),
-                            );
-                            break;
-                          case 'about':
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => const AboutScreen(),
-                              ),
-                            );
-                            break;
-                        }
-                      },
-                      itemBuilder: (context) => [
-                        const PopupMenuItem(
-                          value: 'settings',
-                          child: Text('Settings'),
-                        ),
-                        const PopupMenuItem(
-                          value: 'help',
-                          child: Text('Help'),
-                        ),
-                        const PopupMenuItem(
-                          value: 'about',
-                          child: Text('About'),
-                        ),
-                      ],
+
+                    // Popup Menu on the right
+                    Positioned(
+                      right: 0,
+                      child: PopupMenuButton<String>(
+                        icon: const Icon(Icons.more_vert, color: Colors.white),
+                        onSelected: (value) {
+                          switch (value) {
+                            case 'settings':
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => const SettingsScreen(),
+                                ),
+                              );
+                              break;
+                            case 'help':
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => const HelpSupportScreen(),
+                                ),
+                              );
+                              break;
+                            case 'about':
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => const AboutScreen(),
+                                ),
+                              );
+                              break;
+                          }
+                        },
+                        itemBuilder: (context) => const [
+                          PopupMenuItem(
+                            value: 'settings',
+                            child: Text('Settings'),
+                          ),
+                          PopupMenuItem(
+                            value: 'help',
+                            child: Text('Help'),
+                          ),
+                          PopupMenuItem(
+                            value: 'about',
+                            child: Text('About'),
+                          ),
+                        ],
+                      ),
                     ),
                   ],
                 ),
               ),
-              
+
               const SizedBox(height: 20),
-              
+
               // User Profile
               Column(
                 children: [
@@ -180,9 +180,9 @@ class _AddApplianceScreenState extends State<AddApplianceScreen> {
                   ),
                 ],
               ),
-              
+
               const SizedBox(height: 30),
-              
+
               // Appliance List
               Expanded(
                 child: Stack(
@@ -199,10 +199,10 @@ class _AddApplianceScreenState extends State<AddApplianceScreen> {
                         padding: const EdgeInsets.all(24.0),
                         child: Column(
                           children: [
-                            // Stats Row - Responsive Wrap
                             Consumer<ApplianceProvider>(
                               builder: (context, applianceProvider, child) {
-                                final settingsProvider = Provider.of<SettingsProvider>(context, listen: false);
+                                final settingsProvider =
+                                    Provider.of<SettingsProvider>(context, listen: false);
                                 return Wrap(
                                   spacing: 12,
                                   runSpacing: 12,
@@ -242,7 +242,7 @@ class _AddApplianceScreenState extends State<AddApplianceScreen> {
 
                             const SizedBox(height: 24),
 
-                            // Appliance List
+                            // Appliance List Items
                             Expanded(
                               child: Consumer<ApplianceProvider>(
                                 builder: (context, applianceProvider, child) {
@@ -280,39 +280,40 @@ class _AddApplianceScreenState extends State<AddApplianceScreen> {
 
                                   final appliances = applianceProvider.appliances;
                                   return appliances.isEmpty
-                                    ? Center(
-                                        child: Consumer<SettingsProvider>(
-                                          builder: (context, settingsProvider, child) {
-                                            return Text(
-                                              settingsProvider.getLocalizedText('No appliances added yet.\nTap the + button to add your first appliance!'),
-                                              textAlign: TextAlign.center,
-                                              style: GoogleFonts.poppins(
-                                                color: AppColors.textGray,
-                                                fontSize: 16,
-                                              ),
+                                      ? Center(
+                                          child: Consumer<SettingsProvider>(
+                                            builder: (context, settingsProvider, child) {
+                                              return Text(
+                                                settingsProvider.getLocalizedText(
+                                                    'No appliances added yet.\nTap the + button to add your first appliance!'),
+                                                textAlign: TextAlign.center,
+                                                style: GoogleFonts.poppins(
+                                                  color: AppColors.textGray,
+                                                  fontSize: 16,
+                                                ),
+                                              );
+                                            },
+                                          ),
+                                        )
+                                      : ListView.builder(
+                                          itemCount: appliances.length,
+                                          padding: const EdgeInsets.only(bottom: 100),
+                                          itemBuilder: (context, index) {
+                                            final appliance = appliances[index];
+                                            return Column(
+                                              children: [
+                                                _buildApplianceItem(
+                                                  appliance.name,
+                                                  appliance.category.displayName,
+                                                  '${appliance.wattage}W',
+                                                  appliance,
+                                                ),
+                                                if (index < appliances.length - 1)
+                                                  const SizedBox(height: 16),
+                                              ],
                                             );
                                           },
-                                        ),
-                                      )
-                                    : ListView.builder(
-                                        itemCount: appliances.length,
-                                        padding: const EdgeInsets.only(bottom: 100), // Add more space at bottom
-                                        itemBuilder: (context, index) {
-                                          final appliance = appliances[index];
-                                          return Column(
-                                            children: [
-                                              _buildApplianceItem(
-                                                appliance.name,
-                                                appliance.category.displayName,
-                                                '${appliance.wattage}W',
-                                                appliance,
-                                              ),
-                                              if (index < appliances.length - 1)
-                                                const SizedBox(height: 16), // Increased spacing between items
-                                            ],
-                                          );
-                                        },
-                                      );
+                                        );
                                 },
                               ),
                             ),
@@ -321,7 +322,7 @@ class _AddApplianceScreenState extends State<AddApplianceScreen> {
                       ),
                     ),
 
-                    // Add Button
+                    // Add Appliance Floating Button
                     Positioned(
                       bottom: 20,
                       right: 20,
@@ -333,7 +334,6 @@ class _AddApplianceScreenState extends State<AddApplianceScreen> {
                               builder: (context) => const AddApplianceFormScreen(),
                             ),
                           );
-                          // Refresh the list when returning from add form
                           if (result == true) {
                             if (mounted) {
                               context.read<ApplianceProvider>().refresh();
@@ -371,7 +371,7 @@ class _AddApplianceScreenState extends State<AddApplianceScreen> {
       ),
     );
   }
-  
+
   Widget _buildStatCard(String value, String label) {
     return Container(
       height: MediaQuery.of(context).size.width < 600 ? 70 : 80,
@@ -386,7 +386,8 @@ class _AddApplianceScreenState extends State<AddApplianceScreen> {
           Text(
             value,
             style: GoogleFonts.poppins(
-              fontSize: MediaQuery.of(context).size.width < 600 ? (value.length > 6 ? 12 : 14) : 16,
+              fontSize:
+                  MediaQuery.of(context).size.width < 600 ? (value.length > 6 ? 12 : 14) : 16,
               fontWeight: FontWeight.bold,
               color: AppColors.primaryBlue,
             ),
@@ -404,8 +405,9 @@ class _AddApplianceScreenState extends State<AddApplianceScreen> {
       ),
     );
   }
-  
-  Widget _buildApplianceItem(String name, String category, String details, Appliance appliance) {
+
+  Widget _buildApplianceItem(
+      String name, String category, String details, Appliance appliance) {
     return Dismissible(
       key: Key(appliance.id),
       direction: DismissDirection.endToStart,
@@ -443,7 +445,6 @@ class _AddApplianceScreenState extends State<AddApplianceScreen> {
         );
       },
       onDismissed: (direction) async {
-        // Capture messenger and provider before async gap
         final messenger = ScaffoldMessenger.of(context);
         final provider = context.read<ApplianceProvider>();
 
@@ -456,7 +457,6 @@ class _AddApplianceScreenState extends State<AddApplianceScreen> {
           messenger.showSnackBar(
             SnackBar(content: Text('Error deleting appliance: $e')),
           );
-          // Reload the list to restore the item if deletion failed
           provider.refresh();
         }
       },
@@ -468,7 +468,6 @@ class _AddApplianceScreenState extends State<AddApplianceScreen> {
               builder: (context) => AddApplianceFormScreen(applianceToEdit: appliance),
             ),
           );
-          // Refresh the list when returning from edit form
           if (result == true && mounted) {
             context.read<ApplianceProvider>().refresh();
           }

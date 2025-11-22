@@ -26,7 +26,6 @@ class _PlannerScreenState extends State<PlannerScreen> {
   @override
   void initState() {
     super.initState();
-    // Load budget data when screen initializes
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) {
         context.read<BudgetProvider>().loadCurrentBudget();
@@ -56,16 +55,13 @@ class _PlannerScreenState extends State<PlannerScreen> {
             child: SafeArea(
               child: Column(
                 children: [
-                  // App Bar
+                  // ================== CENTERED APP BAR ==================
                   Padding(
                     padding: const EdgeInsets.all(16.0),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    child: Stack(
+                      alignment: Alignment.center,
                       children: [
-                        IconButton(
-                          icon: const Icon(Icons.arrow_back, color: Colors.white),
-                          onPressed: () => Navigator.pop(context),
-                        ),
+                        // Center Title
                         Text(
                           settingsProvider.getLocalizedText('Planner'),
                           style: GoogleFonts.poppins(
@@ -74,54 +70,60 @@ class _PlannerScreenState extends State<PlannerScreen> {
                             fontWeight: FontWeight.w600,
                           ),
                         ),
-                        PopupMenuButton<String>(
-                          icon: const Icon(Icons.more_vert, color: Colors.white),
-                          onSelected: (value) {
-                            switch (value) {
-                              case 'settings':
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => const SettingsScreen(),
-                                  ),
-                                );
-                                break;
-                              case 'help':
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => const HelpSupportScreen(),
-                                  ),
-                                );
-                                break;
-                              case 'about':
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => const AboutScreen(),
-                                  ),
-                                );
-                                break;
-                            }
-                          },
-                          itemBuilder: (context) => [
-                            const PopupMenuItem(
-                              value: 'settings',
-                              child: Text('Settings'),
-                            ),
-                            const PopupMenuItem(
-                              value: 'help',
-                              child: Text('Help'),
-                            ),
-                            const PopupMenuItem(
-                              value: 'about',
-                              child: Text('About'),
-                            ),
-                          ],
+
+                        // Popup Menu at right
+                        Positioned(
+                          right: 0,
+                          child: PopupMenuButton<String>(
+                            icon: const Icon(Icons.more_vert, color: Colors.white),
+                            onSelected: (value) {
+                              switch (value) {
+                                case 'settings':
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => const SettingsScreen(),
+                                    ),
+                                  );
+                                  break;
+                                case 'help':
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => const HelpSupportScreen(),
+                                    ),
+                                  );
+                                  break;
+                                case 'about':
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => const AboutScreen(),
+                                    ),
+                                  );
+                                  break;
+                              }
+                            },
+                            itemBuilder: (context) => const [
+                              PopupMenuItem(
+                                value: 'settings',
+                                child: Text('Settings'),
+                              ),
+                              PopupMenuItem(
+                                value: 'help',
+                                child: Text('Help'),
+                              ),
+                              PopupMenuItem(
+                                value: 'about',
+                                child: Text('About'),
+                              ),
+                            ],
+                          ),
                         ),
                       ],
                     ),
                   ),
+                  // ========================================================
 
                   const SizedBox(height: 40),
 
@@ -220,11 +222,12 @@ class _PlannerScreenState extends State<PlannerScreen> {
 
                   const SizedBox(height: 40),
 
-                  // Budget Categories
                   Expanded(
                     child: Container(
                       decoration: BoxDecoration(
-                        color: Theme.of(context).brightness == Brightness.dark ? Colors.grey[800] : Colors.white,
+                        color: Theme.of(context).brightness == Brightness.dark
+                            ? Colors.grey[800]
+                            : Colors.white,
                         borderRadius: const BorderRadius.only(
                           topLeft: Radius.circular(30),
                           topRight: Radius.circular(30),
@@ -239,36 +242,39 @@ class _PlannerScreenState extends State<PlannerScreen> {
                               Row(
                                 children: [
                                   Expanded(
-                                    child: _buildCategoryChip(settingsProvider.getLocalizedText('Keep\nGoodHabits'), true, () {
-                                      // Navigate to good habits screen
-                                      Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                          builder: (context) => const GoodHabitsScreen(),
-                                        ),
-                                      );
-                                    }),
+                                    child: _buildCategoryChip(
+                                      settingsProvider.getLocalizedText('Keep\nGoodHabits'),
+                                      true,
+                                      () {
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (context) => const GoodHabitsScreen(),
+                                          ),
+                                        );
+                                      },
+                                    ),
                                   ),
                                   const SizedBox(width: 8),
-
-                                  const SizedBox(width: 8),
                                   Expanded(
-                                    child: _buildCategoryChip(settingsProvider.getLocalizedText('Tips\nTricks'), false, () {
-                                      // Navigate to energy tips screen
-                                      Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                          builder: (context) => const EnergyTipsScreen(),
-                                        ),
-                                      );
-                                    }),
+                                    child: _buildCategoryChip(
+                                      settingsProvider.getLocalizedText('Tips\nTricks'),
+                                      false,
+                                      () {
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (context) => const EnergyTipsScreen(),
+                                          ),
+                                        );
+                                      },
+                                    ),
                                   ),
                                 ],
                               ),
 
                               const SizedBox(height: 24),
 
-                              // Appliance Budget List
                               Consumer<ApplianceProvider>(
                                 builder: (context, applianceProvider, child) {
                                   if (applianceProvider.isLoading) {
@@ -281,32 +287,21 @@ class _PlannerScreenState extends State<PlannerScreen> {
                                   if (appliances.isEmpty) {
                                     return Center(
                                       child: Column(
-                                        mainAxisAlignment: MainAxisAlignment.center,
                                         children: [
-                                          const Icon(
-                                            Icons.devices_other,
-                                            size: 48,
-                                            color: Colors.grey,
-                                          ),
+                                          const Icon(Icons.devices_other, size: 48, color: Colors.grey),
                                           const SizedBox(height: 16),
                                           Text(
                                             settingsProvider.language == 'Filipino'
                                                 ? 'Walang appliances na naidagdag pa'
                                                 : 'No appliances added yet',
-                                            style: GoogleFonts.poppins(
-                                              fontSize: 16,
-                                              color: Colors.grey,
-                                            ),
+                                            style: GoogleFonts.poppins(fontSize: 16, color: Colors.grey),
                                           ),
                                           const SizedBox(height: 8),
                                           Text(
                                             settingsProvider.language == 'Filipino'
                                                 ? 'Magdagdag ng appliances para makita ang budget breakdown'
                                                 : 'Add appliances to see budget breakdown',
-                                            style: GoogleFonts.poppins(
-                                              fontSize: 12,
-                                              color: Colors.grey,
-                                            ),
+                                            style: GoogleFonts.poppins(fontSize: 12, color: Colors.grey),
                                           ),
                                         ],
                                       ),
@@ -319,15 +314,11 @@ class _PlannerScreenState extends State<PlannerScreen> {
                                         settingsProvider.language == 'Filipino'
                                             ? 'Walang electricity rate na nakatakda'
                                             : 'No electricity rate set',
-                                        style: GoogleFonts.poppins(
-                                          fontSize: 14,
-                                          color: Colors.grey,
-                                        ),
+                                        style: GoogleFonts.poppins(fontSize: 14, color: Colors.grey),
                                       ),
                                     );
                                   }
 
-                                  // Sort appliances by monthly cost (highest first)
                                   final sortedAppliances = List<Appliance>.from(appliances)
                                     ..sort((a, b) {
                                       final costA = a.calculateMonthlyCost(rate.ratePerKwh, a.hoursPerDay);
@@ -335,13 +326,14 @@ class _PlannerScreenState extends State<PlannerScreen> {
                                       return costB.compareTo(costA);
                                     });
 
-                                  // Show top 5 appliances or all if less than 5
                                   final displayAppliances = sortedAppliances.take(5).toList();
 
                                   return Column(
                                     children: displayAppliances.map((appliance) {
-                                      final monthlyCost = appliance.calculateMonthlyCost(rate.ratePerKwh, appliance.hoursPerDay);
-                                      final categoryText = _getCategoryDisplayText(appliance.category, settingsProvider.language);
+                                      final monthlyCost = appliance.calculateMonthlyCost(
+                                          rate.ratePerKwh, appliance.hoursPerDay);
+                                      final categoryText =
+                                          _getCategoryDisplayText(appliance.category, settingsProvider.language);
 
                                       return Padding(
                                         padding: const EdgeInsets.only(bottom: 12),
@@ -358,7 +350,6 @@ class _PlannerScreenState extends State<PlannerScreen> {
 
                               const SizedBox(height: 24),
 
-                              // Set Monthly Budget Button
                               Consumer<BudgetProvider>(
                                 builder: (context, budgetProvider, child) {
                                   return SizedBox(
@@ -381,7 +372,9 @@ class _PlannerScreenState extends State<PlannerScreen> {
                                         elevation: 0,
                                       ),
                                       child: Text(
-                                        budgetProvider.hasActiveBudget ? settingsProvider.getLocalizedText('Update Monthly Budget') : settingsProvider.getLocalizedText('Set Monthly Budget'),
+                                        budgetProvider.hasActiveBudget
+                                            ? settingsProvider.getLocalizedText('Update Monthly Budget')
+                                            : settingsProvider.getLocalizedText('Set Monthly Budget'),
                                         style: GoogleFonts.poppins(
                                           fontSize: 16,
                                           fontWeight: FontWeight.w600,
@@ -443,10 +436,12 @@ class _PlannerScreenState extends State<PlannerScreen> {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        height: 60, // Fixed height for uniform size
+        height: 60,
         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
         decoration: BoxDecoration(
-          color: isSelected ? AppColors.primaryBlue : (isDark ? Colors.grey[600] : Colors.grey.withValues(alpha: 0.1)),
+          color: isSelected
+              ? AppColors.primaryBlue
+              : (isDark ? Colors.grey[600] : Colors.grey.withValues(alpha: 0.1)),
           borderRadius: BorderRadius.circular(12),
         ),
         child: Center(
@@ -454,7 +449,7 @@ class _PlannerScreenState extends State<PlannerScreen> {
             label,
             textAlign: TextAlign.center,
             style: GoogleFonts.poppins(
-              fontSize: 11, // Slightly smaller font for better fit
+              fontSize: 11,
               fontWeight: FontWeight.w600,
               color: isSelected ? Colors.white : (isDark ? Colors.white70 : AppColors.textGray),
             ),
@@ -463,11 +458,10 @@ class _PlannerScreenState extends State<PlannerScreen> {
       ),
     );
   }
-  
+
   Widget _buildBudgetItem(String name, String category, String amount) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
-    // Get appropriate icon based on appliance name
     IconData getApplianceIcon(String applianceName) {
       final lowerName = applianceName.toLowerCase();
       if (lowerName.contains('refrigerator') || lowerName.contains('fridge')) {

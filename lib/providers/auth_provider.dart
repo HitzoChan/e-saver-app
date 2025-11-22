@@ -1,21 +1,25 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import '../services/notification_service.dart';
-import '../services/onesignal_service.dart';
 
 class AuthProvider with ChangeNotifier {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final GoogleSignIn _googleSignIn = GoogleSignIn(scopes: ['email']);
   User? _user;
   bool _isLoading = true;
+  StreamSubscription<User?>? _authStateSubscription;
+  bool _isDisposed = false;
 
   User? get user => _user;
   bool get isAuthenticated => _user != null;
   bool get isLoading => _isLoading;
 
   AuthProvider() {
-    _auth.authStateChanges().listen((User? user) {
+    _authStateSubscription = _auth.authStateChanges().listen((User? user) {
+      if (_isDisposed) return;
+
       _user = user;
       _isLoading = false;
       notifyListeners();
@@ -27,34 +31,19 @@ class AuthProvider with ChangeNotifier {
     });
   }
 
+  @override
+  void dispose() {
+    _isDisposed = true;
+    _authStateSubscription?.cancel();
+    super.dispose();
+  }
+
   Future<void> _initializeNotifications() async {
     try {
-      // Initialize OneSignal with handlers
-      await OneSignalService.initializeService();
-
-      // Set user ID for OneSignal (using Firebase UID)
-      if (_user?.uid != null) {
-        await OneSignalService().setUserId(_user!.uid);
-        // Also set current user ID for notification storage
-        OneSignalService().setCurrentUserId(_user!.uid);
-      }
-
       // Initialize local notifications
       await NotificationService().initialize();
-
-      // Check if we already have permission before enabling
-      final hasPermission = await OneSignalService().hasPermission();
-      if (hasPermission) {
-        // Enable notifications and subscribe to topics only if permission granted
-        await NotificationService().setNotificationsEnabled(true);
-      } else {
-        // If no permission, request it
-        final granted = await OneSignalService().requestPermission();
-        if (granted) {
-          await NotificationService().setNotificationsEnabled(true);
-        }
-      }
-      // If no permission, we'll handle this in the UI later
+      // Enable notifications
+      await NotificationService().setNotificationsEnabled(true);
     } catch (e) {
       debugPrint('Failed to initialize notifications: $e');
     }
@@ -62,12 +51,11 @@ class AuthProvider with ChangeNotifier {
 
   Future<bool> signIn(String email, String password) async {
     try {
-      UserCredential result = await _auth.signInWithEmailAndPassword(
-        email: email, 
+      await _auth.signInWithEmailAndPassword(
+        email: email,
         password: password
       );
-      _user = result.user;
-      notifyListeners();
+      // Auth state will be updated automatically by authStateChanges listener
       return true;
     } catch (e) {
       debugPrint('Sign in error: $e');
@@ -77,12 +65,11 @@ class AuthProvider with ChangeNotifier {
 
   Future<bool> register(String email, String password) async {
     try {
-      UserCredential result = await _auth.createUserWithEmailAndPassword(
-        email: email, 
+      await _auth.createUserWithEmailAndPassword(
+        email: email,
         password: password
       );
-      _user = result.user;
-      notifyListeners();
+      // Auth state will be updated automatically by authStateChanges listener
       return true;
     } catch (e) {
       debugPrint('Registration error: $e');

@@ -196,7 +196,6 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   void _showEmailSignIn() {
-    final scaffoldContext = context;
     final emailController = TextEditingController();
     final passwordController = TextEditingController();
     bool isSignIn = true; // true for sign in, false for sign up
@@ -206,7 +205,7 @@ class _LoginScreenState extends State<LoginScreen> {
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (context) {
+      builder: (modalContext) {
         return StatefulBuilder(
           builder: (context, setState) {
             return Container(
@@ -345,13 +344,8 @@ class _LoginScreenState extends State<LoginScreen> {
                                 final email = emailController.text.trim();
                                 final password = passwordController.text;
 
-                                // Capture providers before async gap
-                                final auth = Provider.of<AuthProvider>(
-                                    scaffoldContext, listen: false);
-                                final messenger = ScaffoldMessenger.of(scaffoldContext);
-
                                 if (email.isEmpty || password.isEmpty) {
-                                  messenger.showSnackBar(
+                                  ScaffoldMessenger.of(modalContext).showSnackBar(
                                     const SnackBar(
                                       content: Text('Please fill in all fields'),
                                     ),
@@ -361,6 +355,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
                                 setState(() => isDialogLoading = true);
 
+                                final auth = Provider.of<AuthProvider>(modalContext, listen: false);
                                 final success = isSignIn
                                     ? await auth.signIn(email, password)
                                     : await auth.register(email, password);
@@ -368,16 +363,21 @@ class _LoginScreenState extends State<LoginScreen> {
                                 setState(() => isDialogLoading = false);
 
                                 if (success) {
-                                  Navigator.of(scaffoldContext).pop();
-                                  messenger.showSnackBar(
-                                    SnackBar(
-                                      content: Text(isSignIn
-                                          ? 'Signed in successfully'
-                                          : 'Account created successfully'),
-                                    ),
-                                  );
+                                  Navigator.of(modalContext).pop();
+                                  // Show success message after modal is closed
+                                  WidgetsBinding.instance.addPostFrameCallback((_) {
+                                    if (mounted) {
+                                      ScaffoldMessenger.of(context).showSnackBar(
+                                        SnackBar(
+                                          content: Text(isSignIn
+                                              ? 'Signed in successfully'
+                                              : 'Account created successfully'),
+                                        ),
+                                      );
+                                    }
+                                  });
                                 } else {
-                                  messenger.showSnackBar(
+                                  ScaffoldMessenger.of(modalContext).showSnackBar(
                                     SnackBar(
                                       content: Text(isSignIn
                                           ? 'Sign in failed'
