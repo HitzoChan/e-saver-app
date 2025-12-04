@@ -7,6 +7,7 @@ import '../services/notification_service.dart';
 class AuthProvider with ChangeNotifier {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final GoogleSignIn _googleSignIn = GoogleSignIn(scopes: ['email']);
+
   User? _user;
   bool _isLoading = true;
   StreamSubscription<User?>? _authStateSubscription;
@@ -40,41 +41,53 @@ class AuthProvider with ChangeNotifier {
 
   Future<void> _initializeNotifications() async {
     try {
-      // Initialize local notifications
       await NotificationService().initialize();
-      // Enable notifications
       await NotificationService().setNotificationsEnabled(true);
     } catch (e) {
       debugPrint('Failed to initialize notifications: $e');
     }
   }
 
+  // ✅ FULLY FIXED GOOGLE SIGN-IN FLOW
   Future<bool> signInWithGoogle() async {
     try {
-      // Trigger the authentication flow
+      // If already signed in Firebase → return success immediately
+      if (_auth.currentUser != null) {
+        debugPrint("User already signed in. Skipping Google UI.");
+        _user = _auth.currentUser;
+        notifyListeners();
+        return true;
+      }
+
+      // Start Google login flow
       final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
 
+      // If user closes the Google window without selecting an account
       if (googleUser == null) {
-        debugPrint('Google Sign In cancelled by user');
+        debugPrint("Google Sign-In cancelled by user.");
         return false;
       }
 
-      // Obtain the auth details from the request
-      final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
+      // Auth details from Google
+      final GoogleSignInAuthentication googleAuth =
+          await googleUser.authentication;
 
-      // Create a new credential
+      // Create Firebase credential
       final AuthCredential credential = GoogleAuthProvider.credential(
         accessToken: googleAuth.accessToken,
         idToken: googleAuth.idToken,
       );
 
-      // Sign in to Firebase with the Google Auth credentials
-      final UserCredential result = await _auth.signInWithCredential(credential);
+      // Login to Firebase
+      final UserCredential result =
+          await _auth.signInWithCredential(credential);
+
       _user = result.user;
       notifyListeners();
       return true;
+
     } catch (e) {
-      debugPrint('Google Sign In error: $e');
+      debugPrint("Google Sign-In Error: $e");
       return false;
     }
   }
