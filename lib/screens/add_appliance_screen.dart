@@ -297,11 +297,72 @@ class _AddApplianceScreenState extends State<AddApplianceScreen> {
             final appliance = appliances[index];
             return Column(
               children: [
-                _buildApplianceItem(
-                  appliance.name,
-                  appliance.category.displayName,
-                  "${appliance.wattage}W",
-                  appliance,
+                Dismissible(
+                  // appliance.id is non-nullable in your model, so use it directly
+                  key: ValueKey(appliance.id),
+                  direction: DismissDirection.endToStart,
+                  background: Container(
+                    alignment: Alignment.centerRight,
+                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                    decoration: BoxDecoration(color: Colors.red, borderRadius: BorderRadius.circular(12)),
+                    child: const Icon(Icons.delete, color: Colors.white),
+                  ),
+                  confirmDismiss: (direction) async {
+                    return await showDialog<bool>(
+                      context: context,
+                      builder: (ctx) => AlertDialog(
+                        title: const Text('Delete appliance'),
+                        content: Text('Delete "${appliance.name}"?'),
+                        actions: [
+                          TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Cancel')),
+                          TextButton(onPressed: () => Navigator.pop(ctx, true), child: const Text('Delete')),
+                        ],
+                      ),
+                    );
+                  },
+                  onDismissed: (direction) async {
+                    // Capture context-derived objects before async gap
+                    final provider = context.read<ApplianceProvider>();
+                    final messenger = ScaffoldMessenger.of(context);
+
+                    // Attempt delete (deleteAppliance may return void). Treat no exception as success.
+                    var deleted = false;
+                    try {
+                      await provider.deleteAppliance(appliance.id);
+                      deleted = true;
+                    } catch (e) {
+                      deleted = false;
+                    }
+
+                    if (!deleted) {
+                      // restore / refresh list
+                      provider.refresh();
+                      messenger.showSnackBar(const SnackBar(content: Text('Could not delete appliance')));
+                      return;
+                    }
+
+                    messenger.showSnackBar(
+                      SnackBar(
+                        content: Text('${appliance.name} deleted'),
+                        action: SnackBarAction(
+                          label: 'Undo',
+                          onPressed: () async {
+                            try {
+                              await provider.addAppliance(appliance);
+                            } catch (_) {
+                              provider.refresh();
+                            }
+                          },
+                        ),
+                      ),
+                    );
+                  },
+                  child: _buildApplianceItem(
+                    appliance.name,
+                    appliance.category.displayName,
+                    "${appliance.wattage}W",
+                    appliance,
+                  ),
                 ),
                 if (index < appliances.length - 1) const SizedBox(height: 16),
               ],

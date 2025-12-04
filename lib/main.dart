@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'screens/dashboard_screen.dart';
-import 'screens/onboarding_screen.dart';
+//import 'screens/onboarding_screen.dart';
 import 'screens/login_screen.dart';
 import 'screens/track_save_screen.dart';
 import 'screens/planner_screen.dart';
@@ -37,7 +37,8 @@ final ThemeData lightTheme = ThemeData(
     backgroundColor: Colors.white,
     selectedItemColor: AppColors.primaryBlue,
     unselectedItemColor: AppColors.textGray,
-  ), dialogTheme: DialogThemeData(backgroundColor: Colors.white),
+  ),
+  dialogTheme: DialogThemeData(backgroundColor: Colors.white),
 );
 
 // Define dark theme
@@ -58,7 +59,8 @@ final ThemeData darkTheme = ThemeData(
     backgroundColor: Colors.black,
     selectedItemColor: AppColors.primaryBlue,
     unselectedItemColor: Colors.grey,
-  ), dialogTheme: DialogThemeData(backgroundColor: Colors.grey[900]),
+  ),
+  dialogTheme: DialogThemeData(backgroundColor: Colors.grey[900]),
 );
 
 Future<void> main() async {
@@ -162,27 +164,9 @@ class _MainScreenState extends State<MainScreen> {
           });
         },
       ),
-      floatingActionButton: _currentIndex == 0
-          ? FloatingActionButton.extended(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const OnboardingScreen(),
-                  ),
-                );
-              },
-              backgroundColor: AppColors.accentGreen,
-              icon: const Icon(Icons.info_outline, color: Colors.white),
-              label: Text(
-                'Get Started',
-                style: GoogleFonts.poppins(
-                  color: Colors.white,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            )
-          : null,
+
+      // Get Started button removed completely
+      floatingActionButton: null,
     );
   }
 }

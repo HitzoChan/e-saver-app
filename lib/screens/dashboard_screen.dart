@@ -33,7 +33,6 @@ class _DashboardScreenState extends State<DashboardScreen>
   UserProfile? _userProfile;
   bool _isLoadingProfile = true;
 
-  // Get Started popup controls
   bool _showGetStarted = false;
   late AnimationController _fadeController;
   late Animation<double> _fadeAnimation;
@@ -42,17 +41,15 @@ class _DashboardScreenState extends State<DashboardScreen>
   void initState() {
     super.initState();
 
-    // Fade animation setup
     _fadeController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 600),
     );
+
     _fadeAnimation =
         CurvedAnimation(parent: _fadeController, curve: Curves.easeInOut);
 
-    // Load data and trigger popup after first frame
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      // safe to use context here (synchronous callback right after build)
       context.read<DashboardProvider>().loadDashboardData();
       _loadUserProfile();
       _triggerGetStartedPopup();
@@ -60,7 +57,6 @@ class _DashboardScreenState extends State<DashboardScreen>
   }
 
   void _triggerGetStartedPopup() {
-    // show, animate in, then hide after a few seconds
     if (!mounted) return;
     setState(() => _showGetStarted = true);
     _fadeController.forward();
@@ -80,6 +76,7 @@ class _DashboardScreenState extends State<DashboardScreen>
 
     try {
       final authProvider = Provider.of<AuthProvider>(context, listen: false);
+
       if (authProvider.user != null) {
         final userProfileService = UserProfileService();
         final profile = await userProfileService.getUserProfile();
@@ -94,6 +91,7 @@ class _DashboardScreenState extends State<DashboardScreen>
             email: authProvider.user!.email ?? '',
             photoUrl: authProvider.user!.photoURL,
           );
+
           if (!mounted) return;
           _userProfile = created;
         }
@@ -121,13 +119,13 @@ class _DashboardScreenState extends State<DashboardScreen>
     return Scaffold(
       key: _scaffoldKey,
       drawer: Consumer<SettingsProvider>(
-        builder: (context, settings, child) => _buildDrawer(context, settings),
+        builder: (context, settings, child) =>
+            _buildDrawer(context),
       ),
       body: Stack(
         children: [
           _buildDashboardContent(),
 
-          // Animated Get Started Pop-up Button (bottom-right)
           if (_showGetStarted)
             Positioned(
               bottom: 20,
@@ -139,13 +137,14 @@ class _DashboardScreenState extends State<DashboardScreen>
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => const AddApplianceScreen(),
+                        builder: (context) =>
+                            const AddApplianceScreen(),
                       ),
                     );
                   },
                   child: Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 20, vertical: 14),
                     decoration: BoxDecoration(
                       color: AppColors.accentGreen,
                       borderRadius: BorderRadius.circular(30),
@@ -158,9 +157,9 @@ class _DashboardScreenState extends State<DashboardScreen>
                       ],
                     ),
                     child: Row(
-                      mainAxisSize: MainAxisSize.min,
                       children: [
-                        const Icon(Icons.play_arrow, color: Colors.white, size: 22),
+                        const Icon(Icons.play_arrow,
+                            color: Colors.white, size: 22),
                         const SizedBox(width: 6),
                         Text(
                           "Get Started",
@@ -180,7 +179,7 @@ class _DashboardScreenState extends State<DashboardScreen>
     );
   }
 
-  // ---------------------- MAIN DASHBOARD CONTENT ----------------------
+  // ---------------------- MAIN CONTENT ----------------------
 
   Widget _buildDashboardContent() {
     return Container(
@@ -241,7 +240,6 @@ class _DashboardScreenState extends State<DashboardScreen>
   Widget _buildDashboard(DashboardProvider dashboardProvider) {
     return Column(
       children: [
-        // ---------- TOP APP BAR ----------
         Padding(
           padding: const EdgeInsets.all(16.0),
           child: Row(
@@ -266,17 +264,12 @@ class _DashboardScreenState extends State<DashboardScreen>
                   },
                 ),
               ),
-
-              // removed notification bell - keep spacing consistent
               const SizedBox(width: 40),
-
-              // popup menu
               _buildPopupMenu(),
             ],
           ),
         ),
 
-        // ---------- MAIN CONTENT ----------
         Expanded(
           child: SingleChildScrollView(
             physics: const AlwaysScrollableScrollPhysics(),
@@ -298,8 +291,6 @@ class _DashboardScreenState extends State<DashboardScreen>
     );
   }
 
-  // ---------- small components ----------
-
   Widget _buildPopupMenu() {
     return PopupMenuButton<String>(
       icon: const Icon(Icons.more_vert, color: Colors.white),
@@ -307,21 +298,21 @@ class _DashboardScreenState extends State<DashboardScreen>
         switch (value) {
           case 'settings':
             Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => const SettingsScreen()),
-            );
+                context,
+                MaterialPageRoute(
+                    builder: (context) => const SettingsScreen()));
             break;
           case 'help':
             Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => const HelpSupportScreen()),
-            );
+                context,
+                MaterialPageRoute(
+                    builder: (context) => const HelpSupportScreen()));
             break;
           case 'about':
             Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => const AboutScreen()),
-            );
+                context,
+                MaterialPageRoute(
+                    builder: (context) => const AboutScreen()));
             break;
         }
       },
@@ -339,7 +330,8 @@ class _DashboardScreenState extends State<DashboardScreen>
       height: context.responsiveSize(80),
       decoration: BoxDecoration(
         color: const Color.fromRGBO(255, 255, 255, 0.2),
-        borderRadius: BorderRadius.circular(context.responsiveBorderRadius(20)),
+        borderRadius:
+            BorderRadius.circular(context.responsiveBorderRadius(20)),
       ),
       child: const Icon(Icons.eco, size: 50, color: AppColors.accentGreen),
     );
@@ -369,7 +361,6 @@ class _DashboardScreenState extends State<DashboardScreen>
     );
   }
 
-  // OLD design stat-cards (no icons) restored
   Widget _buildStatCards(DashboardProvider provider) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
@@ -380,8 +371,14 @@ class _DashboardScreenState extends State<DashboardScreen>
         children: [
           SizedBox(
             width: context.isMobile
-                ? (MediaQuery.of(context).size.width - context.responsiveSize(40) - context.responsiveSize(12)) / 2
-                : (MediaQuery.of(context).size.width - context.responsiveSize(40) - 2 * context.responsiveSize(12)) / 3,
+                ? (MediaQuery.of(context).size.width -
+                        context.responsiveSize(40) -
+                        context.responsiveSize(12)) /
+                    2
+                : (MediaQuery.of(context).size.width -
+                        context.responsiveSize(40) -
+                        2 * context.responsiveSize(12)) /
+                    3,
             child: _buildStatCard(
               '${provider.averageDailyUsage.toStringAsFixed(1)} kW',
               'Daily Usage',
@@ -389,8 +386,14 @@ class _DashboardScreenState extends State<DashboardScreen>
           ),
           SizedBox(
             width: context.isMobile
-                ? (MediaQuery.of(context).size.width - context.responsiveSize(40) - context.responsiveSize(12)) / 2
-                : (MediaQuery.of(context).size.width - context.responsiveSize(40) - 2 * context.responsiveSize(12)) / 3,
+                ? (MediaQuery.of(context).size.width -
+                        context.responsiveSize(40) -
+                        context.responsiveSize(12)) /
+                    2
+                : (MediaQuery.of(context).size.width -
+                        context.responsiveSize(40) -
+                        2 * context.responsiveSize(12)) /
+                    3,
             child: _buildStatCard(
               '${Provider.of<SettingsProvider>(context, listen: false).currencySymbol}${provider.totalMonthlyCost.toStringAsFixed(0)}',
               'Monthly Cost',
@@ -398,13 +401,19 @@ class _DashboardScreenState extends State<DashboardScreen>
           ),
           SizedBox(
             width: context.isMobile
-                ? MediaQuery.of(context).size.width - context.responsiveSize(40)
-                : (MediaQuery.of(context).size.width - context.responsiveSize(40) - 2 * context.responsiveSize(12)) / 3,
+                ? MediaQuery.of(context).size.width -
+                    context.responsiveSize(40)
+                : (MediaQuery.of(context).size.width -
+                        context.responsiveSize(40) -
+                        2 * context.responsiveSize(12)) /
+                    3,
             child: GestureDetector(
               onTap: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => const ElectricityRateScreen()),
+                  MaterialPageRoute(
+                      builder: (context) =>
+                          const ElectricityRateScreen()),
                 ).then((_) => provider.loadDashboardData());
               },
               child: _buildStatCard(
@@ -426,7 +435,8 @@ class _DashboardScreenState extends State<DashboardScreen>
       height: context.isMobile ? 70 : 80,
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
       decoration: BoxDecoration(
-        color: isDark ? const Color.fromRGBO(255, 255, 255, 0.06) : const Color.fromRGBO(255, 255, 255, 0.1),
+        color:
+            isDark ? const Color.fromRGBO(255, 255, 255, 0.06) : const Color.fromRGBO(255, 255, 255, 0.1),
         borderRadius: BorderRadius.circular(12),
       ),
       child: Column(
@@ -477,20 +487,25 @@ class _DashboardScreenState extends State<DashboardScreen>
     );
   }
 
-  // --------------------- DRAWER ----------------------
+  // ---------------------- DRAWER (Option A Behavior) ----------------------
 
-  Widget _buildDrawer(BuildContext context, SettingsProvider settings) {
-    final isMobile = MediaQuery.of(context).size.width < 800;
+  Widget _buildDrawer(BuildContext context) {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
+    final bool isMobile = MediaQuery.of(context).size.width < 800;
+
     return Drawer(
-      width: isMobile ? MediaQuery.of(context).size.width * 0.8 : context.responsiveSize(320),
+      width: isMobile
+          ? MediaQuery.of(context).size.width * 0.8
+          : context.responsiveSize(320),
       child: Container(
         decoration: BoxDecoration(
-          gradient: AppColors.primaryGradient,
+          color: isDark ? const Color(0xFF111111) : null,
+          gradient: isDark ? null : AppColors.primaryGradient,
         ),
         child: SafeArea(
           child: Column(
             children: [
-              // PROFILE
+              // PROFILE SECTION
               Container(
                 padding: EdgeInsets.symmetric(
                   horizontal: context.responsiveSize(24),
@@ -510,7 +525,8 @@ class _DashboardScreenState extends State<DashboardScreen>
                         image: DecorationImage(
                           image: _userProfile?.photoUrl != null
                               ? NetworkImage(_userProfile!.photoUrl!)
-                              : const AssetImage("assets/images/default_avatar.png")
+                              : const AssetImage(
+                                      "assets/images/default_avatar.png")
                                   as ImageProvider,
                           fit: BoxFit.cover,
                         ),
@@ -518,7 +534,9 @@ class _DashboardScreenState extends State<DashboardScreen>
                     ),
                     SizedBox(height: context.responsiveSize(16)),
                     Text(
-                      _isLoadingProfile ? "Loading..." : (_userProfile?.name ?? "User"),
+                      _isLoadingProfile
+                          ? "Loading..."
+                          : (_userProfile?.name ?? "User"),
                       style: GoogleFonts.poppins(
                         color: Colors.white,
                         fontSize: context.responsiveFontSize(20),
@@ -528,12 +546,16 @@ class _DashboardScreenState extends State<DashboardScreen>
                     SizedBox(height: context.responsiveSize(4)),
                     Text(
                       "Energy Saver",
-                      style: GoogleFonts.poppins(color: Colors.white70, fontSize: context.responsiveFontSize(14)),
+                      style: GoogleFonts.poppins(
+                        color: Colors.white70,
+                        fontSize: context.responsiveFontSize(14),
+                      ),
                     ),
                   ],
                 ),
               ),
 
+              // MENU ITEMS
               Expanded(
                 child: ListView(
                   padding: EdgeInsets.zero,
@@ -541,16 +563,18 @@ class _DashboardScreenState extends State<DashboardScreen>
                     _buildDrawerButton(
                       icon: Icons.home,
                       text: "Dashboard",
-                      onTap: () {
-                        Navigator.pop(context);
-                      },
+                      onTap: () => Navigator.pop(context),
                     ),
                     _buildDrawerButton(
                       icon: Icons.bar_chart,
                       text: "Statistics",
                       onTap: () {
                         Navigator.pop(context);
-                        Navigator.push(context, MaterialPageRoute(builder: (context) => const TrackSaveScreen()));
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (_) => const TrackSaveScreen()),
+                        );
                       },
                     ),
                     _buildDrawerButton(
@@ -558,7 +582,11 @@ class _DashboardScreenState extends State<DashboardScreen>
                       text: "Add Appliance",
                       onTap: () {
                         Navigator.pop(context);
-                        Navigator.push(context, MaterialPageRoute(builder: (context) => const AddApplianceScreen()));
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (_) => const AddApplianceScreen()),
+                        );
                       },
                     ),
                     _buildDrawerButton(
@@ -566,7 +594,11 @@ class _DashboardScreenState extends State<DashboardScreen>
                       text: "Planner",
                       onTap: () {
                         Navigator.pop(context);
-                        Navigator.push(context, MaterialPageRoute(builder: (context) => const PlannerScreen()));
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (_) => const PlannerScreen()),
+                        );
                       },
                     ),
                     _buildDrawerButton(
@@ -574,16 +606,29 @@ class _DashboardScreenState extends State<DashboardScreen>
                       text: "Profile",
                       onTap: () {
                         Navigator.pop(context);
-                        Navigator.push(context, MaterialPageRoute(builder: (context) => const ProfileScreen()));
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (_) => const ProfileScreen()),
+                        );
                       },
                     ),
-                    Divider(color: Colors.white30, height: context.responsiveSize(32)),
+
+                    Divider(
+                      color: Colors.white30,
+                      height: context.responsiveSize(32),
+                    ),
+
                     _buildDrawerButton(
                       icon: Icons.settings,
                       text: "Settings",
                       onTap: () {
                         Navigator.pop(context);
-                        Navigator.push(context, MaterialPageRoute(builder: (context) => const SettingsScreen()));
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (_) => const SettingsScreen()),
+                        );
                       },
                     ),
                     _buildDrawerButton(
@@ -591,7 +636,11 @@ class _DashboardScreenState extends State<DashboardScreen>
                       text: "Help & Support",
                       onTap: () {
                         Navigator.pop(context);
-                        Navigator.push(context, MaterialPageRoute(builder: (context) => const HelpSupportScreen()));
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (_) => const HelpSupportScreen()),
+                        );
                       },
                     ),
                     _buildDrawerButton(
@@ -599,38 +648,52 @@ class _DashboardScreenState extends State<DashboardScreen>
                       text: "About",
                       onTap: () {
                         Navigator.pop(context);
-                        Navigator.push(context, MaterialPageRoute(builder: (context) => const AboutScreen()));
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (_) => const AboutScreen()),
+                        );
                       },
                     ),
-                    const SizedBox(height: 8),
                   ],
                 ),
               ),
 
+              // LOGOUT BUTTON — FIXED WARNING
               Padding(
                 padding: EdgeInsets.all(context.responsiveSize(16)),
                 child: ElevatedButton.icon(
                   onPressed: () async {
-                    // pop drawer first then sign out safely
                     final navigator = Navigator.of(context);
+                    final loginRoute =
+                        MaterialPageRoute(builder: (_) => const LoginScreen());
+
                     navigator.pop();
-                    final auth = Provider.of<AuthProvider>(context, listen: false);
+
+                    final auth = Provider.of<AuthProvider>(
+                        context,
+                        listen: false);
                     await auth.signOut();
+
                     if (!mounted) return;
                     navigator.pushAndRemoveUntil(
-                      MaterialPageRoute(builder: (context) => const LoginScreen()),
-                      (route) => false,
-                    );
+                        loginRoute, (route) => false);
                   },
-                  icon: const Icon(Icons.logout, color: AppColors.primaryBlue),
+                  icon: const Icon(Icons.logout, color: Colors.white),
                   label: Text(
                     "Logout",
-                    style: GoogleFonts.poppins(color: AppColors.primaryBlue, fontWeight: FontWeight.w600),
+                    style: GoogleFonts.poppins(
+                      color: Colors.white,
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.white,
-                    minimumSize: Size(double.infinity, context.responsiveSize(48)),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    backgroundColor: Colors.red.shade600,
+                    minimumSize:
+                        Size(double.infinity, context.responsiveSize(48)),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
                   ),
                 ),
               ),
@@ -648,7 +711,13 @@ class _DashboardScreenState extends State<DashboardScreen>
   }) {
     return ListTile(
       leading: Icon(icon, color: Colors.white),
-      title: Text(text, style: GoogleFonts.poppins(color: Colors.white, fontWeight: FontWeight.w500)),
+      title: Text(
+        text,
+        style: GoogleFonts.poppins(
+          color: Colors.white,
+          fontWeight: FontWeight.w500,
+        ),
+      ),
       onTap: onTap,
     );
   }

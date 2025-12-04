@@ -128,30 +128,20 @@ class GoodHabitsScreen extends StatelessWidget {
                               child: Column(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
-                                  const Icon(
-                                    Icons.devices_other,
-                                    size: 64,
-                                    color: Colors.grey,
-                                  ),
+                                  const Icon(Icons.devices_other, size: 64, color: Colors.grey),
                                   const SizedBox(height: 16),
                                   Text(
                                     settingsProvider.language == 'Filipino'
                                         ? 'Walang appliances na naka-add'
                                         : 'No appliances added yet',
-                                    style: GoogleFonts.poppins(
-                                      fontSize: 18,
-                                      color: Colors.grey,
-                                    ),
+                                    style: GoogleFonts.poppins(fontSize: 18, color: Colors.grey),
                                   ),
                                   const SizedBox(height: 8),
                                   Text(
                                     settingsProvider.language == 'Filipino'
                                         ? 'Magdagdag ng appliances upang makita ang iyong mga gawi'
                                         : 'Add appliances to see your usage habits',
-                                    style: GoogleFonts.poppins(
-                                      fontSize: 14,
-                                      color: Colors.grey,
-                                    ),
+                                    style: GoogleFonts.poppins(fontSize: 14, color: Colors.grey),
                                   ),
                                 ],
                               ),
@@ -186,6 +176,9 @@ class GoodHabitsScreen extends StatelessWidget {
     );
   }
 
+  // -------------------------------------------------------------------
+  // APPLIANCE HABIT CARD
+  // -------------------------------------------------------------------
   Widget _buildApplianceHabitCard(
     BuildContext context,
     Appliance appliance,
@@ -193,13 +186,14 @@ class GoodHabitsScreen extends StatelessWidget {
     SettingsProvider settingsProvider,
   ) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final screenWidth = MediaQuery.of(context).size.width;
 
     // Calculate daily and monthly usage
-    final dailyUsage = appliance.wattage * appliance.hoursPerDay / 1000; // kWh
+    final dailyUsage = appliance.wattage * appliance.hoursPerDay / 1000;
     final monthlyUsage = dailyUsage * 30;
     final monthlyCost = rate != null ? monthlyUsage * rate.ratePerKwh : 0.0;
 
-    // Get habit tips based on appliance type using the new service
+    // Get habit tips
     final habitTipsService = HabitTipsService();
     final habitTips = habitTipsService.getHabitTips(appliance, settingsProvider.language);
 
@@ -213,9 +207,9 @@ class GoodHabitsScreen extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Appliance Header
           Row(
             children: [
+              // Icon box
               Container(
                 width: 50,
                 height: 50,
@@ -228,19 +222,27 @@ class GoodHabitsScreen extends StatelessWidget {
                   color: AppColors.primaryBlue,
                 ),
               ),
+
               const SizedBox(width: 16),
+
+              // Appliance Info
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    // **RESPONSIVE APPLIANCE NAME**
                     Text(
                       appliance.name,
+                      maxLines: 2,
+                      softWrap: true,
+                      overflow: TextOverflow.ellipsis,
                       style: GoogleFonts.poppins(
-                        fontSize: 18,
+                        fontSize: screenWidth < 360 ? 14 : 18,
                         fontWeight: FontWeight.bold,
                         color: isDark ? Colors.white : AppColors.textDark,
                       ),
                     ),
+
                     Text(
                       '${appliance.hoursPerDay} ${settingsProvider.language == 'Filipino' ? 'oras kada araw' : 'hours per day'}',
                       style: GoogleFonts.poppins(
@@ -251,6 +253,8 @@ class GoodHabitsScreen extends StatelessWidget {
                   ],
                 ),
               ),
+
+              // Usage Info
               Column(
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
@@ -278,7 +282,9 @@ class GoodHabitsScreen extends StatelessWidget {
 
           // Habit Tips
           Text(
-            settingsProvider.language == 'Filipino' ? 'Mga Tip para sa Mabuting Ugali:' : 'Good Habit Tips:',
+            settingsProvider.language == 'Filipino'
+                ? 'Mga Tip para sa Mabuting Ugali:'
+                : 'Good Habit Tips:',
             style: GoogleFonts.poppins(
               fontSize: 14,
               fontWeight: FontWeight.w600,
@@ -289,31 +295,32 @@ class GoodHabitsScreen extends StatelessWidget {
           const SizedBox(height: 8),
 
           ...habitTips.map((tip) => Padding(
-            padding: const EdgeInsets.only(bottom: 4),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text('• ', style: TextStyle(color: AppColors.accentGreen)),
-                Expanded(
-                  child: Text(
-                    tip,
-                    style: GoogleFonts.poppins(
-                      fontSize: 12,
-                      color: isDark ? Colors.white70 : AppColors.textGray,
-                      height: 1.4,
+                padding: const EdgeInsets.only(bottom: 4),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text('• ', style: TextStyle(color: AppColors.accentGreen)),
+                    Expanded(
+                      child: Text(
+                        tip,
+                        style: GoogleFonts.poppins(
+                          fontSize: 12,
+                          color: isDark ? Colors.white70 : AppColors.textGray,
+                          height: 1.4,
+                        ),
+                      ),
                     ),
-                  ),
+                  ],
                 ),
-              ],
-            ),
-          )),
+              )),
         ],
       ),
     );
   }
 
-
-
+  // -------------------------------------------------------------------
+  // ICON SELECTOR
+  // -------------------------------------------------------------------
   IconData _getApplianceIcon(ApplianceCategory category) {
     switch (category) {
       case ApplianceCategory.cooling:
