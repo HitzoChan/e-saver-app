@@ -3,11 +3,15 @@
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:e_saver/main.dart';
+import 'package:e_saver/providers/settings_provider.dart';
 
 void main() {
   testWidgets('E-Saver app smoke test', (WidgetTester tester) async {
+    // Create a mock settings provider
+    final settingsProvider = SettingsProvider();
+
     // Build our app and trigger a frame.
-    await tester.pumpWidget(const MyApp());
+    await tester.pumpWidget(MyApp(settingsProvider: settingsProvider));
 
     // Verify that splash screen loads
     expect(find.text('E-Saver'), findsOneWidget);

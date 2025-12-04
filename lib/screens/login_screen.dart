@@ -38,7 +38,7 @@ class _LoginScreenState extends State<LoginScreen> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                // Logo/Title
+                // TITLE
                 Text(
                   'E-Saver',
                   style: GoogleFonts.poppins(
@@ -47,7 +47,9 @@ class _LoginScreenState extends State<LoginScreen> {
                     color: Colors.white,
                   ),
                 ),
+
                 SizedBox(height: context.responsiveSize(8)),
+
                 Text(
                   'Track Your Energy Usage',
                   style: GoogleFonts.poppins(
@@ -55,9 +57,10 @@ class _LoginScreenState extends State<LoginScreen> {
                     color: Colors.white70,
                   ),
                 ),
+
                 SizedBox(height: context.responsiveSize(80)),
 
-                // Google Sign-In Button
+                // GOOGLE SIGN-IN BUTTON
                 SizedBox(
                   width: double.infinity,
                   height: context.responsiveSize(60),
@@ -72,7 +75,9 @@ class _LoginScreenState extends State<LoginScreen> {
                               strokeWidth: 2,
                             ),
                           )
-                        : Icon(Icons.g_mobiledata, size: context.responsiveIconSize(24)),
+                        : Icon(Icons.g_mobiledata,
+                            size: context.responsiveIconSize(24),
+                            color: AppColors.primaryBlue),
                     label: Text(
                       _isLoading ? 'Signing in...' : 'Continue with Google',
                       style: GoogleFonts.poppins(
@@ -84,71 +89,69 @@ class _LoginScreenState extends State<LoginScreen> {
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.white,
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(context.responsiveBorderRadius(16)),
+                        borderRadius:
+                            BorderRadius.circular(context.responsiveBorderRadius(16)),
                       ),
                       elevation: 2,
                     ),
                   ),
                 ),
 
-                SizedBox(height: context.responsiveSize(24)),
+                SizedBox(height: context.responsiveSize(40)),
 
-                // Divider
-                Row(
-                  children: [
-                    Expanded(
-                      child: Divider(
-                        color: Colors.white.withValues(alpha: 0.3),
-                        thickness: 1,
-                      ),
-                    ),
-                    Padding(
-                      padding: context.responsivePadding(horizontal: 16),
-                      child: Text(
-                        'or',
-                        style: GoogleFonts.poppins(
-                          color: Colors.white70,
-                          fontSize: context.responsiveFontSize(14),
+                // ✨ REPLACED "OR" WITH A CLEAN DECORATIVE SEPARATOR
+                Padding(
+                  padding: EdgeInsets.symmetric(
+                      vertical: context.responsiveSize(8)),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Expanded(
+                        child: Container(
+                          height: 1.5,
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              colors: [
+                                Colors.white.withValues(alpha: 0.0),
+                                Colors.white.withValues(alpha: 0.3),
+                                Colors.white.withValues(alpha: 0.0),
+                              ],
+                            ),
+                          ),
                         ),
                       ),
-                    ),
-                    Expanded(
-                      child: Divider(
-                        color: Colors.white.withValues(alpha: 0.3),
-                        thickness: 1,
-                      ),
-                    ),
-                  ],
-                ),
 
-                SizedBox(height: context.responsiveSize(24)),
+                      Padding(
+                        padding: EdgeInsets.symmetric(
+                            horizontal: context.responsiveSize(12)),
+                        child: Icon(
+                          Icons.bolt_rounded,
+                          color: Colors.white70,
+                          size: context.responsiveIconSize(20),
+                        ),
+                      ),
 
-                // Email/Password Sign In Button
-                SizedBox(
-                  width: double.infinity,
-                  height: context.responsiveSize(60),
-                  child: OutlinedButton(
-                    onPressed: _isLoading ? null : _showEmailSignIn,
-                    style: OutlinedButton.styleFrom(
-                      side: const BorderSide(color: Colors.white, width: 1.5),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(context.responsiveBorderRadius(16)),
+                      Expanded(
+                        child: Container(
+                          height: 1.5,
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              colors: [
+                                Colors.white.withValues(alpha: 0.0),
+                                Colors.white.withValues(alpha: 0.3),
+                                Colors.white.withValues(alpha: 0.0),
+                              ],
+                            ),
+                          ),
+                        ),
                       ),
-                    ),
-                    child: Text(
-                      'Sign in with Email',
-                      style: GoogleFonts.poppins(
-                        fontSize: context.responsiveFontSize(16),
-                        fontWeight: FontWeight.w600,
-                        color: Colors.white,
-                      ),
-                    ),
+                    ],
                   ),
                 ),
 
-                SizedBox(height: context.responsiveSize(40)),
+                SizedBox(height: context.responsiveSize(20)),
 
-                // Terms and Privacy
+                // TERMS
                 Text(
                   'By continuing, you agree to our Terms of Service and Privacy Policy',
                   textAlign: TextAlign.center,
@@ -171,18 +174,15 @@ class _LoginScreenState extends State<LoginScreen> {
     try {
       final auth = Provider.of<AuthProvider>(context, listen: false);
       final success = await auth.signInWithGoogle();
-      if (success) {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Signed in with Google')),
-          );
-        }
-      } else {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Google sign in cancelled')),
-          );
-        }
+
+      if (success && mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Signed in with Google')),
+        );
+      } else if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Google sign in cancelled')),
+        );
       }
     } catch (e) {
       if (mounted) {
@@ -193,273 +193,5 @@ class _LoginScreenState extends State<LoginScreen> {
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }
-  }
-
-  void _showEmailSignIn() {
-    final emailController = TextEditingController();
-    final passwordController = TextEditingController();
-    bool isSignIn = true; // true for sign in, false for sign up
-    bool isDialogLoading = false;
-
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (modalContext) {
-        return StatefulBuilder(
-          builder: (context, setState) {
-            return Container(
-              height: MediaQuery.of(context).size.height * 0.7,
-              decoration: const BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.only(
-                  topLeft: Radius.circular(24),
-                  topRight: Radius.circular(24),
-                ),
-              ),
-              child: Padding(
-                padding: EdgeInsets.only(
-                  left: 24,
-                  right: 24,
-                  top: 24,
-                  bottom: MediaQuery.of(context).viewInsets.bottom + 24,
-                ),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    // Handle
-                    Container(
-                      width: 40,
-                      height: 4,
-                      decoration: BoxDecoration(
-                        color: Colors.grey[300],
-                        borderRadius: BorderRadius.circular(2),
-                      ),
-                    ),
-                    const SizedBox(height: 24),
-
-                    // Title
-                    Text(
-                      isSignIn ? 'Welcome Back' : 'Create Account',
-                      style: GoogleFonts.poppins(
-                        fontSize: 28,
-                        fontWeight: FontWeight.bold,
-                        color: AppColors.textDark,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      isSignIn
-                          ? 'Sign in to your account'
-                          : 'Create a new account to get started',
-                      style: GoogleFonts.poppins(
-                        fontSize: 16,
-                        color: AppColors.textGray,
-                      ),
-                    ),
-                    const SizedBox(height: 32),
-
-                    // Email Field
-                    Container(
-                      decoration: BoxDecoration(
-                        color: Colors.grey[50],
-                        borderRadius: BorderRadius.circular(16),
-                        border: Border.all(
-                          color: Colors.grey[200]!,
-                          width: 1,
-                        ),
-                      ),
-                      child: TextField(
-                        controller: emailController,
-                        keyboardType: TextInputType.emailAddress,
-                        style: GoogleFonts.poppins(
-                          fontSize: 16,
-                          color: AppColors.textDark,
-                        ),
-                        decoration: InputDecoration(
-                          labelText: 'Email Address',
-                          labelStyle: GoogleFonts.poppins(
-                            color: AppColors.textGray,
-                            fontSize: 14,
-                          ),
-                          prefixIcon: Icon(
-                            Icons.email_outlined,
-                            color: AppColors.primaryBlue,
-                          ),
-                          border: InputBorder.none,
-                          contentPadding: const EdgeInsets.symmetric(
-                            horizontal: 20,
-                            vertical: 16,
-                          ),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-
-                    // Password Field
-                    Container(
-                      decoration: BoxDecoration(
-                        color: Colors.grey[50],
-                        borderRadius: BorderRadius.circular(16),
-                        border: Border.all(
-                          color: Colors.grey[200]!,
-                          width: 1,
-                        ),
-                      ),
-                      child: TextField(
-                        controller: passwordController,
-                        obscureText: true,
-                        style: GoogleFonts.poppins(
-                          fontSize: 16,
-                          color: AppColors.textDark,
-                        ),
-                        decoration: InputDecoration(
-                          labelText: 'Password',
-                          labelStyle: GoogleFonts.poppins(
-                            color: AppColors.textGray,
-                            fontSize: 14,
-                          ),
-                          prefixIcon: Icon(
-                            Icons.lock_outline,
-                            color: AppColors.primaryBlue,
-                          ),
-                          border: InputBorder.none,
-                          contentPadding: const EdgeInsets.symmetric(
-                            horizontal: 20,
-                            vertical: 16,
-                          ),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 24),
-
-                    // Sign In/Sign Up Button
-                    SizedBox(
-                      width: double.infinity,
-                      height: 56,
-                      child: ElevatedButton(
-                        onPressed: isDialogLoading
-                            ? null
-                            : () async {
-                                final email = emailController.text.trim();
-                                final password = passwordController.text;
-
-                                if (email.isEmpty || password.isEmpty) {
-                                  ScaffoldMessenger.of(modalContext).showSnackBar(
-                                    const SnackBar(
-                                      content: Text('Please fill in all fields'),
-                                    ),
-                                  );
-                                  return;
-                                }
-
-                                setState(() => isDialogLoading = true);
-
-                                final auth = Provider.of<AuthProvider>(modalContext, listen: false);
-                                final success = isSignIn
-                                    ? await auth.signIn(email, password)
-                                    : await auth.register(email, password);
-
-                                setState(() => isDialogLoading = false);
-
-                                if (success) {
-                                  Navigator.of(modalContext).pop();
-                                  // Show success message after modal is closed
-                                  WidgetsBinding.instance.addPostFrameCallback((_) {
-                                    if (mounted) {
-                                      ScaffoldMessenger.of(context).showSnackBar(
-                                        SnackBar(
-                                          content: Text(isSignIn
-                                              ? 'Signed in successfully'
-                                              : 'Account created successfully'),
-                                        ),
-                                      );
-                                    }
-                                  });
-                                } else {
-                                  ScaffoldMessenger.of(modalContext).showSnackBar(
-                                    SnackBar(
-                                      content: Text(isSignIn
-                                          ? 'Sign in failed'
-                                          : 'Account creation failed'),
-                                    ),
-                                  );
-                                }
-                              },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: AppColors.primaryBlue,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(16),
-                          ),
-                          elevation: 0,
-                        ),
-                        child: isDialogLoading
-                            ? const SizedBox(
-                                width: 24,
-                                height: 24,
-                                child: CircularProgressIndicator(
-                                  color: Colors.white,
-                                  strokeWidth: 2,
-                                ),
-                              )
-                            : Text(
-                                isSignIn ? 'Sign In' : 'Create Account',
-                                style: GoogleFonts.poppins(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w600,
-                                  color: Colors.white,
-                                ),
-                              ),
-                      ),
-                    ),
-
-                    const SizedBox(height: 16),
-
-                    // Toggle between Sign In and Sign Up
-                    TextButton(
-                      onPressed: () {
-                        setState(() => isSignIn = !isSignIn);
-                      },
-                      child: Text(
-                        isSignIn
-                            ? "Don't have an account? Sign Up"
-                            : 'Already have an account? Sign In',
-                        style: GoogleFonts.poppins(
-                          fontSize: 14,
-                          color: AppColors.primaryBlue,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                    ),
-
-                    const SizedBox(height: 16),
-
-                    // Close Button
-                    TextButton(
-                      onPressed: () {
-                        emailController.dispose();
-                        passwordController.dispose();
-                        Navigator.of(context).pop();
-                      },
-                      child: Text(
-                        'Cancel',
-                        style: GoogleFonts.poppins(
-                          fontSize: 14,
-                          color: AppColors.textGray,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            );
-          },
-        );
-      },
-    ).whenComplete(() {
-      emailController.dispose();
-      passwordController.dispose();
-    });
   }
 }

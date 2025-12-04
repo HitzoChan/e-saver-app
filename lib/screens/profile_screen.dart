@@ -32,12 +32,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
     _loadUserProfile();
   }
 
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    _loadUserProfile();
-  }
-
   Future<void> _loadNotificationSettings() async {
     final enabled = await NotificationService().areNotificationsEnabled();
     setState(() {
@@ -62,7 +56,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         );
       }
     } catch (e) {
-      debugPrint('Error loading user profile: $e');
+      debugPrint('Error loading profile: $e');
     }
 
     if (mounted) {
@@ -70,244 +64,79 @@ class _ProfileScreenState extends State<ProfileScreen> {
     }
   }
 
-  Future<void> _showNotificationSettings(BuildContext context) async {
-    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
-
-    return showModalBottomSheet(
-      context: context,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
-      builder: (context) => StatefulBuilder(
-        builder: (context, setState) => Container(
-          padding: const EdgeInsets.all(24),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'Notification Settings',
-                style: GoogleFonts.poppins(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                  color: isDarkMode ? Colors.white : AppColors.textDark,
-                ),
-              ),
-              const SizedBox(height: 24),
-              SwitchListTile(
-                title: Text(
-                  'Enable Notifications',
-                  style: GoogleFonts.poppins(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                    color: isDarkMode ? Colors.white : AppColors.textDark,
-                  ),
-                ),
-                subtitle: Text(
-                  'Receive updates about electricity rates and energy tips',
-                  style: GoogleFonts.poppins(
-                    fontSize: 12,
-                    color: isDarkMode ? Colors.white70 : AppColors.textGray,
-                  ),
-                ),
-                value: _notificationsEnabled,
-                onChanged: (value) async {
-                  setState(() => _notificationsEnabled = value);
-                  await NotificationService().setNotificationsEnabled(value);
-                  this.setState(() {});
-                },
-                activeThumbColor: AppColors.primaryBlue,
-              ),
-              const SizedBox(height: 16),
-              Text(
-                'Notification Types',
-                style: GoogleFonts.poppins(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                  color: isDarkMode ? Colors.white : AppColors.textDark,
-                ),
-              ),
-              const SizedBox(height: 12),
-              _buildNotificationTypeTile(
-                context,
-                icon: Icons.electrical_services,
-                title: 'Electricity Rate Updates',
-                subtitle: 'Get notified when SAMELCO updates rates',
-                enabled: _notificationsEnabled,
-              ),
-              _buildNotificationTypeTile(
-                context,
-                icon: Icons.lightbulb,
-                title: 'Energy Saving Tips',
-                subtitle: 'Weekly tips to reduce your electricity bill',
-                enabled: _notificationsEnabled,
-              ),
-              _buildNotificationTypeTile(
-                context,
-                icon: Icons.bar_chart,
-                title: 'Weekly Reports',
-                subtitle: 'Summary of your energy usage',
-                enabled: _notificationsEnabled,
-              ),
-              const SizedBox(height: 24),
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: () => Navigator.pop(context),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.primaryBlue,
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16),
-                    ),
-                  ),
-                  child: Text(
-                    'Done',
-                    style: GoogleFonts.poppins(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.white,
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildNotificationTypeTile(
-    BuildContext context, {
-    required IconData icon,
-    required String title,
-    required String subtitle,
-    required bool enabled,
-  }) {
-    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
-
-    return ListTile(
-      leading: Container(
-        width: 40,
-        height: 40,
-        decoration: BoxDecoration(
-          color: enabled
-              ? AppColors.primaryBlue.withValues(alpha: 0.1)
-              : AppColors.textGray.withValues(alpha: 0.1),
-          borderRadius: BorderRadius.circular(8),
-        ),
-        child: Icon(
-          icon,
-          color: enabled ? AppColors.primaryBlue : AppColors.textGray,
-        ),
-      ),
-      title: Text(
-        title,
-        style: GoogleFonts.poppins(
-          fontSize: 14,
-          fontWeight: FontWeight.w600,
-          color: enabled
-              ? (isDarkMode ? Colors.white : AppColors.textDark)
-              : AppColors.textGray,
-        ),
-      ),
-      subtitle: Text(
-        subtitle,
-        style: GoogleFonts.poppins(
-          fontSize: 12,
-          color: isDarkMode ? Colors.white70 : AppColors.textGray,
-        ),
-      ),
-      trailing: Icon(
-        Icons.check_circle,
-        color: enabled
-            ? AppColors.primaryBlue
-            : AppColors.textGray.withValues(alpha: 0.3),
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     return Consumer<SettingsProvider>(
       builder: (context, settingsProvider, child) {
+        final isDark = Theme.of(context).brightness == Brightness.dark;
+
         return Scaffold(
           body: Container(
             decoration: BoxDecoration(
-              gradient: Theme.of(context).brightness == Brightness.dark
-                  ? LinearGradient(
-                      begin: Alignment.topCenter,
-                      end: Alignment.bottomCenter,
-                      colors: [
-                        Colors.black,
-                        Colors.grey[900]!,
-                        Colors.grey[800]!,
-                      ],
-                    )
-                  : AppColors.primaryGradient,
+              gradient: isDark ? LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [
+                  Colors.black,
+                  Colors.grey[900]!,
+                  Colors.grey[800]!,
+                ],
+              ) : AppColors.primaryGradient,
             ),
             child: SafeArea(
               child: Column(
                 children: [
-                  // ----- CENTERED TITLE -----
+                  /// ==========================
+                  /// FIXED CLEAN CENTERED TITLE
+                  /// ==========================
                   Padding(
-                    padding: const EdgeInsets.only(top: 28.0, left: 16, right: 16, bottom: 16),
-                    child: Stack(
-                      alignment: Alignment.center,
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        // Centered Title
-                        Text(
-                          settingsProvider.getLocalizedText('Profile'),
-                          style: GoogleFonts.poppins(
-                            color: Colors.white,
-                            fontSize: 18,
-                            fontWeight: FontWeight.w600,
+                        const SizedBox(width: 40), // left spacer
+
+                        Expanded(
+                          child: Text(
+                            settingsProvider.getLocalizedText('Profile'),
+                            textAlign: TextAlign.center,
+                            style: GoogleFonts.poppins(
+                              color: Colors.white,
+                              fontSize: 20,
+                              fontWeight: FontWeight.w600,
+                            ),
                           ),
                         ),
 
-                        // Menu Button - right aligned
-                        Positioned(
-                          right: 0,
-                          child: PopupMenuButton<String>(
-                            icon: const Icon(Icons.more_vert, color: Colors.white),
-                            onSelected: (value) {
-                              switch (value) {
-                                case 'settings':
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(builder: (context) => const SettingsScreen()),
-                                  );
-                                  break;
-                                case 'help':
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(builder: (context) => const HelpSupportScreen()),
-                                  );
-                                  break;
-                                case 'about':
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(builder: (context) => const AboutScreen()),
-                                  );
-                                  break;
-                              }
-                            },
-                            itemBuilder: (context) => [
-                              PopupMenuItem(
-                                value: 'settings',
-                                child: Text(settingsProvider.getLocalizedText('Settings')),
-                              ),
-                              PopupMenuItem(
-                                value: 'help',
-                                child: Text(settingsProvider.getLocalizedText('Help')),
-                              ),
-                              PopupMenuItem(
-                                value: 'about',
-                                child: Text(settingsProvider.getLocalizedText('About')),
-                              ),
-                            ],
-                          ),
+                        PopupMenuButton<String>(
+                          icon: const Icon(Icons.more_vert, color: Colors.white),
+                          onSelected: (value) {
+                            switch (value) {
+                              case 'settings':
+                                Navigator.push(context, MaterialPageRoute(builder: (_) => const SettingsScreen()));
+                                break;
+                              case 'help':
+                                Navigator.push(context, MaterialPageRoute(builder: (_) => const HelpSupportScreen()));
+                                break;
+                              case 'about':
+                                Navigator.push(context, MaterialPageRoute(builder: (_) => const AboutScreen()));
+                                break;
+                            }
+                          },
+                          itemBuilder: (context) => [
+                            PopupMenuItem(
+                              value: 'settings',
+                              child: Text(settingsProvider.getLocalizedText('Settings')),
+                            ),
+                            PopupMenuItem(
+                              value: 'help',
+                              child: Text(settingsProvider.getLocalizedText('Help')),
+                            ),
+                            PopupMenuItem(
+                              value: 'about',
+                              child: Text(settingsProvider.getLocalizedText('About')),
+                            ),
+                          ],
                         ),
                       ],
                     ),
@@ -315,7 +144,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
                   const SizedBox(height: 20),
 
-                  // ----- PROFILE AVATAR + NAME -----
+                  /// ==========================
+                  /// USER PROFILE SECTION
+                  /// ==========================
                   Column(
                     children: [
                       Container(
@@ -327,8 +158,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           image: DecorationImage(
                             image: _userProfile?.photoUrl != null
                                 ? NetworkImage(_userProfile!.photoUrl!)
-                                : const AssetImage('assets/images/default_avatar.png')
-                                    as ImageProvider,
+                                : const AssetImage('assets/images/default_avatar.png') as ImageProvider,
                             fit: BoxFit.cover,
                           ),
                         ),
@@ -337,8 +167,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       Text(
                         _isLoading
                             ? settingsProvider.getLocalizedText('Loading...')
-                            : (_userProfile?.name ??
-                                settingsProvider.getLocalizedText('User')),
+                            : (_userProfile?.name ?? settingsProvider.getLocalizedText('User')),
                         style: GoogleFonts.poppins(
                           color: Colors.white,
                           fontSize: 24,
@@ -358,7 +187,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
                   const SizedBox(height: 40),
 
-                  // ----- OPTIONS -----
+                  /// ==========================
+                  /// OPTIONS PANEL
+                  /// ==========================
                   Expanded(
                     child: Container(
                       decoration: const BoxDecoration(
@@ -379,62 +210,50 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           children: [
                             _buildProfileOption(
                               icon: Icons.person,
-                              title: settingsProvider
-                                  .getLocalizedText('Personal Information'),
-                              subtitle: settingsProvider
-                                  .getLocalizedText('Update your profile details'),
+                              title: settingsProvider.getLocalizedText('Personal Information'),
+                              subtitle: settingsProvider.getLocalizedText('Update your profile details'),
                               onTap: () async {
                                 final result = await Navigator.push(
                                   context,
-                                  MaterialPageRoute(
-                                    builder: (context) =>
-                                        const PersonalInformationScreen(),
-                                  ),
+                                  MaterialPageRoute(builder: (_) => const PersonalInformationScreen()),
                                 );
                                 if (result == true) _loadUserProfile();
                               },
                             ),
+
                             const SizedBox(height: 16),
 
                             _buildProfileOption(
                               icon: Icons.notifications,
-                              title: settingsProvider
-                                  .getLocalizedText('Notifications'),
-                              subtitle: settingsProvider.getLocalizedText(
-                                  'Manage notification preferences'),
+                              title: settingsProvider.getLocalizedText('Notifications'),
+                              subtitle: settingsProvider.getLocalizedText('Manage notification preferences'),
                               onTap: () => _showNotificationSettings(context),
                             ),
+
                             const SizedBox(height: 16),
 
                             _buildProfileOption(
                               icon: Icons.lightbulb,
                               title: settingsProvider.getLocalizedText('Energy Tips'),
-                              subtitle: settingsProvider
-                                  .getLocalizedText('View energy saving tips'),
+                              subtitle: settingsProvider.getLocalizedText('View energy saving tips'),
                               onTap: () {
                                 Navigator.push(
                                   context,
-                                  MaterialPageRoute(
-                                    builder: (context) =>
-                                        const EnergyTipsScreen(),
-                                  ),
+                                  MaterialPageRoute(builder: (_) => const EnergyTipsScreen()),
                                 );
                               },
                             ),
+
                             const SizedBox(height: 16),
 
                             _buildProfileOption(
                               icon: Icons.settings,
                               title: settingsProvider.getLocalizedText('Settings'),
-                              subtitle: settingsProvider.getLocalizedText(
-                                  'App preferences and configuration'),
+                              subtitle: settingsProvider.getLocalizedText('App preferences and configuration'),
                               onTap: () {
                                 Navigator.push(
                                   context,
-                                  MaterialPageRoute(
-                                    builder: (context) =>
-                                        const SettingsScreen(),
-                                  ),
+                                  MaterialPageRoute(builder: (_) => const SettingsScreen()),
                                 );
                               },
                             ),
@@ -452,6 +271,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
+  /// =============================
+  /// REUSABLE PROFILE OPTION TILE
+  /// =============================
   Widget _buildProfileOption({
     required IconData icon,
     required String title,
@@ -501,9 +323,66 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ],
               ),
             ),
-            const Icon(Icons.arrow_forward_ios,
-                color: AppColors.textGray, size: 16),
+            const Icon(Icons.arrow_forward_ios, color: AppColors.textGray, size: 16),
           ],
+        ),
+      ),
+    );
+  }
+
+  /// =============================
+  /// NOTIFICATION SETTINGS MODAL
+  /// =============================
+  Future<void> _showNotificationSettings(BuildContext context) async {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    return showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) => StatefulBuilder(
+        builder: (context, setState) => Container(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Notification Settings',
+                style: GoogleFonts.poppins(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  color: isDark ? Colors.white : AppColors.textDark,
+                ),
+              ),
+              const SizedBox(height: 24),
+              SwitchListTile(
+                title: Text(
+                  'Enable Notifications',
+                  style: GoogleFonts.poppins(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                    color: isDark ? Colors.white : AppColors.textDark,
+                  ),
+                ),
+                subtitle: Text(
+                  'Receive updates about electricity rates and energy tips',
+                  style: GoogleFonts.poppins(
+                    fontSize: 12,
+                    color: isDark ? Colors.white70 : AppColors.textGray,
+                  ),
+                ),
+                value: _notificationsEnabled,
+                onChanged: (value) async {
+                  setState(() => _notificationsEnabled = value);
+                  await NotificationService().setNotificationsEnabled(value);
+                  this.setState(() {});
+                },
+                activeThumbColor: AppColors.primaryBlue,
+              ),
+            ],
+          ),
         ),
       ),
     );

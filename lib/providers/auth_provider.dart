@@ -49,34 +49,6 @@ class AuthProvider with ChangeNotifier {
     }
   }
 
-  Future<bool> signIn(String email, String password) async {
-    try {
-      await _auth.signInWithEmailAndPassword(
-        email: email,
-        password: password
-      );
-      // Auth state will be updated automatically by authStateChanges listener
-      return true;
-    } catch (e) {
-      debugPrint('Sign in error: $e');
-      return false;
-    }
-  }
-
-  Future<bool> register(String email, String password) async {
-    try {
-      await _auth.createUserWithEmailAndPassword(
-        email: email,
-        password: password
-      );
-      // Auth state will be updated automatically by authStateChanges listener
-      return true;
-    } catch (e) {
-      debugPrint('Registration error: $e');
-      return false;
-    }
-  }
-
   Future<bool> signInWithGoogle() async {
     try {
       // Trigger the authentication flow

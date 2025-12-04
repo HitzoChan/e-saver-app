@@ -1,3 +1,4 @@
+// … existing imports keep the same …
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
@@ -8,7 +9,6 @@ import '../providers/settings_provider.dart';
 import 'budget_setting_screen.dart';
 import 'energy_tips_screen.dart';
 import 'good_habits_screen.dart';
-
 import 'settings_screen.dart';
 import 'help_support_screen.dart';
 import 'about_screen.dart';
@@ -41,93 +41,71 @@ class _PlannerScreenState extends State<PlannerScreen> {
           body: Container(
             decoration: BoxDecoration(
               gradient: Theme.of(context).brightness == Brightness.dark
-                  ? LinearGradient(
-                      begin: Alignment.topCenter,
-                      end: Alignment.bottomCenter,
-                      colors: [
-                        Colors.black,
-                        Colors.grey[900]!,
-                        Colors.grey[800]!,
-                      ],
-                    )
+                  ? AppColors.darkGradient
                   : AppColors.primaryGradient,
             ),
             child: SafeArea(
               child: Column(
                 children: [
-                  // ================== CENTERED APP BAR ==================
+                  // ================== FIXED CENTERED APP BAR ==================
                   Padding(
                     padding: const EdgeInsets.all(16.0),
-                    child: Stack(
-                      alignment: Alignment.center,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        // Center Title
-                        Text(
-                          settingsProvider.getLocalizedText('Planner'),
-                          style: GoogleFonts.poppins(
-                            color: Colors.white,
-                            fontSize: 18,
-                            fontWeight: FontWeight.w600,
+                        const SizedBox(width: 48),
+
+                        Expanded(
+                          child: Text(
+                            settingsProvider.getLocalizedText('Planner'),
+                            textAlign: TextAlign.center,
+                            style: GoogleFonts.poppins(
+                              color: Colors.white,
+                              fontSize: 20,
+                              fontWeight: FontWeight.w700,
+                            ),
                           ),
                         ),
 
-                        // Popup Menu at right
-                        Positioned(
-                          right: 0,
-                          child: PopupMenuButton<String>(
-                            icon: const Icon(Icons.more_vert, color: Colors.white),
-                            onSelected: (value) {
-                              switch (value) {
-                                case 'settings':
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) => const SettingsScreen(),
-                                    ),
-                                  );
-                                  break;
-                                case 'help':
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) => const HelpSupportScreen(),
-                                    ),
-                                  );
-                                  break;
-                                case 'about':
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) => const AboutScreen(),
-                                    ),
-                                  );
-                                  break;
-                              }
-                            },
-                            itemBuilder: (context) => const [
-                              PopupMenuItem(
-                                value: 'settings',
-                                child: Text('Settings'),
-                              ),
-                              PopupMenuItem(
-                                value: 'help',
-                                child: Text('Help'),
-                              ),
-                              PopupMenuItem(
-                                value: 'about',
-                                child: Text('About'),
-                              ),
-                            ],
-                          ),
+                        PopupMenuButton<String>(
+                          icon: const Icon(Icons.more_vert, color: Colors.white),
+                          onSelected: (value) {
+                            switch (value) {
+                              case 'settings':
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(builder: (context) => const SettingsScreen()),
+                                );
+                                break;
+                              case 'help':
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(builder: (context) => const HelpSupportScreen()),
+                                );
+                                break;
+                              case 'about':
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(builder: (context) => const AboutScreen()),
+                                );
+                                break;
+                              default:
+                                break;
+                            }
+                          },
+                          itemBuilder: (context) => const [
+                            PopupMenuItem(value: 'settings', child: Text('Settings')),
+                            PopupMenuItem(value: 'help', child: Text('Help')),
+                            PopupMenuItem(value: 'about', child: Text('About')),
+                          ],
                         ),
                       ],
                     ),
                   ),
-                  // ========================================================
 
-                  const SizedBox(height: 40),
+                  const SizedBox(height: 24),
 
-                  // Budget Progress
+                  // ================== FIXED CIRCULAR BUDGET PROGRESS ==================
                   Consumer<BudgetProvider>(
                     builder: (context, budgetProvider, child) {
                       if (budgetProvider.isLoading) {
@@ -142,6 +120,7 @@ class _PlannerScreenState extends State<PlannerScreen> {
                       }
 
                       final budget = budgetProvider.currentBudget;
+
                       if (budget == null) {
                         return SizedBox(
                           width: 200,
@@ -149,11 +128,7 @@ class _PlannerScreenState extends State<PlannerScreen> {
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              const Icon(
-                                Icons.account_balance_wallet,
-                                color: Colors.white,
-                                size: 60,
-                              ),
+                              const Icon(Icons.account_balance_wallet, color: Colors.white, size: 60),
                               const SizedBox(height: 16),
                               Text(
                                 settingsProvider.getLocalizedText('No Budget Set'),
@@ -168,66 +143,110 @@ class _PlannerScreenState extends State<PlannerScreen> {
                         );
                       }
 
-                      final progress = budget.progressPercentage;
-                      final progressText = '${(progress * 100).toStringAsFixed(0)}%';
+                      // Compute the progress fraction safely and consistently
+                      final double monthlyGoal = budget.monthlyGoal <= 0 ? 0.0 : budget.monthlyGoal;
+                      final double fraction = monthlyGoal > 0 ? budget.currentUsage / monthlyGoal : 0.0;
+                      final double value = fraction.clamp(0.0, 1.0);
 
-                      return SizedBox(
-                        width: 200,
-                        height: 200,
-                        child: Stack(
-                          alignment: Alignment.center,
-                          children: [
-                            SizedBox(
-                              width: 200,
-                              height: 200,
-                              child: CircularProgressIndicator(
-                                value: progress,
-                                strokeWidth: 12,
-                                backgroundColor: Colors.white.withValues(alpha: 0.2),
-                                valueColor: AlwaysStoppedAnimation<Color>(
-                                  budget.isOverBudget
-                                      ? Colors.red
-                                      : budget.shouldAlert
-                                          ? Colors.orange
-                                          : AppColors.accentGreen,
-                                ),
-                              ),
-                            ),
-                            Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
+                      // Build adaptive circular budget indicator
+                      final isDark = Theme.of(context).brightness == Brightness.dark;
+
+                      // Track and ring colors based on theme and budget state
+                      final Color trackColor = isDark
+                          ? const Color.fromRGBO(255, 255, 255, 0.14)
+                          : const Color.fromRGBO(230, 230, 230, 1.0);
+
+                      final Color ringColor = budget.isOverBudget
+                          ? Colors.redAccent
+                          : (budget.shouldAlert
+                              ? Colors.orangeAccent
+                              : (isDark ? AppColors.accentGreen : AppColors.primaryBlue));
+
+                      final Color centerTextColor = isDark
+                          ? Colors.white
+                          : Colors.black87;
+
+                      // avoid deprecated withOpacity() by creating a dedicated subtitle color
+                      final Color subtitleTextColor = isDark
+                          ? const Color.fromRGBO(255, 255, 255, 0.85)
+                          : const Color.fromRGBO(0, 0, 0, 0.8);
+
+                      return Column(
+                        children: [
+                          SizedBox(
+                            width: 230,
+                            height: 230,
+                            child: Stack(
+                              alignment: Alignment.center,
                               children: [
-                                Text(
-                                  progressText,
-                                  style: GoogleFonts.poppins(
-                                    color: Colors.white,
-                                    fontSize: 48,
-                                    fontWeight: FontWeight.bold,
+                                // Subtle background disk so ring stands out
+                                Container(
+                                  width: 230,
+                                  height: 230,
+                                  decoration: BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    color: isDark ? const Color.fromRGBO(0, 0, 0, 0.08) : const Color.fromRGBO(255, 255, 255, 1.0),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: const Color.fromRGBO(0, 0, 0, 0.06),
+                                        blurRadius: 8,
+                                        offset: const Offset(0, 2),
+                                      ),
+                                    ],
                                   ),
                                 ),
-                                const SizedBox(height: 4),
-                                Text(
-                                  '${settingsProvider.currencySymbol}${budget.currentUsage.toStringAsFixed(0)} / ${settingsProvider.currencySymbol}${budget.monthlyGoal.toStringAsFixed(0)}',
-                                  style: GoogleFonts.poppins(
-                                    color: Colors.white70,
-                                    fontSize: 12,
+
+                                // Progress ring (explicit size)
+                                SizedBox(
+                                  width: 200,
+                                  height: 200,
+                                  child: CircularProgressIndicator(
+                                    value: value,
+                                    strokeWidth: 14,
+                                    backgroundColor: trackColor,
+                                    valueColor: AlwaysStoppedAnimation<Color>(ringColor),
                                   ),
+                                ),
+
+                                // Center content (percentage + usage)
+                                Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Text(
+                                      '${(value * 100).toStringAsFixed(0)}%',
+                                      style: GoogleFonts.poppins(
+                                        color: centerTextColor,
+                                        fontSize: 52,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 6),
+                                    Text(
+                                      '${settingsProvider.currencySymbol}${budget.currentUsage.toStringAsFixed(0)} / '
+                                      '${settingsProvider.currencySymbol}${budget.monthlyGoal.toStringAsFixed(0)}',
+                                      style: GoogleFonts.poppins(
+                                        color: subtitleTextColor,
+                                        fontSize: 13,
+                                      ),
+                                    ),
+                                  ],
                                 ),
                               ],
                             ),
-                          ],
-                        ),
+                          ),
+                        ],
                       );
                     },
                   ),
 
-                  const SizedBox(height: 40),
+                  // Add spacing between the circular progress and the main content
+                  const SizedBox(height: 24),
 
+                  // ================== MAIN CONTENT ==================
                   Expanded(
                     child: Container(
                       decoration: BoxDecoration(
-                        color: Theme.of(context).brightness == Brightness.dark
-                            ? Colors.grey[800]
-                            : Colors.white,
+                        color: Theme.of(context).brightness == Brightness.dark ? Colors.grey[800] : Colors.white,
                         borderRadius: const BorderRadius.only(
                           topLeft: Radius.circular(30),
                           topRight: Radius.circular(30),
@@ -239,20 +258,17 @@ class _PlannerScreenState extends State<PlannerScreen> {
                           padding: const EdgeInsets.all(24.0),
                           child: Column(
                             children: [
+                              // ---------------- CATEGORY BUTTONS ----------------
                               Row(
                                 children: [
                                   Expanded(
                                     child: _buildCategoryChip(
                                       settingsProvider.getLocalizedText('Keep\nGoodHabits'),
                                       true,
-                                      () {
-                                        Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                            builder: (context) => const GoodHabitsScreen(),
-                                          ),
-                                        );
-                                      },
+                                      () => Navigator.push(
+                                        context,
+                                        MaterialPageRoute(builder: (_) => const GoodHabitsScreen()),
+                                      ),
                                     ),
                                   ),
                                   const SizedBox(width: 8),
@@ -260,14 +276,10 @@ class _PlannerScreenState extends State<PlannerScreen> {
                                     child: _buildCategoryChip(
                                       settingsProvider.getLocalizedText('Tips\nTricks'),
                                       false,
-                                      () {
-                                        Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                            builder: (context) => const EnergyTipsScreen(),
-                                          ),
-                                        );
-                                      },
+                                      () => Navigator.push(
+                                        context,
+                                        MaterialPageRoute(builder: (_) => const EnergyTipsScreen()),
+                                      ),
                                     ),
                                   ),
                                 ],
@@ -275,6 +287,7 @@ class _PlannerScreenState extends State<PlannerScreen> {
 
                               const SizedBox(height: 24),
 
+                              // ---------------- APPLIANCES SECTION ----------------
                               Consumer<ApplianceProvider>(
                                 builder: (context, applianceProvider, child) {
                                   if (applianceProvider.isLoading) {
@@ -331,9 +344,12 @@ class _PlannerScreenState extends State<PlannerScreen> {
                                   return Column(
                                     children: displayAppliances.map((appliance) {
                                       final monthlyCost = appliance.calculateMonthlyCost(
-                                          rate.ratePerKwh, appliance.hoursPerDay);
-                                      final categoryText =
-                                          _getCategoryDisplayText(appliance.category, settingsProvider.language);
+                                        rate.ratePerKwh,
+                                        appliance.hoursPerDay,
+                                      );
+
+                                      final categoryText = _getCategoryDisplayText(
+                                          appliance.category, settingsProvider.language);
 
                                       return Padding(
                                         padding: const EdgeInsets.only(bottom: 12),
@@ -350,19 +366,16 @@ class _PlannerScreenState extends State<PlannerScreen> {
 
                               const SizedBox(height: 24),
 
+                              // ---------------- SET/UPDATE BUDGET BUTTON ----------------
                               Consumer<BudgetProvider>(
                                 builder: (context, budgetProvider, child) {
                                   return SizedBox(
                                     width: double.infinity,
                                     child: ElevatedButton(
-                                      onPressed: () {
-                                        Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                            builder: (context) => const BudgetSettingScreen(),
-                                          ),
-                                        );
-                                      },
+                                      onPressed: () => Navigator.push(
+                                        context,
+                                        MaterialPageRoute(builder: (_) => const BudgetSettingScreen()),
+                                      ),
                                       style: ElevatedButton.styleFrom(
                                         backgroundColor: AppColors.primaryBlue,
                                         padding: const EdgeInsets.symmetric(vertical: 16),
@@ -400,6 +413,7 @@ class _PlannerScreenState extends State<PlannerScreen> {
     );
   }
 
+  // ================= CATEGORY TEXT =================
   String _getCategoryDisplayText(ApplianceCategory category, String language) {
     final isFilipino = language == 'Filipino';
 
@@ -431,8 +445,10 @@ class _PlannerScreenState extends State<PlannerScreen> {
     }
   }
 
+  // ================= CATEGORY CHIP =================
   Widget _buildCategoryChip(String label, bool isSelected, VoidCallback onTap) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return GestureDetector(
       onTap: onTap,
       child: Container(
@@ -441,7 +457,7 @@ class _PlannerScreenState extends State<PlannerScreen> {
         decoration: BoxDecoration(
           color: isSelected
               ? AppColors.primaryBlue
-              : (isDark ? Colors.grey[600] : Colors.grey.withValues(alpha: 0.1)),
+              : (isDark ? Colors.grey[600] : const Color.fromRGBO(218, 218, 218, 0.1)),
           borderRadius: BorderRadius.circular(12),
         ),
         child: Center(
@@ -459,18 +475,25 @@ class _PlannerScreenState extends State<PlannerScreen> {
     );
   }
 
+  // ================= RESPONSIVE BUDGET ITEM =================
   Widget _buildBudgetItem(String name, String category, String amount) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    double deviceWidth = MediaQuery.of(context).size.width;
+
+    double titleFont = (deviceWidth * 0.045).clamp(12, 16);
+    double subtitleFont = (deviceWidth * 0.032).clamp(10, 13);
+    double priceFont = (deviceWidth * 0.045).clamp(12, 16);
 
     IconData getApplianceIcon(String applianceName) {
-      final lowerName = applianceName.toLowerCase();
-      if (lowerName.contains('refrigerator') || lowerName.contains('fridge')) {
+      final lower = applianceName.toLowerCase();
+
+      if (lower.contains('refrigerator') || lower.contains('fridge')) {
         return Icons.kitchen;
-      } else if (lowerName.contains('air') || lowerName.contains('ac') || lowerName.contains('cooling')) {
-        return Icons.ac_unit;
-      } else {
-        return Icons.electrical_services;
       }
+      if (lower.contains('air') || lower.contains('ac') || lower.contains('cool')) {
+        return Icons.ac_unit;
+      }
+      return Icons.electrical_services;
     }
 
     return Container(
@@ -485,7 +508,7 @@ class _PlannerScreenState extends State<PlannerScreen> {
             width: 50,
             height: 50,
             decoration: BoxDecoration(
-              color: AppColors.primaryBlue.withValues(alpha: 0.1),
+              color: const Color.fromRGBO(65, 105, 225, 0.1),
               borderRadius: BorderRadius.circular(12),
             ),
             child: Icon(
@@ -493,15 +516,19 @@ class _PlannerScreenState extends State<PlannerScreen> {
               color: AppColors.primaryBlue,
             ),
           ),
+
           const SizedBox(width: 16),
+
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   name,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                   style: GoogleFonts.poppins(
-                    fontSize: 16,
+                    fontSize: titleFont,
                     fontWeight: FontWeight.bold,
                     color: isDark ? Colors.white : AppColors.textDark,
                   ),
@@ -510,17 +537,18 @@ class _PlannerScreenState extends State<PlannerScreen> {
                 Text(
                   category,
                   style: GoogleFonts.poppins(
-                    fontSize: 12,
+                    fontSize: subtitleFont,
                     color: isDark ? Colors.white70 : AppColors.textGray,
                   ),
                 ),
               ],
             ),
           ),
+
           Text(
             amount,
             style: GoogleFonts.poppins(
-              fontSize: 16,
+              fontSize: priceFont,
               fontWeight: FontWeight.bold,
               color: isDark ? Colors.white : AppColors.textDark,
             ),

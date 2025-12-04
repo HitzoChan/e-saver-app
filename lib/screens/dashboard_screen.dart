@@ -1,3 +1,4 @@
+// lib/screens/dashboard_screen.dart
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
@@ -18,7 +19,6 @@ import '../screens/settings_screen.dart';
 import '../screens/login_screen.dart';
 import '../screens/about_screen.dart';
 import '../screens/help_support_screen.dart';
-import '../screens/notifications_screen.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -27,49 +27,93 @@ class DashboardScreen extends StatefulWidget {
   State<DashboardScreen> createState() => _DashboardScreenState();
 }
 
-class _DashboardScreenState extends State<DashboardScreen> {
+class _DashboardScreenState extends State<DashboardScreen>
+    with SingleTickerProviderStateMixin {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   UserProfile? _userProfile;
   bool _isLoadingProfile = true;
 
+  // Get Started popup controls
+  bool _showGetStarted = false;
+  late AnimationController _fadeController;
+  late Animation<double> _fadeAnimation;
+
   @override
   void initState() {
     super.initState();
-    // Load dashboard data when screen initializes
+
+    // Fade animation setup
+    _fadeController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 600),
+    );
+    _fadeAnimation =
+        CurvedAnimation(parent: _fadeController, curve: Curves.easeInOut);
+
+    // Load data and trigger popup after first frame
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      // safe to use context here (synchronous callback right after build)
       context.read<DashboardProvider>().loadDashboardData();
       _loadUserProfile();
+      _triggerGetStartedPopup();
+    });
+  }
+
+  void _triggerGetStartedPopup() {
+    // show, animate in, then hide after a few seconds
+    if (!mounted) return;
+    setState(() => _showGetStarted = true);
+    _fadeController.forward();
+
+    Future.delayed(const Duration(seconds: 3), () {
+      if (!mounted) return;
+      _fadeController.reverse().then((_) {
+        if (!mounted) return;
+        setState(() => _showGetStarted = false);
+      });
     });
   }
 
   Future<void> _loadUserProfile() async {
+    if (!mounted) return;
     setState(() => _isLoadingProfile = true);
 
     try {
       final authProvider = Provider.of<AuthProvider>(context, listen: false);
       if (authProvider.user != null) {
         final userProfileService = UserProfileService();
-        _userProfile = await userProfileService.getUserProfile();
+        final profile = await userProfileService.getUserProfile();
 
-        // If no profile exists, create one from auth data
-        _userProfile ??= await userProfileService.createDefaultProfile(
+        if (!mounted) return;
+        _userProfile = profile;
+
+        if (_userProfile == null) {
+          final created = await userProfileService.createDefaultProfile(
             userId: authProvider.user!.uid,
             name: authProvider.user!.displayName ?? 'User',
             email: authProvider.user!.email ?? '',
             photoUrl: authProvider.user!.photoURL,
           );
+          if (!mounted) return;
+          _userProfile = created;
+        }
       }
     } catch (e) {
       debugPrint('Error loading user profile: $e');
     }
 
-    if (mounted) {
-      setState(() => _isLoadingProfile = false);
-    }
+    if (!mounted) return;
+    setState(() => _isLoadingProfile = false);
   }
 
   void _openDrawer(BuildContext context) {
     _scaffoldKey.currentState?.openDrawer();
+  }
+
+  @override
+  void dispose() {
+    _fadeController.dispose();
+    super.dispose();
   }
 
   @override
@@ -79,320 +123,310 @@ class _DashboardScreenState extends State<DashboardScreen> {
       drawer: Consumer<SettingsProvider>(
         builder: (context, settings, child) => _buildDrawer(context, settings),
       ),
-      body: Container(
-        decoration: BoxDecoration(
-          gradient: Theme.of(context).brightness == Brightness.dark
-              ? LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: [
-                    Colors.black,
-                    Colors.grey[900]!,
-                    Colors.grey[800]!,
-                  ],
-                )
-              : AppColors.primaryGradient,
-        ),
-        child: SafeArea(
-          child: Consumer<DashboardProvider>(
-            builder: (context, dashboardProvider, child) {
-              if (dashboardProvider.isLoading) {
-                return const Center(
-                  child: CircularProgressIndicator(color: Colors.white),
-                );
-              }
+      body: Stack(
+        children: [
+          _buildDashboardContent(),
 
-              if (dashboardProvider.error != null) {
-                return Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Icon(
-                        Icons.error_outline,
-                        color: Colors.white,
-                        size: 48,
+          // Animated Get Started Pop-up Button (bottom-right)
+          if (_showGetStarted)
+            Positioned(
+              bottom: 20,
+              right: 20,
+              child: FadeTransition(
+                opacity: _fadeAnimation,
+                child: GestureDetector(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const AddApplianceScreen(),
                       ),
-                      const SizedBox(height: 16),
-                      Consumer<SettingsProvider>(
-                        builder: (context, settings, child) {
-                          return Text(
-                            settings.getLocalizedText('Error loading dashboard'),
-                            style: GoogleFonts.poppins(
-                              color: Colors.white,
-                              fontSize: 18,
-                            ),
-                          );
-                        },
-                      ),
-                      const SizedBox(height: 8),
-                      ElevatedButton(
-                        onPressed: dashboardProvider.refresh,
-                        child: const Text('Retry'),
-                      ),
-                    ],
-                  ),
-                );
-              }
-
-              return SizedBox.expand(
-                child: Column(
-                  children: [
-                    // App Bar
-                    Padding(
-                      padding: const EdgeInsets.all(16.0),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          IconButton(
-                            icon: const Icon(Icons.menu, color: Colors.white),
-                            onPressed: () => _openDrawer(context),
-                          ),
-                          Expanded(
-                            child: Consumer<SettingsProvider>(
-                              builder: (context, settings, child) {
-                                return Text(
-                                  settings.getLocalizedText('E-Saver Dashboard'),
-                                  style: GoogleFonts.poppins(
-                                    color: Colors.white,
-                                    fontSize: context.responsiveFontSize(18),
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                  textAlign: TextAlign.center,
-                                );
-                              },
-                            ),
-                          ),
-                          Consumer<DashboardProvider>(
-                            builder: (context, dashboardProvider, child) {
-                              return Stack(
-                                children: [
-                                  IconButton(
-                                    icon: const Icon(Icons.notifications_outlined, color: Colors.white),
-                                    onPressed: () {
-                                      // Open notifications screen
-                                      Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                          builder: (context) => const NotificationsScreen(),
-                                        ),
-                                      ).then((_) {
-                                        // Refresh notifications when returning from notifications screen
-                                        dashboardProvider.refreshNotifications();
-                                      });
-                                    },
-                                  ),
-                                  if (dashboardProvider.hasUnreadNotifications)
-                                    Positioned(
-                                      right: 8,
-                                      top: 8,
-                                      child: Container(
-                                        width: 8,
-                                        height: 8,
-                                        decoration: const BoxDecoration(
-                                          color: Colors.red,
-                                          shape: BoxShape.circle,
-                                        ),
-                                      ),
-                                    ),
-                                ],
-                              );
-                            },
-                          ),
-                          PopupMenuButton<String>(
-                            icon: const Icon(Icons.more_vert, color: Colors.white),
-                            onSelected: (value) {
-                              switch (value) {
-                                case 'settings':
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) => const SettingsScreen(),
-                                    ),
-                                  );
-                                  break;
-                                case 'help':
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) => const HelpSupportScreen(),
-                                    ),
-                                  );
-                                  break;
-                                case 'about':
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) => const AboutScreen(),
-                                    ),
-                                  );
-                                  break;
-                              }
-                            },
-                            itemBuilder: (context) => [
-                              const PopupMenuItem(
-                                value: 'settings',
-                                child: Text('Settings'),
-                              ),
-                              const PopupMenuItem(
-                                value: 'help',
-                                child: Text('Help'),
-                              ),
-                              const PopupMenuItem(
-                                value: 'about',
-                                child: Text('About'),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                    ),
-
-                    // Scrollable Content
-                    Expanded(
-                      child: SingleChildScrollView(
-                        physics: const AlwaysScrollableScrollPhysics(),
-                        child: Column(
-                          children: [
-                            // Logo and Title - Reduced space
-                            SizedBox(height: context.responsiveSize(10)),
-                            Container(
-                              width: context.responsiveSize(80),
-                              height: context.responsiveSize(80),
-                              decoration: BoxDecoration(
-                                color: Colors.white.withValues(alpha: 0.2),
-                                borderRadius: BorderRadius.circular(context.responsiveBorderRadius(20)),
-                              ),
-                              child: Icon(
-                                Icons.eco,
-                                size: context.responsiveIconSize(50),
-                                color: AppColors.accentGreen,
-                              ),
-                            ),
-                            SizedBox(height: context.responsiveSize(8)),
-                            Text(
-                              'E-Saver',
-                              style: GoogleFonts.poppins(
-                                color: Colors.white,
-                                fontSize: context.responsiveFontSize(32),
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-
-                            SizedBox(height: context.responsiveSize(20)),
-
-                            // Appliance Count
-                            Padding(
-                              padding: context.responsivePadding(horizontal: 24.0),
-                              child: Align(
-                                alignment: Alignment.centerLeft,
-                                child: Text(
-                                  '${dashboardProvider.applianceCount} Appliances',
-                                  style: GoogleFonts.poppins(
-                                    color: Colors.white70,
-                                    fontSize: context.responsiveFontSize(14),
-                                    fontWeight: FontWeight.w500,
-                                  ),
-                                ),
-                              ),
-                            ),
-
-                            SizedBox(height: context.responsiveSize(10)),
-
-                            // Wave Graph with dynamic data - Reduced height for mobile
-                            WaveGraph(
-                              dataPoints: dashboardProvider.weeklyUsageData,
-                              labels: dashboardProvider.applianceLabels,
-                              height: context.isMobile ? context.responsiveSize(140) : context.responsiveSize(180),
-                            ),
-
-                            // Stats Row with three cards - Responsive Wrap
-                            Container(
-                              padding: context.responsivePadding(horizontal: 20.0, vertical: 16.0),
-                              child: Wrap(
-                                spacing: context.responsiveSize(12),
-                                runSpacing: context.responsiveSize(12),
-                                alignment: WrapAlignment.center,
-                                children: [
-                                  Consumer<SettingsProvider>(
-                                    builder: (context, settings, child) {
-                                      return SizedBox(
-                                        width: context.isMobile
-                                            ? (MediaQuery.of(context).size.width - context.responsiveSize(40) - context.responsiveSize(12)) / 2
-                                            : (MediaQuery.of(context).size.width - context.responsiveSize(40) - 2 * context.responsiveSize(12)) / 3,
-                                        child: _buildStatCard(
-                                          '${dashboardProvider.averageDailyUsage.toStringAsFixed(1)} kW',
-                                          settings.getLocalizedText('Daily Usage'),
-                                        ),
-                                      );
-                                    },
-                                  ),
-                                  Consumer<SettingsProvider>(
-                                    builder: (context, settings, child) {
-                                      return SizedBox(
-                                        width: context.isMobile
-                                            ? (MediaQuery.of(context).size.width - context.responsiveSize(40) - context.responsiveSize(12)) / 2
-                                            : (MediaQuery.of(context).size.width - context.responsiveSize(40) - 2 * context.responsiveSize(12)) / 3,
-                                        child: _buildStatCard(
-                                          '${settings.currencySymbol}${dashboardProvider.totalMonthlyCost.toStringAsFixed(0)}',
-                                          settings.getLocalizedText('Monthly Cost'),
-                                        ),
-                                      );
-                                    },
-                                  ),
-                                  Consumer<SettingsProvider>(
-                                    builder: (context, settings, child) {
-                                      return GestureDetector(
-                                        onTap: () {
-                                          Navigator.push(
-                                            context,
-                                            MaterialPageRoute(
-                                              builder: (context) => const ElectricityRateScreen(),
-                                            ),
-                                          ).then((_) {
-                                            // Refresh dashboard data when returning from rate screen
-                                            dashboardProvider.loadDashboardData();
-                                          });
-                                        },
-                                        child: SizedBox(
-                                          width: context.isMobile
-                                              ? MediaQuery.of(context).size.width - context.responsiveSize(40)
-                                              : (MediaQuery.of(context).size.width - context.responsiveSize(40) - 2 * context.responsiveSize(12)) / 3,
-                                          child: _buildStatCard(
-                                            dashboardProvider.currentRate != null
-                                                ? '${settings.currencySymbol}${dashboardProvider.currentRate!.ratePerKwh.toStringAsFixed(2)}/kWh'
-                                                : settings.getLocalizedText('Set Rate'),
-                                            settings.getLocalizedText('Electricity Rate'),
-                                          ),
-                                        ),
-                                      );
-                                    },
-                                  ),
-                                ],
-                              ),
-                            ),
-
-                            // Add extra bottom padding on mobile to prevent overlap with bottom elements
-                            SizedBox(height: context.isMobile ? context.responsiveSize(40) : context.responsiveSize(20)),
-                          ],
+                    );
+                  },
+                  child: Container(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+                    decoration: BoxDecoration(
+                      color: AppColors.accentGreen,
+                      borderRadius: BorderRadius.circular(30),
+                      boxShadow: [
+                        BoxShadow(
+                          color: const Color.fromRGBO(0, 0, 0, 0.3),
+                          blurRadius: 10,
+                          offset: const Offset(0, 4),
                         ),
-                      ),
+                      ],
                     ),
-                  ],
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Icon(Icons.play_arrow, color: Colors.white, size: 22),
+                        const SizedBox(width: 6),
+                        Text(
+                          "Get Started",
+                          style: GoogleFonts.poppins(
+                            color: Colors.white,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
                 ),
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+
+  // ---------------------- MAIN DASHBOARD CONTENT ----------------------
+
+  Widget _buildDashboardContent() {
+    return Container(
+      decoration: BoxDecoration(
+        gradient: Theme.of(context).brightness == Brightness.dark
+            ? LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [
+                  Colors.black,
+                  Colors.grey[900]!,
+                  Colors.grey[800]!,
+                ],
+              )
+            : AppColors.primaryGradient,
+      ),
+      child: SafeArea(
+        child: Consumer<DashboardProvider>(
+          builder: (context, dashboardProvider, child) {
+            if (dashboardProvider.isLoading) {
+              return const Center(
+                child: CircularProgressIndicator(color: Colors.white),
               );
-            },
+            }
+
+            if (dashboardProvider.error != null) {
+              return _buildErrorState(dashboardProvider);
+            }
+
+            return _buildDashboard(dashboardProvider);
+          },
+        ),
+      ),
+    );
+  }
+
+  Widget _buildErrorState(DashboardProvider provider) {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          const Icon(Icons.error_outline, color: Colors.white, size: 48),
+          const SizedBox(height: 16),
+          Text(
+            "Error loading dashboard",
+            style: GoogleFonts.poppins(color: Colors.white, fontSize: 18),
+          ),
+          const SizedBox(height: 8),
+          ElevatedButton(
+            onPressed: provider.refresh,
+            child: const Text("Retry"),
+          )
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDashboard(DashboardProvider dashboardProvider) {
+    return Column(
+      children: [
+        // ---------- TOP APP BAR ----------
+        Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              IconButton(
+                icon: const Icon(Icons.menu, color: Colors.white),
+                onPressed: () => _openDrawer(context),
+              ),
+              Expanded(
+                child: Consumer<SettingsProvider>(
+                  builder: (context, settings, child) {
+                    return Text(
+                      settings.getLocalizedText('E-Saver Dashboard'),
+                      style: GoogleFonts.poppins(
+                        color: Colors.white,
+                        fontSize: context.responsiveFontSize(18),
+                        fontWeight: FontWeight.w600,
+                      ),
+                      textAlign: TextAlign.center,
+                    );
+                  },
+                ),
+              ),
+
+              // removed notification bell - keep spacing consistent
+              const SizedBox(width: 40),
+
+              // popup menu
+              _buildPopupMenu(),
+            ],
+          ),
+        ),
+
+        // ---------- MAIN CONTENT ----------
+        Expanded(
+          child: SingleChildScrollView(
+            physics: const AlwaysScrollableScrollPhysics(),
+            child: Column(
+              children: [
+                SizedBox(height: context.responsiveSize(10)),
+                _buildLogo(),
+                SizedBox(height: context.responsiveSize(20)),
+                _buildApplianceCount(dashboardProvider),
+                SizedBox(height: context.responsiveSize(10)),
+                _buildWaveGraph(dashboardProvider),
+                _buildStatCards(dashboardProvider),
+                SizedBox(height: context.responsiveSize(40)),
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  // ---------- small components ----------
+
+  Widget _buildPopupMenu() {
+    return PopupMenuButton<String>(
+      icon: const Icon(Icons.more_vert, color: Colors.white),
+      onSelected: (value) {
+        switch (value) {
+          case 'settings':
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const SettingsScreen()),
+            );
+            break;
+          case 'help':
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const HelpSupportScreen()),
+            );
+            break;
+          case 'about':
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const AboutScreen()),
+            );
+            break;
+        }
+      },
+      itemBuilder: (context) => const [
+        PopupMenuItem(value: 'settings', child: Text('Settings')),
+        PopupMenuItem(value: 'help', child: Text('Help')),
+        PopupMenuItem(value: 'about', child: Text('About')),
+      ],
+    );
+  }
+
+  Widget _buildLogo() {
+    return Container(
+      width: context.responsiveSize(80),
+      height: context.responsiveSize(80),
+      decoration: BoxDecoration(
+        color: const Color.fromRGBO(255, 255, 255, 0.2),
+        borderRadius: BorderRadius.circular(context.responsiveBorderRadius(20)),
+      ),
+      child: const Icon(Icons.eco, size: 50, color: AppColors.accentGreen),
+    );
+  }
+
+  Widget _buildApplianceCount(DashboardProvider provider) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 24),
+      child: Align(
+        alignment: Alignment.centerLeft,
+        child: Text(
+          "${provider.applianceCount} Appliances",
+          style: GoogleFonts.poppins(
+            color: Colors.white70,
+            fontSize: context.responsiveFontSize(14),
           ),
         ),
       ),
     );
   }
 
+  Widget _buildWaveGraph(DashboardProvider provider) {
+    return WaveGraph(
+      dataPoints: provider.weeklyUsageData,
+      labels: provider.applianceLabels,
+      height: context.responsiveSize(140),
+    );
+  }
+
+  // OLD design stat-cards (no icons) restored
+  Widget _buildStatCards(DashboardProvider provider) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+      child: Wrap(
+        spacing: context.responsiveSize(12),
+        runSpacing: context.responsiveSize(12),
+        alignment: WrapAlignment.center,
+        children: [
+          SizedBox(
+            width: context.isMobile
+                ? (MediaQuery.of(context).size.width - context.responsiveSize(40) - context.responsiveSize(12)) / 2
+                : (MediaQuery.of(context).size.width - context.responsiveSize(40) - 2 * context.responsiveSize(12)) / 3,
+            child: _buildStatCard(
+              '${provider.averageDailyUsage.toStringAsFixed(1)} kW',
+              'Daily Usage',
+            ),
+          ),
+          SizedBox(
+            width: context.isMobile
+                ? (MediaQuery.of(context).size.width - context.responsiveSize(40) - context.responsiveSize(12)) / 2
+                : (MediaQuery.of(context).size.width - context.responsiveSize(40) - 2 * context.responsiveSize(12)) / 3,
+            child: _buildStatCard(
+              '${Provider.of<SettingsProvider>(context, listen: false).currencySymbol}${provider.totalMonthlyCost.toStringAsFixed(0)}',
+              'Monthly Cost',
+            ),
+          ),
+          SizedBox(
+            width: context.isMobile
+                ? MediaQuery.of(context).size.width - context.responsiveSize(40)
+                : (MediaQuery.of(context).size.width - context.responsiveSize(40) - 2 * context.responsiveSize(12)) / 3,
+            child: GestureDetector(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const ElectricityRateScreen()),
+                ).then((_) => provider.loadDashboardData());
+              },
+              child: _buildStatCard(
+                provider.currentRate != null
+                    ? '${Provider.of<SettingsProvider>(context, listen: false).currencySymbol}${provider.currentRate!.ratePerKwh.toStringAsFixed(2)}/kWh'
+                    : 'Set Rate',
+                'Electricity Rate',
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildStatCard(String value, String label) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
       height: context.isMobile ? 70 : 80,
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.1),
+        color: isDark ? const Color.fromRGBO(255, 255, 255, 0.06) : const Color.fromRGBO(255, 255, 255, 0.1),
         borderRadius: BorderRadius.circular(12),
       ),
       child: Column(
@@ -405,7 +439,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       TextSpan(
                         text: value.split('/')[0],
                         style: GoogleFonts.poppins(
-                          fontSize: context.isMobile ? (value.length > 6 ? 12 : 14) : (value.length > 6 ? 14 : 16),
+                          fontSize: context.isMobile ? 12 : 14,
                           fontWeight: FontWeight.bold,
                           color: Colors.white,
                         ),
@@ -413,7 +447,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       TextSpan(
                         text: '/kWh',
                         style: GoogleFonts.poppins(
-                          fontSize: context.isMobile ? ((value.length > 6 ? 12 : 14) * 0.75) : ((value.length > 6 ? 14 : 16) * 0.75),
+                          fontSize: context.isMobile ? 9 : 10,
                           fontWeight: FontWeight.bold,
                           color: Colors.white,
                         ),
@@ -424,7 +458,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
               : Text(
                   value,
                   style: GoogleFonts.poppins(
-                    fontSize: context.isMobile ? (value.length > 6 ? 12 : 14) : (value.length > 6 ? 14 : 16),
+                    fontSize: context.isMobile ? 12 : 14,
                     fontWeight: FontWeight.bold,
                     color: Colors.white,
                   ),
@@ -443,29 +477,25 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
   }
 
+  // --------------------- DRAWER ----------------------
+
   Widget _buildDrawer(BuildContext context, SettingsProvider settings) {
+    final isMobile = MediaQuery.of(context).size.width < 800;
     return Drawer(
-      width: context.isMobile ? MediaQuery.of(context).size.width * 0.8 : context.responsiveSize(320),
+      width: isMobile ? MediaQuery.of(context).size.width * 0.8 : context.responsiveSize(320),
       child: Container(
         decoration: BoxDecoration(
-          gradient: Theme.of(context).brightness == Brightness.dark
-              ? LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: [
-                    Colors.black,
-                    Colors.grey[900]!,
-                    Colors.grey[800]!,
-                  ],
-                )
-              : AppColors.primaryGradient,
+          gradient: AppColors.primaryGradient,
         ),
         child: SafeArea(
           child: Column(
             children: [
-              // Drawer Header
+              // PROFILE
               Container(
-                padding: context.responsivePadding(horizontal: 24.0, vertical: 32.0),
+                padding: EdgeInsets.symmetric(
+                  horizontal: context.responsiveSize(24),
+                  vertical: context.responsiveSize(32),
+                ),
                 child: Column(
                   children: [
                     Container(
@@ -480,225 +510,127 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         image: DecorationImage(
                           image: _userProfile?.photoUrl != null
                               ? NetworkImage(_userProfile!.photoUrl!)
-                              : const AssetImage('assets/images/default_avatar.png') as ImageProvider,
+                              : const AssetImage("assets/images/default_avatar.png")
+                                  as ImageProvider,
                           fit: BoxFit.cover,
                         ),
                       ),
                     ),
                     SizedBox(height: context.responsiveSize(16)),
                     Text(
-                      _isLoadingProfile ? settings.getLocalizedText('Loading...') : (_userProfile?.name ?? settings.getLocalizedText('User')),
+                      _isLoadingProfile ? "Loading..." : (_userProfile?.name ?? "User"),
                       style: GoogleFonts.poppins(
                         color: Colors.white,
                         fontSize: context.responsiveFontSize(20),
                         fontWeight: FontWeight.bold,
                       ),
-                      textAlign: TextAlign.center,
                     ),
                     SizedBox(height: context.responsiveSize(4)),
                     Text(
-                      settings.getLocalizedText('Energy Saver'),
-                      style: GoogleFonts.poppins(
-                        color: Colors.white70,
-                        fontSize: context.responsiveFontSize(14),
-                      ),
-                      textAlign: TextAlign.center,
+                      "Energy Saver",
+                      style: GoogleFonts.poppins(color: Colors.white70, fontSize: context.responsiveFontSize(14)),
                     ),
                   ],
                 ),
               ),
 
-              // Menu Items
               Expanded(
-                child: Container(
-                  padding: context.responsivePadding(horizontal: 16.0),
-                  child: SingleChildScrollView(
-                    physics: const AlwaysScrollableScrollPhysics(),
-                    child: Column(
-                      children: [
-                        Consumer<SettingsProvider>(
-                          builder: (context, settings, child) {
-                            return _buildDrawerItem(
-                              context: context,
-                              icon: Icons.home,
-                              title: settings.getLocalizedText('Dashboard'),
-                              onTap: () {
-                                Navigator.pop(context); // Close drawer
-                              },
-                            );
-                          },
-                        ),
-                        Consumer<SettingsProvider>(
-                          builder: (context, settings, child) {
-                            return _buildDrawerItem(
-                              context: context,
-                              icon: Icons.bar_chart,
-                              title: settings.getLocalizedText('Statistics'),
-                              onTap: () {
-                                Navigator.pop(context);
-                                // Navigate to stats screen (TrackSaveScreen)
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => const TrackSaveScreen(),
-                                  ),
-                                );
-                              },
-                            );
-                          },
-                        ),
-                        Consumer<SettingsProvider>(
-                          builder: (context, settings, child) {
-                            return _buildDrawerItem(
-                              context: context,
-                              icon: Icons.add_circle,
-                              title: settings.getLocalizedText('Add Appliance'),
-                              onTap: () {
-                                Navigator.pop(context);
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => const AddApplianceScreen(),
-                                  ),
-                                );
-                              },
-                            );
-                          },
-                        ),
-                        Consumer<SettingsProvider>(
-                          builder: (context, settings, child) {
-                            return _buildDrawerItem(
-                              context: context,
-                              icon: Icons.calendar_today,
-                              title: settings.getLocalizedText('Planner'),
-                              onTap: () {
-                                Navigator.pop(context);
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => const PlannerScreen(),
-                                  ),
-                                );
-                              },
-                            );
-                          },
-                        ),
-                        Consumer<SettingsProvider>(
-                          builder: (context, settings, child) {
-                            return _buildDrawerItem(
-                              context: context,
-                              icon: Icons.person,
-                              title: settings.getLocalizedText('Profile'),
-                              onTap: () {
-                                Navigator.pop(context);
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => const ProfileScreen(),
-                                  ),
-                                );
-                              },
-                            );
-                          },
-                        ),
-                        Divider(
-                          color: Colors.white30,
-                          height: context.responsiveSize(32),
-                          thickness: context.responsiveSize(1),
-                        ),
-                        Consumer<SettingsProvider>(
-                          builder: (context, settings, child) {
-                            return _buildDrawerItem(
-                              context: context,
-                              icon: Icons.settings,
-                              title: settings.getLocalizedText('Settings'),
-                              onTap: () {
-                                Navigator.pop(context);
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => const SettingsScreen(),
-                                  ),
-                                );
-                              },
-                            );
-                          },
-                        ),
-                        Consumer<SettingsProvider>(
-                          builder: (context, settings, child) {
-                            return _buildDrawerItem(
-                              context: context,
-                              icon: Icons.help,
-                              title: settings.getLocalizedText('Help & Support'),
-                              onTap: () {
-                                Navigator.pop(context);
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => const HelpSupportScreen(),
-                                  ),
-                                );
-                              },
-                            );
-                          },
-                        ),
-                        Consumer<SettingsProvider>(
-                          builder: (context, settings, child) {
-                            return _buildDrawerItem(
-                              context: context,
-                              icon: Icons.info,
-                              title: settings.getLocalizedText('About'),
-                              onTap: () {
-                                Navigator.pop(context);
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => const AboutScreen(),
-                                  ),
-                                );
-                              },
-                            );
-                          },
-                        ),
-                      ],
+                child: ListView(
+                  padding: EdgeInsets.zero,
+                  children: [
+                    _buildDrawerButton(
+                      icon: Icons.home,
+                      text: "Dashboard",
+                      onTap: () {
+                        Navigator.pop(context);
+                      },
                     ),
-                  ),
+                    _buildDrawerButton(
+                      icon: Icons.bar_chart,
+                      text: "Statistics",
+                      onTap: () {
+                        Navigator.pop(context);
+                        Navigator.push(context, MaterialPageRoute(builder: (context) => const TrackSaveScreen()));
+                      },
+                    ),
+                    _buildDrawerButton(
+                      icon: Icons.add_circle,
+                      text: "Add Appliance",
+                      onTap: () {
+                        Navigator.pop(context);
+                        Navigator.push(context, MaterialPageRoute(builder: (context) => const AddApplianceScreen()));
+                      },
+                    ),
+                    _buildDrawerButton(
+                      icon: Icons.calendar_today,
+                      text: "Planner",
+                      onTap: () {
+                        Navigator.pop(context);
+                        Navigator.push(context, MaterialPageRoute(builder: (context) => const PlannerScreen()));
+                      },
+                    ),
+                    _buildDrawerButton(
+                      icon: Icons.person,
+                      text: "Profile",
+                      onTap: () {
+                        Navigator.pop(context);
+                        Navigator.push(context, MaterialPageRoute(builder: (context) => const ProfileScreen()));
+                      },
+                    ),
+                    Divider(color: Colors.white30, height: context.responsiveSize(32)),
+                    _buildDrawerButton(
+                      icon: Icons.settings,
+                      text: "Settings",
+                      onTap: () {
+                        Navigator.pop(context);
+                        Navigator.push(context, MaterialPageRoute(builder: (context) => const SettingsScreen()));
+                      },
+                    ),
+                    _buildDrawerButton(
+                      icon: Icons.help,
+                      text: "Help & Support",
+                      onTap: () {
+                        Navigator.pop(context);
+                        Navigator.push(context, MaterialPageRoute(builder: (context) => const HelpSupportScreen()));
+                      },
+                    ),
+                    _buildDrawerButton(
+                      icon: Icons.info,
+                      text: "About",
+                      onTap: () {
+                        Navigator.pop(context);
+                        Navigator.push(context, MaterialPageRoute(builder: (context) => const AboutScreen()));
+                      },
+                    ),
+                    const SizedBox(height: 8),
+                  ],
                 ),
               ),
 
-              // Logout Button
-              Container(
-                padding: context.responsivePadding(horizontal: 16.0, vertical: 16.0),
+              Padding(
+                padding: EdgeInsets.all(context.responsiveSize(16)),
                 child: ElevatedButton.icon(
                   onPressed: () async {
-                    Navigator.pop(context); // Close drawer
-                    final authProvider = Provider.of<AuthProvider>(context, listen: false);
-                    await authProvider.signOut();
-                    Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(builder: (context) => LoginScreen()),
+                    // pop drawer first then sign out safely
+                    final navigator = Navigator.of(context);
+                    navigator.pop();
+                    final auth = Provider.of<AuthProvider>(context, listen: false);
+                    await auth.signOut();
+                    if (!mounted) return;
+                    navigator.pushAndRemoveUntil(
+                      MaterialPageRoute(builder: (context) => const LoginScreen()),
+                      (route) => false,
                     );
                   },
-                  icon: Icon(
-                    Icons.logout,
-                    color: AppColors.primaryBlue,
-                    size: context.responsiveIconSize(24),
-                  ),
+                  icon: const Icon(Icons.logout, color: AppColors.primaryBlue),
                   label: Text(
-                    settings.getLocalizedText('Logout'),
-                    style: GoogleFonts.poppins(
-                      color: AppColors.primaryBlue,
-                      fontWeight: FontWeight.w600,
-                      fontSize: context.responsiveFontSize(16),
-                    ),
+                    "Logout",
+                    style: GoogleFonts.poppins(color: AppColors.primaryBlue, fontWeight: FontWeight.w600),
                   ),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.white,
                     minimumSize: Size(double.infinity, context.responsiveSize(48)),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(context.responsiveBorderRadius(12)),
-                    ),
-                    padding: context.responsivePadding(horizontal: 16.0, vertical: 12.0),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                   ),
                 ),
               ),
@@ -709,39 +641,15 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
   }
 
-  Widget _buildDrawerItem({
-    required BuildContext context,
+  Widget _buildDrawerButton({
     required IconData icon,
-    required String title,
+    required String text,
     required VoidCallback onTap,
   }) {
-    return InkWell(
+    return ListTile(
+      leading: Icon(icon, color: Colors.white),
+      title: Text(text, style: GoogleFonts.poppins(color: Colors.white, fontWeight: FontWeight.w500)),
       onTap: onTap,
-      child: Container(
-        padding: context.responsivePadding(vertical: 16.0, horizontal: 16.0),
-        child: Row(
-          children: [
-            Icon(
-              icon,
-              color: Colors.white,
-              size: context.responsiveIconSize(24),
-            ),
-            SizedBox(width: context.responsiveSize(16)),
-            Expanded(
-              child: Text(
-                title,
-                style: GoogleFonts.poppins(
-                  color: Colors.white,
-                  fontSize: context.responsiveFontSize(16),
-                  fontWeight: FontWeight.w500,
-                ),
-                overflow: TextOverflow.ellipsis,
-                maxLines: 1,
-              ),
-            ),
-          ],
-        ),
-      ),
     );
   }
 }

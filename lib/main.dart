@@ -11,6 +11,7 @@ import 'screens/profile_screen.dart';
 import 'widgets/custom_bottom_nav.dart';
 import 'utils/app_colors.dart';
 import 'services/firebase_service.dart';
+import 'services/notification_service.dart';
 import 'providers/auth_provider.dart';
 import 'providers/dashboard_provider.dart';
 import 'providers/appliance_provider.dart';
@@ -63,26 +64,22 @@ final ThemeData darkTheme = ThemeData(
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await FirebaseService.initialize();
-  // OneSignal will be initialized when user signs in (after permission check)
-  runApp(const MyApp());
+
+  // Initialize notifications
+  final notificationService = NotificationService();
+  await notificationService.initialize();
+
+  // Initialize settings
+  final settingsProvider = SettingsProvider();
+  await settingsProvider.loadSettings();
+
+  runApp(MyApp(settingsProvider: settingsProvider));
 }
 
-class MyApp extends StatefulWidget {
-  const MyApp({super.key});
+class MyApp extends StatelessWidget {
+  final SettingsProvider settingsProvider;
 
-  @override
-  State<MyApp> createState() => _MyAppState();
-}
-
-class _MyAppState extends State<MyApp> {
-  @override
-  void initState() {
-    super.initState();
-    // Load settings when app starts
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      Provider.of<SettingsProvider>(context, listen: false).loadSettings();
-    });
-  }
+  const MyApp({super.key, required this.settingsProvider});
 
   @override
   Widget build(BuildContext context) {
@@ -93,16 +90,14 @@ class _MyAppState extends State<MyApp> {
         ChangeNotifierProvider(create: (_) => ApplianceProvider()),
         ChangeNotifierProvider(create: (_) => BudgetProvider()),
         ChangeNotifierProvider(create: (_) => UsageRecordProvider()),
-        ChangeNotifierProvider(create: (_) => SettingsProvider()),
+        ChangeNotifierProvider.value(value: settingsProvider),
       ],
       child: Consumer<SettingsProvider>(
         builder: (context, settings, _) {
           return MaterialApp(
             title: 'E-Saver',
             debugShowCheckedModeBanner: false,
-            theme: lightTheme,
-            darkTheme: darkTheme,
-            themeMode: settings.isDarkMode ? ThemeMode.dark : ThemeMode.light,
+            theme: settings.isDarkMode ? darkTheme : lightTheme,
             home: const AuthWrapper(),
           );
         },

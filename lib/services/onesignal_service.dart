@@ -12,63 +12,37 @@ class OneSignalService {
   final NotificationStorageService _notificationStorage = NotificationStorageService();
 
   String? _currentUserId;
-  bool _isInitialized = false;
 
-  static Future<void> initializeService() async {
-    if (_instance._isInitialized) {
-      developer.log('OneSignal already initialized', name: 'OneSignalService');
-      return;
-    }
-
+  Future<void> initialize() async {
     try {
       // Initialize OneSignal
       OneSignal.initialize(_appId);
+
+      // Request permission for notifications
+      await OneSignal.Notifications.requestPermission(true);
 
       // Handle notification opened
       OneSignal.Notifications.addClickListener((event) {
         developer.log('Notification clicked: ${event.notification.additionalData}', name: 'OneSignalService');
         // Handle notification click here - could navigate to specific screen based on data
-        _instance._handleNotificationClick(event.notification.additionalData ?? {});
+        _handleNotificationClick(event.notification.additionalData ?? {});
       });
 
       // Handle notification received
       OneSignal.Notifications.addForegroundWillDisplayListener((event) {
         developer.log('Notification received: ${event.notification.additionalData}', name: 'OneSignalService');
         // Store the notification when received
-        _instance._handleNotificationReceived(event.notification.additionalData ?? {});
+        _handleNotificationReceived(event.notification.additionalData ?? {});
 
         // Allow the notification to be displayed
         event.preventDefault();
         event.notification.display();
       });
 
-      _instance._isInitialized = true;
       developer.log('OneSignal initialized successfully', name: 'OneSignalService');
     } catch (e) {
       developer.log('Failed to initialize OneSignal: $e', name: 'OneSignalService');
       rethrow;
-    }
-  }
-
-  Future<bool> hasPermission() async {
-    try {
-      final permission = OneSignal.Notifications.permission;
-      developer.log('Notification permission status: $permission', name: 'OneSignalService');
-      return permission;
-    } catch (e) {
-      developer.log('Error checking permission: $e', name: 'OneSignalService');
-      return false;
-    }
-  }
-
-  Future<bool> requestPermission() async {
-    try {
-      final granted = await OneSignal.Notifications.requestPermission(true);
-      developer.log('Permission request result: $granted', name: 'OneSignalService');
-      return granted;
-    } catch (e) {
-      developer.log('Error requesting permission: $e', name: 'OneSignalService');
-      return false;
     }
   }
 
