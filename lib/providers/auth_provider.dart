@@ -25,7 +25,6 @@ class AuthProvider with ChangeNotifier {
       _isLoading = false;
       notifyListeners();
 
-      // Initialize notifications when user signs in
       if (user != null) {
         _initializeNotifications();
       }
@@ -48,46 +47,51 @@ class AuthProvider with ChangeNotifier {
     }
   }
 
-  // ✅ FULLY FIXED GOOGLE SIGN-IN FLOW
+  // ⭐ FIXED GOOGLE SIGN-IN
   Future<bool> signInWithGoogle() async {
     try {
-      // If already signed in Firebase → return success immediately
+      // If already signed in
       if (_auth.currentUser != null) {
-        debugPrint("User already signed in. Skipping Google UI.");
         _user = _auth.currentUser;
         notifyListeners();
         return true;
       }
 
-      // Start Google login flow
       final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
 
-      // If user closes the Google window without selecting an account
+      // If Google returns null, check if Firebase already authenticated
       if (googleUser == null) {
-        debugPrint("Google Sign-In cancelled by user.");
-        return false;
+        if (_auth.currentUser != null) {
+          _user = _auth.currentUser;
+          notifyListeners();
+          return true;
+        }
+        return false; // actual cancel
       }
 
-      // Auth details from Google
       final GoogleSignInAuthentication googleAuth =
           await googleUser.authentication;
 
-      // Create Firebase credential
-      final AuthCredential credential = GoogleAuthProvider.credential(
+      final credential = GoogleAuthProvider.credential(
         accessToken: googleAuth.accessToken,
         idToken: googleAuth.idToken,
       );
 
-      // Login to Firebase
-      final UserCredential result =
-          await _auth.signInWithCredential(credential);
+      final result = await _auth.signInWithCredential(credential);
 
       _user = result.user;
       notifyListeners();
-      return true;
-
+      return _user != null;
     } catch (e) {
       debugPrint("Google Sign-In Error: $e");
+
+      // If Firebase user exists -> treat as success
+      if (_auth.currentUser != null) {
+        _user = _auth.currentUser;
+        notifyListeners();
+        return true;
+      }
+
       return false;
     }
   }

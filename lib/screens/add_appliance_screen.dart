@@ -194,20 +194,21 @@ class _AddApplianceScreenState extends State<AddApplianceScreen> {
                   builder: (context, provider, child) {
                     final settings =
                         Provider.of<SettingsProvider>(context, listen: false);
+                    final hasAppliances = provider.appliances.isNotEmpty;
+                    final connections = hasAppliances ? provider.connectionCount : 0;
+                    final avgBill = hasAppliances ? provider.averageMonthlyBill : 0;
+                    final household = hasAppliances ? provider.householdAverageUsage : 0;
 
-                    return Wrap(
-                      spacing: 12,
-                      runSpacing: 12,
-                      alignment: WrapAlignment.center,
-                      children: [
+                    return _buildResponsiveSummaryRow(
+                      [
                         _buildStatCard(
-                            provider.connectionCount.toString(),
+                            connections.toString(),
                             settings.getLocalizedText('Connections')),
                         _buildStatCard(
-                            '${settings.currencySymbol}${provider.averageMonthlyBill.toStringAsFixed(0)}',
+                            '${settings.currencySymbol}${avgBill.toStringAsFixed(0)}',
                             settings.getLocalizedText('Avg Bill Monthly')),
                         _buildStatCard(
-                            '${provider.householdAverageUsage.toStringAsFixed(1)} kW',
+                            '${household.toStringAsFixed(1)} kW',
                             settings.getLocalizedText('Household Average')),
                       ],
                     );
@@ -310,14 +311,63 @@ class _AddApplianceScreenState extends State<AddApplianceScreen> {
                   confirmDismiss: (direction) async {
                     return await showDialog<bool>(
                       context: context,
-                      builder: (ctx) => AlertDialog(
-                        title: const Text('Delete appliance'),
-                        content: Text('Delete "${appliance.name}"?'),
-                        actions: [
-                          TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Cancel')),
-                          TextButton(onPressed: () => Navigator.pop(ctx, true), child: const Text('Delete')),
-                        ],
-                      ),
+                      builder: (ctx) {
+                        final textColor = Theme.of(ctx).textTheme.titleMedium?.color;
+                        final subTextColor = Theme.of(ctx).textTheme.bodyMedium?.color?.withValues(alpha: 0.75);
+                        return Dialog(
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Container(
+                                  width: 54,
+                                  height: 54,
+                                  decoration: BoxDecoration(
+                                    color: AppColors.primaryBlue.withValues(alpha: 0.12),
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: const Icon(Icons.delete_outline, color: AppColors.primaryBlue, size: 28),
+                                ),
+                                const SizedBox(height: 14),
+                                Text('Delete appliance',
+                                    style: GoogleFonts.poppins(
+                                        fontWeight: FontWeight.w700, fontSize: 18, color: textColor)),
+                                const SizedBox(height: 8),
+                                Text('Delete "${appliance.name}"?',
+                                    textAlign: TextAlign.center,
+                                    style: GoogleFonts.poppins(color: subTextColor, fontSize: 13)),
+                                const SizedBox(height: 18),
+                                Row(
+                                  children: [
+                                    Expanded(
+                                      child: OutlinedButton(
+                                        style: OutlinedButton.styleFrom(
+                                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                                        ),
+                                        onPressed: () => Navigator.pop(ctx, false),
+                                        child: const Text('Cancel'),
+                                      ),
+                                    ),
+                                    const SizedBox(width: 12),
+                                    Expanded(
+                                      child: ElevatedButton(
+                                        style: ElevatedButton.styleFrom(
+                                          backgroundColor: AppColors.primaryBlue,
+                                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                                        ),
+                                        onPressed: () => Navigator.pop(ctx, true),
+                                        child: const Text('Delete'),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ),
+                        );
+                      },
                     );
                   },
                   onDismissed: (direction) async {
@@ -443,26 +493,81 @@ class _AddApplianceScreenState extends State<AddApplianceScreen> {
   // STAT CARD
   // ---------------------------------------------------
   Widget _buildStatCard(String value, String label) {
+    return StatCard(value: value, label: label);
+  }
+
+  Widget _buildResponsiveSummaryRow(List<Widget> cards) {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        return Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: List.generate(
+            cards.length,
+            (index) => Expanded(
+              child: Padding(
+                padding: EdgeInsets.only(
+                  right: index < cards.length - 1 ? 12 : 0,
+                ),
+                child: cards[index],
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+}
+
+// ---------------------------------------------------
+// REUSABLE STAT CARD WIDGET
+// ---------------------------------------------------
+class StatCard extends StatelessWidget {
+  final String value;
+  final String label;
+
+  const StatCard({
+    super.key,
+    required this.value,
+    required this.label,
+  });
+
+  @override
+  Widget build(BuildContext context) {
     return Container(
-      height: 75,
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
       decoration: BoxDecoration(
         color: AppColors.primaryBlue.withValues(alpha: 0.12),
         borderRadius: BorderRadius.circular(14),
       ),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          Text(value,
-              style: GoogleFonts.poppins(
-                  color: AppColors.primaryBlue,
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold)),
-          const SizedBox(height: 3),
-          Text(label,
-              textAlign: TextAlign.center,
-              style: GoogleFonts.poppins(
-                  color: AppColors.textGray, fontSize: 10)),
+          // Value text - responsive sizing
+          Text(
+            value,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: GoogleFonts.poppins(
+              color: AppColors.primaryBlue,
+              fontSize: 14,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          const SizedBox(height: 6),
+          // Label text - never breaks mid-word
+          Text(
+            label,
+            maxLines: 1,
+            softWrap: false,
+            overflow: TextOverflow.ellipsis,
+            textAlign: TextAlign.center,
+            style: GoogleFonts.poppins(
+              color: AppColors.textGray,
+              fontSize: 9,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
         ],
       ),
     );

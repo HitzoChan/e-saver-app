@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import '../utils/app_colors.dart';
-import '../services/notification_service.dart';
 import '../providers/auth_provider.dart';
 import '../providers/settings_provider.dart';
 import '../models/user_profile.dart';
@@ -21,22 +20,13 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
-  bool _notificationsEnabled = true;
   UserProfile? _userProfile;
   bool _isLoading = true;
 
   @override
   void initState() {
     super.initState();
-    _loadNotificationSettings();
     _loadUserProfile();
-  }
-
-  Future<void> _loadNotificationSettings() async {
-    final enabled = await NotificationService().areNotificationsEnabled();
-    setState(() {
-      _notificationsEnabled = enabled;
-    });
   }
 
   Future<void> _loadUserProfile() async {
@@ -224,15 +214,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             const SizedBox(height: 16),
 
                             _buildProfileOption(
-                              icon: Icons.notifications,
-                              title: settingsProvider.getLocalizedText('Notifications'),
-                              subtitle: settingsProvider.getLocalizedText('Manage notification preferences'),
-                              onTap: () => _showNotificationSettings(context),
-                            ),
-
-                            const SizedBox(height: 16),
-
-                            _buildProfileOption(
                               icon: Icons.lightbulb,
                               title: settingsProvider.getLocalizedText('Energy Tips'),
                               subtitle: settingsProvider.getLocalizedText('View energy saving tips'),
@@ -325,64 +306,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
             ),
             const Icon(Icons.arrow_forward_ios, color: AppColors.textGray, size: 16),
           ],
-        ),
-      ),
-    );
-  }
-
-  /// =============================
-  /// NOTIFICATION SETTINGS MODAL
-  /// =============================
-  Future<void> _showNotificationSettings(BuildContext context) async {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-
-    return showModalBottomSheet(
-      context: context,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
-      builder: (context) => StatefulBuilder(
-        builder: (context, setState) => Container(
-          padding: const EdgeInsets.all(24),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'Notification Settings',
-                style: GoogleFonts.poppins(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                  color: isDark ? Colors.white : AppColors.textDark,
-                ),
-              ),
-              const SizedBox(height: 24),
-              SwitchListTile(
-                title: Text(
-                  'Enable Notifications',
-                  style: GoogleFonts.poppins(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                    color: isDark ? Colors.white : AppColors.textDark,
-                  ),
-                ),
-                subtitle: Text(
-                  'Receive updates about electricity rates and energy tips',
-                  style: GoogleFonts.poppins(
-                    fontSize: 12,
-                    color: isDark ? Colors.white70 : AppColors.textGray,
-                  ),
-                ),
-                value: _notificationsEnabled,
-                onChanged: (value) async {
-                  setState(() => _notificationsEnabled = value);
-                  await NotificationService().setNotificationsEnabled(value);
-                  this.setState(() {});
-                },
-                activeThumbColor: AppColors.primaryBlue,
-              ),
-            ],
-          ),
         ),
       ),
     );

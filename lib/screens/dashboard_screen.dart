@@ -242,14 +242,18 @@ class _DashboardScreenState extends State<DashboardScreen>
       children: [
         Padding(
           padding: const EdgeInsets.all(16.0),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          child: Stack(
+            alignment: Alignment.center,
             children: [
-              IconButton(
-                icon: const Icon(Icons.menu, color: Colors.white),
-                onPressed: () => _openDrawer(context),
+              Align(
+                alignment: Alignment.centerLeft,
+                child: IconButton(
+                  icon: const Icon(Icons.menu, color: Colors.white),
+                  onPressed: () => _openDrawer(context),
+                ),
               ),
-              Expanded(
+              Align(
+                alignment: Alignment.center,
                 child: Consumer<SettingsProvider>(
                   builder: (context, settings, child) {
                     return Text(
@@ -264,8 +268,10 @@ class _DashboardScreenState extends State<DashboardScreen>
                   },
                 ),
               ),
-              const SizedBox(width: 40),
-              _buildPopupMenu(),
+              Align(
+                alignment: Alignment.centerRight,
+                child: _buildPopupMenu(),
+              ),
             ],
           ),
         ),

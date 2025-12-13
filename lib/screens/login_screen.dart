@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../providers/auth_provider.dart';
 import '../utils/app_colors.dart';
 import '../utils/responsive_utils.dart';
+import '../main.dart'; // Import MainScreen
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -34,11 +35,11 @@ class _LoginScreenState extends State<LoginScreen> {
         ),
         child: SafeArea(
           child: Padding(
-            padding: context.responsivePadding(horizontal: 24.0, vertical: 24.0),
+            padding:
+                context.responsivePadding(horizontal: 24.0, vertical: 24.0),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                // TITLE
                 Text(
                   'E-Saver',
                   style: GoogleFonts.poppins(
@@ -60,7 +61,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
                 SizedBox(height: context.responsiveSize(80)),
 
-                // GOOGLE SIGN-IN BUTTON
+                // ⭐ GOOGLE SIGN-IN BUTTON FIXED
                 SizedBox(
                   width: double.infinity,
                   height: context.responsiveSize(60),
@@ -68,95 +69,43 @@ class _LoginScreenState extends State<LoginScreen> {
                     onPressed: _isLoading ? null : _signInWithGoogle,
                     icon: _isLoading
                         ? SizedBox(
-                            width: context.responsiveSize(24),
-                            height: context.responsiveSize(24),
+                            width: 24,
+                            height: 24,
                             child: const CircularProgressIndicator(
                               color: Colors.white,
                               strokeWidth: 2,
                             ),
                           )
-                        : Icon(Icons.g_mobiledata,
-                            size: context.responsiveIconSize(24),
-                            color: AppColors.primaryBlue),
+                        : Icon(
+                            Icons.g_mobiledata,
+                            size: 24,
+                            color: AppColors.primaryBlue,
+                          ),
                     label: Text(
                       _isLoading ? 'Signing in...' : 'Continue with Google',
                       style: GoogleFonts.poppins(
-                        fontSize: context.responsiveFontSize(16),
+                        fontSize: 16,
                         fontWeight: FontWeight.w600,
                         color: AppColors.primaryBlue,
                       ),
                     ),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.white,
-                      shape: RoundedRectangleBorder(
-                        borderRadius:
-                            BorderRadius.circular(context.responsiveBorderRadius(16)),
-                      ),
                       elevation: 2,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
+                      ),
                     ),
-                  ),
-                ),
-
-                SizedBox(height: context.responsiveSize(40)),
-
-                // ✨ REPLACED "OR" WITH A CLEAN DECORATIVE SEPARATOR
-                Padding(
-                  padding: EdgeInsets.symmetric(
-                      vertical: context.responsiveSize(8)),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Expanded(
-                        child: Container(
-                          height: 1.5,
-                          decoration: BoxDecoration(
-                            gradient: LinearGradient(
-                              colors: [
-                                Colors.white.withValues(alpha: 0.0),
-                                Colors.white.withValues(alpha: 0.3),
-                                Colors.white.withValues(alpha: 0.0),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ),
-
-                      Padding(
-                        padding: EdgeInsets.symmetric(
-                            horizontal: context.responsiveSize(12)),
-                        child: Icon(
-                          Icons.bolt_rounded,
-                          color: Colors.white70,
-                          size: context.responsiveIconSize(20),
-                        ),
-                      ),
-
-                      Expanded(
-                        child: Container(
-                          height: 1.5,
-                          decoration: BoxDecoration(
-                            gradient: LinearGradient(
-                              colors: [
-                                Colors.white.withValues(alpha: 0.0),
-                                Colors.white.withValues(alpha: 0.3),
-                                Colors.white.withValues(alpha: 0.0),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
                   ),
                 ),
 
                 SizedBox(height: context.responsiveSize(20)),
 
-                // TERMS
                 Text(
                   'By continuing, you agree to our Terms of Service and Privacy Policy',
                   textAlign: TextAlign.center,
                   style: GoogleFonts.poppins(
-                    fontSize: context.responsiveFontSize(12),
+                    fontSize: 12,
                     color: Colors.white70,
                   ),
                 ),
@@ -168,6 +117,7 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
+  // ⭐ FIXED LOGIN FLOW
   Future<void> _signInWithGoogle() async {
     setState(() => _isLoading = true);
 
@@ -175,21 +125,23 @@ class _LoginScreenState extends State<LoginScreen> {
       final auth = Provider.of<AuthProvider>(context, listen: false);
       final success = await auth.signInWithGoogle();
 
-      if (success && mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Signed in with Google')),
+      if (!mounted) return;
+
+      if (success) {
+        // Navigate to MainScreen (with bottom nav) instead of DashboardScreen
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (_) => const MainScreen()),
         );
-      } else if (mounted) {
+      } else {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Google sign in cancelled')),
+          const SnackBar(content: Text('Google sign-in cancelled')),
         );
       }
     } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Google sign in error: $e')),
-        );
-      }
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Google sign in error: $e')),
+      );
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }

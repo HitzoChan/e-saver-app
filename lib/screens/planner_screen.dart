@@ -143,9 +143,10 @@ class _PlannerScreenState extends State<PlannerScreen> {
                         );
                       }
 
-                      // Compute the progress fraction safely and consistently
+                      final hasAppliances = context.watch<ApplianceProvider>().appliances.isNotEmpty;
+                      final double usage = hasAppliances ? budget.currentUsage : 0.0;
                       final double monthlyGoal = budget.monthlyGoal <= 0 ? 0.0 : budget.monthlyGoal;
-                      final double fraction = monthlyGoal > 0 ? budget.currentUsage / monthlyGoal : 0.0;
+                      final double fraction = monthlyGoal > 0 ? usage / monthlyGoal : 0.0;
                       final double value = fraction.clamp(0.0, 1.0);
 
                       // Build adaptive circular budget indicator
@@ -222,7 +223,7 @@ class _PlannerScreenState extends State<PlannerScreen> {
                                     ),
                                     const SizedBox(height: 6),
                                     Text(
-                                      '${settingsProvider.currencySymbol}${budget.currentUsage.toStringAsFixed(0)} / '
+                                      '${settingsProvider.currencySymbol}${usage.toStringAsFixed(0)} / '
                                       '${settingsProvider.currencySymbol}${budget.monthlyGoal.toStringAsFixed(0)}',
                                       style: GoogleFonts.poppins(
                                         color: subtitleTextColor,
